@@ -14,29 +14,46 @@ namespace alterTesting.Emulators
     {
         #region vars
         private alter.classes.identity _ID;
+        private double _delay;
         #endregion
         #region props
-
+        public double delay
+        {
+            get { return _delay; }
+            set
+            {
+                if(value != _delay)
+                {
+                    if (value < 0) value = 0;
+                    _delay = value;
+                }
+            }
+        }
         #endregion
         #region events
         public event EventHandler<EA_IDObject> event_objectDeleted;
         #endregion
         #region constructors
-
+        public tstLink()
+        {
+            _ID = new alter.classes.identity(eEntity.link);
+        }
         #endregion
         #region handlers
-
+        private void onDeleteLink()
+        {
+            EventHandler<EA_IDObject> handler = event_objectDeleted;
+            if (handler != null) handler(this, new EA_IDObject(this));
+        }
         #endregion
         #region methods
         #region object
         public string getID()
-        {
-            throw new NotImplementedException();
-        }
+        { return _ID.ID; }
+        public eEntity getType()
+        { return _ID.type; }
         public void deleteObject()
-        {
-            throw new NotImplementedException();
-        }
+        { onDeleteLink(); }
         #endregion
         #region members
         public ILMember getInfoMember(IId member)
@@ -63,22 +80,15 @@ namespace alterTesting.Emulators
         }
         #endregion
         public double getDelay()
-        {
-            throw new NotImplementedException();
-        }
+        { return delay; }
         public void setDelay(double days)
-        {
-            throw new NotImplementedException();
-        }
+        { delay = days; }
         public eLnkState getLinkState()
         {
             throw new NotImplementedException();
         }
 
-        public eEntity getType()
-        {
-            throw new NotImplementedException();
-        }
+        
         public void unsuscribe(string IDsubscriber)
         {
             throw new NotImplementedException();
@@ -88,6 +98,8 @@ namespace alterTesting.Emulators
 
     public struct linkMember : alter.Link.iface.ILMember
     {
+        public eDependType dependType;
+        
         public IDependence getDependence()
         {
             throw new NotImplementedException();
