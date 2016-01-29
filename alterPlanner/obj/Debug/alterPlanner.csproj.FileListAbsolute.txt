@@ -1,0 +1,5 @@
+C:\Users\NickJ\Documents\Visual Studio 2015\Projects\Tests\alterPlanner\alterPlanner\obj\Debug\alterPlanner.csprojResolveAssemblyReference.cache
+C:\Users\NickJ\Documents\Visual Studio 2015\Projects\Tests\alterPlanner\alterPlanner\bin\Debug\alterPlanner.dll
+C:\Users\NickJ\Documents\Visual Studio 2015\Projects\Tests\alterPlanner\alterPlanner\bin\Debug\alterPlanner.pdb
+C:\Users\NickJ\Documents\Visual Studio 2015\Projects\Tests\alterPlanner\alterPlanner\obj\Debug\alterPlanner.dll
+C:\Users\NickJ\Documents\Visual Studio 2015\Projects\Tests\alterPlanner\alterPlanner\obj\Debug\alterPlanner.pdb
