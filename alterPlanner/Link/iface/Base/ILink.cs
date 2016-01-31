@@ -10,10 +10,9 @@ using alter.Function.iface;
 
 namespace alter.Link.iface
 {
-    public interface ILink : IId, IRemovable, ILimit<eLnkLim>
+    public interface ILink : IId, IRemovable, ILimit<eTskLim>
     {
         eLnkState getLinkState();
-        Type getLimitType();
 
         void setDelay(double days);
         double getDelay();

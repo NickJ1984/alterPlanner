@@ -74,4 +74,35 @@ namespace alter.args
             newValue = New;
         }
     }
+
+    public class EA_delegateInfo : System.EventArgs
+    {
+        /// <summary>
+        /// Возвращает экземпляр класса, метод которого вызывает текущий делегат.
+        /// </summary>
+        public readonly object target;
+        /// <summary>
+        /// Возвращает метод представленный делегатом.
+        /// </summary>
+        public readonly System.Reflection.MethodInfo method;
+
+        /// <summary>
+        /// Конструктор экземпляра класса <see cref="EA_delegateInfo"/>
+        /// </summary>
+        /// <param name="method">Ссылка на метод представляемый делегатом.</param>
+        /// <param name="target">Ссылка экземпляр класса, метод которого вызывает текущий делегат.</param>
+        public EA_delegateInfo(System.Reflection.MethodInfo method, object target)
+        {
+            this.target = target;
+            this.method = method;
+        }
+
+        /// <summary>
+        /// Конструктор экземпляра класса <see cref="EA_delegateInfo"/>
+        /// </summary>
+        /// <param name="_delegate">Ссылка на делегат метод и источник которого будет передаваться данными аргументами.</param>
+        public EA_delegateInfo(Delegate _delegate)
+            :this(_delegate.Method, _delegate.Target)
+        { }
+    }
 }

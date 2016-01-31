@@ -17,7 +17,7 @@ namespace alter.Function.classes
         #region constructor
         public functionFactory()
         {
-            _function = new function(__hlp.initDate, eDirection.RightMax);
+            _function = new function(__hlp.initDate, eDirection.Right);
         }
         #endregion
         #region methods

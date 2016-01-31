@@ -53,6 +53,7 @@
     <Compile Include="Inner\iface.cs" />
     <Compile Include="Inner\types.cs" />
     <Compile Include="Link\classes\linkManager.cs" />
+    <Compile Include="Link\classes\linkMember.cs" />
     <Compile Include="Link\iface\Base\ILink.cs" />
     <Compile Include="Link\iface\Base\ILinkFactory.cs" />
     <Compile Include="Link\iface\Base\ILMember.cs" />
@@ -77,6 +78,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Project\classes\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Path.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

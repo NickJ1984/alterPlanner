@@ -16,7 +16,7 @@ namespace alter.types
         /// <summary>
         /// Тип "Как можно раньше"
         /// </summary>
-        LeftMax = -2,
+        //LeftMax = -2,
         /// <summary>
         /// Тип "Не позднее"
         /// </summary>
@@ -32,7 +32,7 @@ namespace alter.types
         /// <summary>
         /// Тип "Как можно позже"
         /// </summary>
-        RightMax = 2
+        //RightMax = 2
     }
     /// <summary>
     /// Внутреннее ограничение объекта задачи

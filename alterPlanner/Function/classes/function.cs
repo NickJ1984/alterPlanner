@@ -9,15 +9,20 @@ using alter.types;
 
 namespace alter.Function.classes
 {
+    public struct vectorF
+    {
+        public DateTime date;
+        public eDirection direction;
+    }
     public class function : IFunction
     {
         #region vars
-        private DateTime _date;
-        private eDirection _direction;
-        private Func<DateTime, DateTime> _function;
+        protected DateTime _date;
+        protected eDirection _direction;
+        protected Func<DateTime, DateTime> _function;
         #endregion
         #region props
-        public DateTime date
+        public virtual DateTime date
         {
             get { return _date; }
             set
@@ -30,7 +35,7 @@ namespace alter.Function.classes
                 }
             }
         }
-        public eDirection direction
+        public virtual eDirection direction
         {
             get { return _direction; }
             set
@@ -57,12 +62,12 @@ namespace alter.Function.classes
         }
         #endregion
         #region handlers
-        private void onDateChange(EA_valueChange<DateTime> args)
+        protected void onDateChange(EA_valueChange<DateTime> args)
         {
             EventHandler<EA_valueChange<DateTime>> handler = event_dateChanged;
             if (handler != null) handler(this, args);
         }
-        private void onDirectionChange(EA_valueChange<eDirection> args)
+        protected void onDirectionChange(EA_valueChange<eDirection> args)
         {
             EventHandler<EA_valueChange<eDirection>> handler = event_directionChanged;
             if (handler != null) handler(this, args);
@@ -77,8 +82,8 @@ namespace alter.Function.classes
         {
             switch (direction)
             {
-                case eDirection.LeftMax:
-                case eDirection.RightMax:
+                //case eDirection.LeftMax:
+                //case eDirection.RightMax:
                 case eDirection.Fixed:
                     return new Func<DateTime, DateTime, DateTime>(
                         (Limit, Date) => Date = Limit);
@@ -96,23 +101,23 @@ namespace alter.Function.classes
         }
 
 
-        public DateTime getDate()
+        public virtual DateTime getDate()
         { return date; }
         public void setDate(DateTime date)
         { this.date = date; }
 
-        public eDirection getDirection()
+        public virtual eDirection getDirection()
         { return direction; }
         public void setDirection(eDirection direction)
         { this.direction = direction; }
         #endregion
         #region service
-        private Func<DateTime, DateTime> getSvcFunction(eDirection direction)
+        protected Func<DateTime, DateTime> getSvcFunction(eDirection direction)
         {
             switch(direction)
             {
-                case eDirection.LeftMax:
-                case eDirection.RightMax:
+                //case eDirection.LeftMax:
+                //case eDirection.RightMax:
                 case eDirection.Fixed:
                     return new Func<DateTime, DateTime>((Date) => _date);
 

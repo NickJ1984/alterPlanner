@@ -4,58 +4,148 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using alter.args;
+using alter.types;
 using alter.iface;
 using alter.Link.iface;
-using alter.types;
+using alter.Project.iface;
 
 namespace alterTesting.Emulators
 {
+
     public class tstLink : alter.Link.iface.ILink
     {
         #region vars
-        private alter.classes.identity _ID;
+        private IProject _project;
+        private alter.iface.IId _ident;
+        private eLnkState _state;
+        private eTskLim _limit;
         private double _delay;
-        #endregion
-        #region props
-        public double delay
-        {
-            get { return _delay; }
-            set
-            {
-                if(value != _delay)
-                {
-                    if (value < 0) value = 0;
-                    _delay = value;
-                }
-            }
-        }
+
+        private alter.Link.classes.linkMember masterMbr;
+        private alter.Link.classes.linkMember slaveMbr;
+        private IDot dotSlave;
+        private IDot dotMaster;
+
+        private Action unsuscribeMbrs;
+
+        private Func<eDot> dependDotMst;
+        private Func<eDot> dependDotSlv;
         #endregion
         #region events
         public event EventHandler<EA_IDObject> event_objectDeleted;
         #endregion
         #region constructors
-        public tstLink()
+        public tstLink(IProject project, IDock master, IDock slave)
         {
-            _ID = new alter.classes.identity(eEntity.link);
+            _project = project;
+            _delay = 0;
+            
+            dotMaster = master.subscribe(eDependType.master, this);
+            dotSlave = slave.subscribe(eDependType.slave, this);
+
+            
+        }
+        public void subscribe(IDock master, IDock slave)
+        {
+            masterMbr = new alter.Link.classes.linkMember(
+                        new alter.Function.classes.vectorF()
+                        {
+                            date = alter.classes.__hlp.initDate,
+                            direction = eDirection.Fixed
+                        },
+                        dependDotMst()
+                        );
+            masterMbr.setInfo(master);
+            masterMbr.setDependType(eDependType.master);
+
+            dotMaster = master.subscribe(eDependType.master, this);
+
+            masterMbr.depend.setDate(() => dotMaster.getDate());
+            masterMbr.depend.setDependDot(() => dependDotMst());
+
+            master.event_objectDeleted += onDeleteTask;
+            dotMaster.event_dateChanged += onMasterDateChange;
+
+
+            slaveMbr = new alter.Link.classes.linkMember(
+                new alter.Function.classes.vectorF()
+                {
+                    date = getDateLimit(),
+                    direction = eDirection.Fixed
+                },
+                dependDotSlv()
+                );
+            slaveMbr.setInfo(slave);
+            slaveMbr.setDependType(eDependType.slave);
+
+            dotSlave = slave.subscribe(eDependType.slave, this);
+            
+
+
+
+        }
+        public void initUnsuscribe(IDock dock, eDependType type)
+        {
+
+        }
+        public void initFunctions(IId mstID, IId slvID)
+        {
+            dependDotMst = () => alter.classes.__hlp.getPrecursor(_limit);
+            dependDotSlv = () => alter.classes.__hlp.getFollower(_limit);
         }
         #endregion
         #region handlers
+        private void onMasterDateChange(object sender, EA_valueChange<DateTime> e)
+        {
+
+        }
+        private void onSlaveDateChange(object sender, EA_valueChange<DateTime> e)
+        {
+
+        }
+        private void onDeleteTask(object sender, EA_IDObject e)
+        { onDeleteLink(); }
         private void onDeleteLink()
         {
+            //unsuscribe();
             EventHandler<EA_IDObject> handler = event_objectDeleted;
             if (handler != null) handler(this, new EA_IDObject(this));
         }
         #endregion
-        #region methods
-        #region object
-        public string getID()
-        { return _ID.ID; }
+        #region Object
+        #region ID
         public eEntity getType()
-        { return _ID.type; }
-        public void deleteObject()
-        { onDeleteLink(); }
+        { return _ident.getType(); }
+        public string getID()
+        { return _ident.getID(); }
         #endregion
-        #region members
+        #region params
+        public eLnkState getLinkState()
+        {
+            throw new NotImplementedException();
+        }
+        public double getDelay()
+        { return _delay; }
+        public void setDelay(double days)
+        {
+            throw new NotImplementedException();
+        }
+        public eTskLim getLimit()
+        { return _limit; }
+        public bool setLimit(eTskLim limitType)
+        {
+            throw new NotImplementedException();
+        } 
+        #endregion
+        public void unsuscribe(string IDsubscriber)
+        {
+            //if (IDsubscriber == masterID || IDsubscriber == slaveID) onDeleteLink();
+        }
+        public void deleteObject()
+        {
+            onDeleteLink();
+        } 
+        #endregion
         public ILMember getInfoMember(IId member)
         {
             throw new NotImplementedException();
@@ -64,55 +154,14 @@ namespace alterTesting.Emulators
         {
             throw new NotImplementedException();
         }
-        #endregion
-        #region limts
-        public eLnkLim getLimit()
-        {
-            throw new NotImplementedException();
-        }
-        public bool setLimit(eLnkLim limitType)
-        {
-            throw new NotImplementedException();
-        }
-        public Type getLimitType()
-        {
-            throw new NotImplementedException();
-        }
-        #endregion
-        public double getDelay()
-        { return delay; }
-        public void setDelay(double days)
-        { delay = days; }
-        public eLnkState getLinkState()
-        {
-            throw new NotImplementedException();
-        }
-
+        #region Service
+        private DateTime getDateLimit()
+        { return dotMaster.getDate().AddDays(_delay); }
         
-        public void unsuscribe(string IDsubscriber)
+        private eDependType getDepend(string memberID)
         {
-            throw new NotImplementedException();
-        }
+           return (memberID == masterMbr.getMemberID().getID()) ? eDependType.master : eDependType.slave;
+        } 
         #endregion
-    }
-
-    public struct linkMember : alter.Link.iface.ILMember
-    {
-        public eDependType dependType;
-        
-        public IDependence getDependence()
-        {
-            throw new NotImplementedException();
-        }
-
-        public eDependType getDependType()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IId getMemberID()
-        {
-            throw new NotImplementedException();
-        }
     }
 }
