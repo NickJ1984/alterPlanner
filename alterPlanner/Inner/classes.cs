@@ -141,7 +141,11 @@ namespace alter.classes
         private Func<eDirection> getDir;
         private Func<DateTime> getDateLim;
 
-        private Action unsuscribe;
+        private Action autoupdateUnsuscribe;
+        /// <summary>
+        /// Свойство возвращает истину если экземпляр класса подписан на события управляющих параметров.
+        /// </summary>
+        public bool subscribed { get; protected set; }
         #endregion
         #region Props
         public override DateTime date
@@ -162,6 +166,12 @@ namespace alter.classes
         public event EventHandler<EA_valueChange<eDot>> event_dependDotChanged;
         #endregion
         #region Constructors
+        /// <summary>
+        /// Конструктор экземпляра класса.
+        /// </summary>
+        /// <param name="dateLimit">Значение управляющей даты.</param>
+        /// <param name="direction">Значение направления.</param>
+        /// <param name="dependDot">Зависимая точка подчиненного объекта.</param>
         public dependence(DateTime dateLimit, eDirection direction, eDot dependDot)
             : base(dateLimit, direction)
         {
@@ -169,14 +179,35 @@ namespace alter.classes
             setDependDot(null);
             setDirection(null);
             setDate(null);
+
+            init_default();
         }
+        /// <summary>
+        /// Конструктор экземпляра класса.
+        /// </summary>
+        /// <param name="fDateLimit">Функция возвращающая значение управляющей даты.</param>
+        /// <param name="fDirection">Функция возвращающая значение направления.</param>
+        /// <param name="fDependDot">Функция возвращающая зависимую точки подчиненного объекта.</param>
         public dependence(Func<DateTime> fDateLimit, Func<eDirection> fDirection, Func<eDot> fDependDot)
             : base(fDateLimit(), fDirection())
         {
             setDependDot(fDependDot);
             setDirection(fDirection);
             setDate(fDateLimit);
+
+            init_default();
         }
+        /// <summary>
+        /// Метод инициализирующий стандартный набор переменных
+        /// </summary>
+        protected void init_default()
+        {
+            subscribed = false;
+            autoupdateUnsuscribe = () => { };
+        }
+        /// <summary>
+        /// Деструктор.
+        /// </summary>
         ~dependence()
         {
             getDateLim = null;
@@ -255,24 +286,28 @@ namespace alter.classes
         /// <summary>
         /// Метод подписки экземпляра класса на изменение управляющих параметров.
         /// </summary>
-        /// <param name="event_DateChanged">Анонимный метод подписки на изменение управляющей даты, принимающий на вход делегат метода обработчика события изменения управляющей даты.</param>
-        /// <param name="event_directionChanged">Анонимный метод подписки на изменение направления управляющей функции, принимающий на вход делегат метода обработчика события изменения направления.</param>
-        /// <param name="event_dependDotChanged">Анонимный метод подписки на изменение зависимой точки подчиненного объекта, принимающий на вход делегат метода обработчика события изменения подчиненной точки.</param>
+        /// <param name="event_DateChanged">Анонимный метод подписки на изменение управляющей даты, принимающий на вход делегат метода обработчика события изменения управляющей даты, возвращает метод отписки обработчика.</param>
+        /// <param name="event_directionChanged">Анонимный метод подписки на изменение направления управляющей функции, принимающий на вход делегат метода обработчика события изменения направления, возвращает метод отписки обработчика.</param>
+        /// <param name="event_dependDotChanged">Анонимный метод подписки на изменение зависимой точки подчиненного объекта, принимающий на вход делегат метода обработчика события изменения подчиненной точки, возвращает метод отписки обработчика.</param>
         /// <returns></returns>
-        public bool setMasterAutoupdate
+        public bool setAutoupdate
         (
-            Action<EventHandler<EA_valueChange<DateTime>>> event_DateChanged,
-            Action<EventHandler<EA_valueChange<eDirection>>> event_directionChanged,
-            Action<EventHandler<EA_valueChange<eDot>>> event_dependDotChanged
+            Func<EventHandler<EA_valueChange<DateTime>>, Action> event_DateChanged,
+            Func<EventHandler<EA_valueChange<eDirection>>, Action> event_directionChanged,
+            Func<EventHandler<EA_valueChange<eDot>>, Action> event_dependDotChanged
         )
         {
             if (event_DateChanged == null
                || event_directionChanged == null
                || event_dependDotChanged == null) return false;
 
-            event_DateChanged(onDateChange);
-            event_dependDotChanged(onDependDotChange);
-            event_directionChanged(onDirectionChange);
+            Action auDate = event_DateChanged(onDateChange);
+            Action auDot = event_dependDotChanged(onDependDotChange);
+            Action auDir = event_directionChanged(onDirectionChange);
+
+            autoupdateUnsuscribe = () =>
+                { auDate(); auDot(); auDir(); subscribed = false; };
+            subscribed = true;
             return true;
         }
     }
