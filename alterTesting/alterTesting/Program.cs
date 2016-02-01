@@ -75,20 +75,26 @@ namespace alterTesting
 
         static void Main(string[] args)
         {
+            EventHandler<EventArgs> ehTest = new EventHandler<EventArgs>((s, e) => Console.WriteLine("Handler for tests"));
             EventHandler<EventArgs>[] fDelegates = new EventHandler<EventArgs>[10];
             alter.classes.iEventclass<EventArgs> evntClass = new alter.classes.iEventclass<EventArgs>();
-
-
             for (int i = 0; i < fDelegates.Length; i++)
-                fDelegates[i] = (o, e) => Console.WriteLine("#{0}. Object type: {1}", i+1, o.GetType());
+            {
+                int j = i + 1;
+                fDelegates[i] = new EventHandler<EventArgs>((o, e) => Console.WriteLine("#{0}. Object type: {1}", j, o.GetType()));
+            }
+
+
             for (int i = 0; i < fDelegates.Length; i++)
                 evntClass.event_noSubscribers += fDelegates[i];
 
             Console.WriteLine("event_noSubscribers run#1:");
-            evntClass.iEvent -= (o, v) => Console.WriteLine("Hello");
-            evntClass.eventClean();
+            evntClass.iEvent += ehTest;
+            evntClass.iEvent -= ehTest;
+            evntClass.clear();
             Console.WriteLine("event_noSubscribers run#2:");
-            evntClass.iEvent -= (o, v) => Console.WriteLine("Hello");
+            evntClass.iEvent += ehTest;
+            evntClass.iEvent -= ehTest;
 
 
 

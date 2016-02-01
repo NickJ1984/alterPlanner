@@ -263,9 +263,6 @@ namespace alter.classes
     public class iEventclass<T>
         where T : EventArgs
     {
-        #region vars
-        private EventHandlerList hndList;
-        #endregion
         #region Indexer
         /// <summary>
         /// Предоставляет ссылки на методы подписанные на событие.
@@ -280,62 +277,18 @@ namespace alter.classes
         /// Количество методов  подписанных на событие.
         /// </summary>
         public int count { get { return (eventDelegate == null) ? 0 : eventDelegate.GetInvocationList().Length; } }
-
-        #endregion
-        #region entities
-        private readonly object eEmp = new object();
-        private readonly object eAdd = new object();
-        private readonly object eRem = new object();
-        #endregion
-        #region events
-        public event EventHandler<EA_delegateInfo> event_delegateAdded
-        {
-            add
-            { hndList.AddHandler(eAdd, value); }
-            remove 
-            { hndList.RemoveHandler(eAdd, value); }
-        }
-        public event EventHandler<EA_delegateInfo> event_delegateRemoved
-        {
-            add
-            { hndList.AddHandler(eRem, value); }
-            remove
-            { hndList.RemoveHandler(eRem, value); }
-        }
-        public event EventHandler<EventArgs> event_noSubscribers
-        {
-            add
-            { hndList.AddHandler(eEmp, value); }
-            remove
-            { hndList.RemoveHandler(eEmp, value); }
-        }
-        #endregion
-        #region Handlers
-        private void onDelegateAdd(EventHandler<T> method)
-        {
-            var handler = hndList[eAdd] as EventHandler<EA_delegateInfo>;
-            if (handler != null) handler(this, new EA_delegateInfo(method));
-        }
-        private void onDelegateRemove(EventHandler<T> method)
-        {
-            var handler = hndList[eRem] as EventHandler<EA_delegateInfo>;
-            if (handler != null) handler(this, new EA_delegateInfo(method));
-        }
-
-        private void onNoSubscribers()
-        {
-            EventHandler<EventArgs> handler = hndList[eEmp] as EventHandler<EventArgs>;
-            if (handler != null) handler(this, new EventArgs());
-        } 
         #endregion
         #region delegate
-        private EventHandler<T> eventDelegate;
+        /// <summary>
+        /// Основной делегат класса
+        /// </summary>
+        protected EventHandler<T> eventDelegate;
         #endregion
         #region property
         /// <summary>
         /// Свойство переменной события 
         /// </summary>
-        public event EventHandler<T> iEvent
+        public virtual event EventHandler<T> iEvent
         {
             add
             {
@@ -343,24 +296,10 @@ namespace alter.classes
                 {
                     eventDelegate -= value;
                     eventDelegate += value;
-                    onDelegateAdd(value);
                 }
             }
             remove
-            {
-                int oldLng = this.count;
-
-                lock (this) { eventDelegate -= value; }
-
-                if (this.count == 0) onNoSubscribers();
-                if (oldLng > this.count) onDelegateRemove(value);
-            }
-        }
-        #endregion
-        #region constructor
-        public iEventclass()
-        {
-            hndList = new EventHandlerList();
+            { lock (this) { eventDelegate -= value; } }
         }
         #endregion
         #region destructor
@@ -369,43 +308,16 @@ namespace alter.classes
         /// </summary>
         ~iEventclass()
         {
-            clear();
+            eventClean();
             eventDelegate = null;
-            
-            hndList.Dispose();
-            hndList = null;
         }
-        public void eventClean()
+        /// <summary>
+        /// Отписка всех событий данного экземпляра классов от их подписчиков.
+        /// </summary>
+        protected virtual void eventClean()
         {
-            Action<object> clr = (type) =>
-            {
-                if (hndList[type] == null) return;
-                Delegate[] temp = hndList[type].GetInvocationList();
-                if (temp == null || temp.Length == 0) return;
-
-                if (type == eAdd)
-                {
-                    for (int i = 0; i < temp.Length; i++)
-                        event_delegateAdded -= (EventHandler<EA_delegateInfo>)temp[i];
-                }
-                else if (type == eRem)
-                {
-                    for (int i = 0; i < temp.Length; i++)
-                        event_delegateRemoved -= (EventHandler<EA_delegateInfo>)temp[i];
-                }
-                else if (type == eEmp)
-                {
-                    for (int i = 0; i < temp.Length; i++)
-                        event_noSubscribers -= (EventHandler<EventArgs>)temp[i];
-                }
-            };
-
-            clr(eEmp);
-            clr(eRem);
-            clr(eAdd);
+            clearEvent(ref eventDelegate);
         }
-        
-
         #endregion
         #region subscribe methods
             /// <summary>
@@ -414,16 +326,38 @@ namespace alter.classes
             /// <param name="method">Делегат метода подписчика отписываемого от события.</param>
             /// <returns></returns>
         public Action unsubscribe(EventHandler<T> method)
-        {
-            return () => iEvent -= method;
-        }
+        { return () => iEvent -= method; }
         /// <summary>
-        /// Подписать метод delegateMethod на срабатывание события.
+        /// Подписать метод на событие.
         /// </summary>
         /// <param name="delegateMethod">Делегат подписываемого метода.</param>
         public void add(EventHandler<T> delegateMethod)
         { iEvent += delegateMethod; }
-
+        /// <summary>
+        /// Подписать несколько методов на событие.
+        /// </summary>
+        /// <param name="delegateMethod">Делегаты подписываемых методов.</param>
+        public void add(params EventHandler<T>[] delegateMethod)
+        {
+            if (delegateMethod == null || delegateMethod.Length == 0) return;
+            for (int i = 0; i < delegateMethod.Length; i++)
+                add(delegateMethod[i]);
+        }
+        /// <summary>
+        /// Подписывает на событие всех подписчиков передаваемого параметром делегата, возвращает анонимный метод отписки передаваемых делегатом подписчиков.
+        /// </summary>
+        /// <param name="rDelegate">Донор подписчиков, он же  обычный делегат</param>
+        /// <returns>Анонимный метод отписки подписанных на событие методов.</returns>
+        public Action addDelegateSubscribers(Delegate rDelegate)
+        {
+            if (rDelegate == null) return new Action(() => Console.WriteLine("Netu nihera..."));
+            EventHandler<T>[] dlgs = rDelegate.GetInvocationList().Select(v => (EventHandler<T>)v).ToArray();
+            for (int i = 0; i < dlgs.Length; i++) iEvent += dlgs[i];
+            return new Action(() =>
+            {
+                for (int i = 0; i < dlgs.Length; i++) iEvent -= dlgs[i];
+            });
+        }
         /// <summary>
         /// Отписать метод delegateMethod от данного события.
         /// </summary>
@@ -458,15 +392,120 @@ namespace alter.classes
         /// Отписывает событие от всех его подписчиков.
         /// </summary>
         public void clear()
+        { eventClean(); }
+        #endregion
+        #region service
+        /// <summary>
+        /// Отписка события ото всех подписчиков.
+        /// </summary>
+        /// <typeparam name="TArg">Тип EventArgs</typeparam>
+        /// <param name="handler">Делегат</param>
+        protected void clearEvent<TArg>(ref EventHandler<TArg> handler) where TArg : EventArgs
         {
-            if (eventDelegate != null)
-            {
-                Delegate[] delegates = eventDelegate.GetInvocationList();
-                for (int i = 0; i < delegates.Length; i++) eventDelegate -= (EventHandler<T>)delegates[i];
-            }
-        } 
+            if (handler == null) return;
+            EventHandler<TArg>[] dlgs = handler.GetInvocationList().Select(v => (EventHandler<TArg>)v).ToArray();
+            if (dlgs == null || dlgs.Length == 0) return;
+            for (int i = 0; i < dlgs.Length; i++) handler -= dlgs[i];
+        }
         #endregion
     }
+    /// <summary>
+    /// Класс событий с предоставляемым функционалом по удаленной отписке делегатов, и возможностью отслеживания манипуляций с подписчиками.
+    /// </summary>
+    /// <typeparam name="T">Тип значений eventyArgs данного события.</typeparam>
+    public class iEventclassObservable<T> : iEventclass<T> where T : EventArgs
+    {
+        #region property
+        /// <summary>
+        /// Свойство переменной события 
+        /// </summary>
+        public override event EventHandler<T> iEvent
+        {
+            add
+            {
+                lock (this)
+                {
+                    eventDelegate -= value;
+                    eventDelegate += value;
+                }
+                onDelegateAdd(value);
+            }
+            remove
+            {
+                int old = this.count;
 
+                lock (this) { eventDelegate -= value; }
+
+                if (this.count == 0 && old == 1) onNoSubscribers();
+                if (old > this.count) onDelegateRemove(value);
+            }
+        }
+        #endregion
+        #region events
+        /// <summary>
+        /// Событие при добавлении нового делегата в подписчики.
+        /// </summary>
+        public event EventHandler<EA_delegateInfo> event_delegateAdded;
+        /// <summary>
+        /// Событие при отписке делегата из подписчиков.
+        /// </summary>
+        public event EventHandler<EA_delegateInfo> event_delegateRemoved;
+        /// <summary>
+        /// Событие при сокращении количества подписчиков до 0.
+        /// </summary>
+        public event EventHandler<EventArgs> event_noSubscribers;
+        #endregion
+        #region destructor
+        /// <summary>
+        /// Деструктор класса
+        /// </summary>
+        ~iEventclassObservable()
+        {
+            eventClean();
+            eventDelegate = null;
+            event_delegateAdded = null;
+            event_delegateRemoved = null;
+            event_noSubscribers = null;
+        }
+        /// <summary>
+        /// Отписка всех событий данного экземпляра классов от их подписчиков.
+        /// </summary>
+        protected override void eventClean()
+        {
+            base.eventClean();
+            clearEvent(ref event_delegateAdded);
+            clearEvent(ref event_delegateRemoved);
+            clearEvent(ref event_noSubscribers);
+        }
+        #endregion
+        #region Handlers
+        /// <summary>
+        /// Метод запуска события event_delegateAdded
+        /// </summary>
+        /// <param name="method">Ссылка на метод обрабатываемый основным событием</param>
+        protected void onDelegateAdd(EventHandler<T> method)
+        {
+            EventHandler<EA_delegateInfo> handler = event_delegateAdded;
+            if (handler != null) handler(this, new EA_delegateInfo(method));
+        }
+        /// <summary>
+        /// Метод запуска события event_delegateRemoved
+        /// </summary>
+        /// <param name="method">Ссылка на метод обрабатываемый основным событием</param>
+        protected void onDelegateRemove(EventHandler<T> method)
+        {
+            EventHandler<EA_delegateInfo> handler = event_delegateRemoved;
+            if (handler != null) handler(this, new EA_delegateInfo(method));
+        }
+        /// <summary>
+        /// Метод запуска события event_noSubscribers
+        /// </summary>
+        protected void onNoSubscribers()
+        {
+            EventHandler<EventArgs> handler = event_noSubscribers;
+            if (handler != null) handler(this, new EventArgs());
+        }
+        #endregion
+    }
     #endregion
 }
