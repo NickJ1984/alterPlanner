@@ -73,10 +73,23 @@ namespace alterTesting
 
         }
 
+        public class tstEvent
+        {
+            public void subscribe(ref EventHandler<EventArgs> Event)
+            {
+                Event += handler;
+            }
+
+            private void handler(object sender, EventArgs e)
+            {
+                Console.WriteLine("OKOKOKOK");
+            }
+        }
         static void Main(string[] args)
         {
             EventHandler<EventArgs> ehTest = new EventHandler<EventArgs>((s, e) => Console.WriteLine("Handler for tests"));
             EventHandler<EventArgs>[] fDelegates = new EventHandler<EventArgs>[10];
+            tstEvent tste = new tstEvent();
             alter.classes.iEventObservable<EventArgs> evntClass = new alter.classes.iEventObservable<EventArgs>();
             for (int i = 0; i < fDelegates.Length; i++)
             {
@@ -87,6 +100,7 @@ namespace alterTesting
 
             for (int i = 0; i < fDelegates.Length; i++)
                 evntClass.event_noSubscribers += fDelegates[i];
+            tste.subscribe(ref evntClass.event_noSubscribers);
 
             Console.WriteLine("event_noSubscribers run#1:");
             evntClass.iEventHandler += ehTest;

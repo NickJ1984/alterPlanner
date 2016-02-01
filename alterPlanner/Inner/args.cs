@@ -75,6 +75,9 @@ namespace alter.args
         }
     }
 
+    /// <summary>
+    /// Аргумент события передающий информацию о делегате
+    /// </summary>
     public class EA_delegateInfo : System.EventArgs
     {
         /// <summary>

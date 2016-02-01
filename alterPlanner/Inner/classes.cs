@@ -156,6 +156,9 @@ namespace alter.classes
         }
         #endregion
         #region Events
+        /// <summary>
+        /// Событие изменения зависимой точки подчиненного объекта.
+        /// </summary>
         public event EventHandler<EA_valueChange<eDot>> event_dependDotChanged;
         #endregion
         #region Constructors
@@ -223,37 +226,57 @@ namespace alter.classes
         }
         #endregion
         #region outer handlers
-        public void onMasterDateChange(object sender, EA_valueChange<DateTime> e)
+        /// <summary>
+        /// Обработчик события изменения управляющей даты
+        /// </summary>
+        /// <param name="sender">Объект источник события</param>
+        /// <param name="e">Аргументы события</param>
+        protected void onDateChange(object sender, EA_valueChange<DateTime> e)
         { onDateChange(e); }
-        public void onDirectionChange(object sender, EA_valueChange<eDirection> e)
+        /// <summary>
+        /// Обработчик события изменения направления управляющей функции
+        /// </summary>
+        /// <param name="sender">Объект источник события</param>
+        /// <param name="e">Аргументы события</param>
+        protected void onDirectionChange(object sender, EA_valueChange<eDirection> e)
         { onDirectionChange(e); }
-        public void onDependDotChange(object sender, EA_valueChange<eDot> e)
+        /// <summary>
+        /// Обработчик события изменения зависимой точки подчиненного объекта
+        /// </summary>
+        /// <param name="sender">Объект источник события</param>
+        /// <param name="e">Аргументы события</param>
+        protected void onDependDotChange(object sender, EA_valueChange<eDot> e)
         {
             _dDot = e.newValue;
             onDDotChange(e);
         }
         #endregion
+        #region service
+        /// <summary>
+        /// Метод подписки экземпляра класса на изменение управляющих параметров.
+        /// </summary>
+        /// <param name="event_DateChanged">Анонимный метод подписки на изменение управляющей даты, принимающий на вход делегат метода обработчика события изменения управляющей даты.</param>
+        /// <param name="event_directionChanged">Анонимный метод подписки на изменение направления управляющей функции, принимающий на вход делегат метода обработчика события изменения направления.</param>
+        /// <param name="event_dependDotChanged">Анонимный метод подписки на изменение зависимой точки подчиненного объекта, принимающий на вход делегат метода обработчика события изменения подчиненной точки.</param>
+        /// <returns></returns>
         public bool setMasterAutoupdate
         (
-            Action<EventHandler<EA_valueChange<DateTime>>> event_MasterDateChanged,
+            Action<EventHandler<EA_valueChange<DateTime>>> event_DateChanged,
             Action<EventHandler<EA_valueChange<eDirection>>> event_directionChanged,
             Action<EventHandler<EA_valueChange<eDot>>> event_dependDotChanged
         )
         {
-            if (event_MasterDateChanged == null
+            if (event_DateChanged == null
                || event_directionChanged == null
                || event_dependDotChanged == null) return false;
 
-            event_MasterDateChanged(onMasterDateChange);
+            event_DateChanged(onDateChange);
             event_dependDotChanged(onDependDotChange);
             event_directionChanged(onDirectionChange);
             return true;
-
         }
-
-        
     }
-
+    #endregion
     #endregion
     #region iEvents
     /// <summary>
@@ -421,12 +444,16 @@ namespace alter.classes
         public Action getUnsubscribeMethod(EventHandler<T> method)
         { return () => iEventHandler -= method; }
         /// <summary>
-        /// Возвращает индекс элемента массива подписчиков на событие.
+        /// Возвращает индекс элемента массива подписчиков на событие. (Не тестировал)
         /// </summary>
         /// <param name="invokeMember"></param>
         /// <returns></returns>
         public int indexOf(EventHandler<T> invokeMember)
-        { return invokationList.Where((v, i) => v == invokeMember).Select((v, i) => i).First(); }
+        {
+            int result = -1;
+            result = invokationList.Where((v, i) => v == invokeMember).Select((v, i) => i).First();
+            return result;
+        }
         #endregion
         #region service
         /// <summary>
