@@ -260,23 +260,26 @@ namespace alter.classes
     /// Класс событий с предоставляемым функционалом по удаленной отписке делегатов.
     /// </summary>
     /// <typeparam name="T">Тип значений eventyArgs данного события.</typeparam>
-    public class iEventclass<T>
+    public class iEvent<T>
         where T : EventArgs
     {
         #region Indexer
         /// <summary>
+        /// Массив делегатов подписчиков события
+        /// </summary>
+        protected EventHandler<T>[] invokationList;
         /// Предоставляет ссылки на методы подписанные на событие.
         /// </summary>
-        /// <param name="index">Индекс</param>
+        /// <param name="index">Индекс элемента</param>
         /// <returns></returns>
         public EventHandler<T> this[int index]
         {
-            get { return (EventHandler<T>)(eventDelegate.GetInvocationList())[index]; }
+            get { return invokationList[index]; }
         }
         /// <summary>
-        /// Количество методов  подписанных на событие.
+        /// Количество элементов массива <seealso cref="invokationList"/>
         /// </summary>
-        public int count { get { return (eventDelegate == null) ? 0 : eventDelegate.GetInvocationList().Length; } }
+        public int count { get { return invokationList.Length; } }
         #endregion
         #region delegate
         /// <summary>
@@ -286,9 +289,13 @@ namespace alter.classes
         #endregion
         #region property
         /// <summary>
+        /// Количество делегатов методов подписанных на <seealso cref="eventDelegate"/>
+        /// </summary>
+        protected int ilLength { get { return eventDelegate.GetInvocationList().Length; } }
+        /// <summary>
         /// Свойство переменной события 
         /// </summary>
-        public virtual event EventHandler<T> iEvent
+        public virtual event EventHandler<T> iEventHandler
         {
             add
             {
@@ -297,19 +304,35 @@ namespace alter.classes
                     eventDelegate -= value;
                     eventDelegate += value;
                 }
+                updateInvokationList();
             }
             remove
-            { lock (this) { eventDelegate -= value; } }
+            {
+                lock (this) { eventDelegate -= value; }
+                updateInvokationList();
+            }
+        }
+        #endregion
+        #region Constructor
+        /// <summary>
+        /// Конструктор класса
+        /// </summary>
+        public iEvent()
+        {
+            invokationList = new EventHandler<T>[0];
         }
         #endregion
         #region destructor
         /// <summary>
         /// Деструктор класса
         /// </summary>
-        ~iEventclass()
+        ~iEvent()
         {
             eventClean();
+
             eventDelegate = null;
+
+            invokationList = null;
         }
         /// <summary>
         /// Отписка всех событий данного экземпляра классов от их подписчиков.
@@ -320,19 +343,13 @@ namespace alter.classes
         }
         #endregion
         #region subscribe methods
-            /// <summary>
-            /// Предоставить анонимный метод отписки от события, для указанного в параметрах метода.
-            /// </summary>
-            /// <param name="method">Делегат метода подписчика отписываемого от события.</param>
-            /// <returns></returns>
-        public Action unsubscribe(EventHandler<T> method)
-        { return () => iEvent -= method; }
+        
         /// <summary>
         /// Подписать метод на событие.
         /// </summary>
         /// <param name="delegateMethod">Делегат подписываемого метода.</param>
         public void add(EventHandler<T> delegateMethod)
-        { iEvent += delegateMethod; }
+        { iEventHandler += delegateMethod; }
         /// <summary>
         /// Подписать несколько методов на событие.
         /// </summary>
@@ -346,16 +363,17 @@ namespace alter.classes
         /// <summary>
         /// Подписывает на событие всех подписчиков передаваемого параметром делегата, возвращает анонимный метод отписки передаваемых делегатом подписчиков.
         /// </summary>
-        /// <param name="rDelegate">Донор подписчиков, он же  обычный делегат</param>
+        /// <param name="rDelegate">Донор подписчиков</param>
         /// <returns>Анонимный метод отписки подписанных на событие методов.</returns>
-        public Action addDelegateSubscribers(Delegate rDelegate)
+        public Action addDelegateSubscribers(EventHandler<T> rDelegate)
         {
-            if (rDelegate == null) return new Action(() => Console.WriteLine("Netu nihera..."));
+            if (rDelegate == null) throw new NullReferenceException();
             EventHandler<T>[] dlgs = rDelegate.GetInvocationList().Select(v => (EventHandler<T>)v).ToArray();
-            for (int i = 0; i < dlgs.Length; i++) iEvent += dlgs[i];
+            if (dlgs == null || dlgs.Length == 0) throw new NullReferenceException();
+            for (int i = 0; i < dlgs.Length; i++) iEventHandler += dlgs[i];
             return new Action(() =>
             {
-                for (int i = 0; i < dlgs.Length; i++) iEvent -= dlgs[i];
+                for (int i = 0; i < dlgs.Length; i++) iEventHandler -= dlgs[i];
             });
         }
         /// <summary>
@@ -363,13 +381,13 @@ namespace alter.classes
         /// </summary>
         /// <param name="delegateMethod">Делегат отписываемого метода.</param>
         public void remove(EventHandler<T> delegateMethod)
-        { iEvent -= delegateMethod; }
+        { iEventHandler -= delegateMethod; }
         /// <summary>
         /// Отписывает подписанный метод c указанным индексом перечисления getInvocationList()
         /// </summary>
         /// <param name="index"></param>
         public void removeAt(int index)
-        { iEvent -= this[index]; }
+        { iEventHandler -= this[index]; }
         #endregion
         #region parent methods
         /// <summary>
@@ -394,7 +412,33 @@ namespace alter.classes
         public void clear()
         { eventClean(); }
         #endregion
+        #region invokation members methods
+        /// <summary>
+        /// Предоставить анонимный метод отписки от события, для указанного в параметрах метода.
+        /// </summary>
+        /// <param name="method">Делегат метода подписчика отписываемого от события.</param>
+        /// <returns></returns>
+        public Action getUnsubscribeMethod(EventHandler<T> method)
+        { return () => iEventHandler -= method; }
+        /// <summary>
+        /// Возвращает индекс элемента массива подписчиков на событие.
+        /// </summary>
+        /// <param name="invokeMember"></param>
+        /// <returns></returns>
+        public int indexOf(EventHandler<T> invokeMember)
+        { return invokationList.Where((v, i) => v == invokeMember).Select((v, i) => i).First(); }
+        #endregion
         #region service
+        /// <summary>
+        /// Метод обновления массива делегатов подписчиков <seealso cref="invokationList"/>
+        /// </summary>
+        protected virtual void updateInvokationList()
+        {
+            if(ilLength != count)
+                invokationList = 
+                    eventDelegate.GetInvocationList()
+                    .Select(v => (EventHandler<T>)v).ToArray();
+        }
         /// <summary>
         /// Отписка события ото всех подписчиков.
         /// </summary>
@@ -413,31 +457,43 @@ namespace alter.classes
     /// Класс событий с предоставляемым функционалом по удаленной отписке делегатов, и возможностью отслеживания манипуляций с подписчиками.
     /// </summary>
     /// <typeparam name="T">Тип значений eventyArgs данного события.</typeparam>
-    public class iEventclassObservable<T> : iEventclass<T> where T : EventArgs
+    public class iEventObservable<T> : iEvent<T> where T : EventArgs
     {
         #region property
         /// <summary>
         /// Свойство переменной события 
         /// </summary>
-        public override event EventHandler<T> iEvent
+        public override event EventHandler<T> iEventHandler
         {
             add
             {
+                if (value == null) throw new NullReferenceException();
+
                 lock (this)
                 {
                     eventDelegate -= value;
                     eventDelegate += value;
                 }
-                onDelegateAdd(value);
+                if (count != ilLength)
+                {
+                    updateInvokationList();
+                    onDelegateAdd(value);
+                }
             }
             remove
             {
-                int old = this.count;
+                if (value == null) throw new NullReferenceException();
 
                 lock (this) { eventDelegate -= value; }
 
-                if (this.count == 0 && old == 1) onNoSubscribers();
-                if (old > this.count) onDelegateRemove(value);
+                int current = ilLength;
+                if (count != current)
+                {
+                    updateInvokationList();
+
+                    onDelegateRemove(value);
+                    if(current == 0) onNoSubscribers();
+                }
             }
         }
         #endregion
@@ -455,17 +511,26 @@ namespace alter.classes
         /// </summary>
         public event EventHandler<EventArgs> event_noSubscribers;
         #endregion
+        #region Constructor
+        /// <summary>
+        /// Конструктор класса
+        /// </summary>
+        public iEventObservable() : base()
+        { }
+        #endregion
         #region destructor
         /// <summary>
         /// Деструктор класса
         /// </summary>
-        ~iEventclassObservable()
+        ~iEventObservable()
         {
             eventClean();
             eventDelegate = null;
             event_delegateAdded = null;
             event_delegateRemoved = null;
             event_noSubscribers = null;
+
+            invokationList = null;
         }
         /// <summary>
         /// Отписка всех событий данного экземпляра классов от их подписчиков.

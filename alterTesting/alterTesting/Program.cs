@@ -22,7 +22,7 @@ namespace alterTesting
         }
         public class tiEv
         {
-            public alter.classes.iEventclass<EA_value<int>> someEvent;
+            public alter.classes.iEvent<EA_value<int>> someEvent;
             public event EventHandler<EA_value<int>> event_test
             {
                 add { someEvent.add(value); }
@@ -31,13 +31,13 @@ namespace alterTesting
 
             public tiEv()
             {
-                someEvent = new alter.classes.iEventclass<EA_value<int>>();
-                someEvent.iEvent += (s, e) => Console.WriteLine(string.Format("Parent handler {0}",e.Value));
+                someEvent = new alter.classes.iEvent<EA_value<int>>();
+                someEvent.iEventHandler += (s, e) => Console.WriteLine(string.Format("Parent handler {0}",e.Value));
             }
 
             public Action unsuscribe(EventHandler<EA_value<int>> method)
             {
-                return () => someEvent.iEvent -= method;
+                return () => someEvent.iEventHandler -= method;
             }
 
             internal bool invokeEvent(object sender, EA_value<int> e)
@@ -77,7 +77,7 @@ namespace alterTesting
         {
             EventHandler<EventArgs> ehTest = new EventHandler<EventArgs>((s, e) => Console.WriteLine("Handler for tests"));
             EventHandler<EventArgs>[] fDelegates = new EventHandler<EventArgs>[10];
-            alter.classes.iEventclass<EventArgs> evntClass = new alter.classes.iEventclass<EventArgs>();
+            alter.classes.iEventObservable<EventArgs> evntClass = new alter.classes.iEventObservable<EventArgs>();
             for (int i = 0; i < fDelegates.Length; i++)
             {
                 int j = i + 1;
@@ -89,12 +89,12 @@ namespace alterTesting
                 evntClass.event_noSubscribers += fDelegates[i];
 
             Console.WriteLine("event_noSubscribers run#1:");
-            evntClass.iEvent += ehTest;
-            evntClass.iEvent -= ehTest;
+            evntClass.iEventHandler += ehTest;
+            evntClass.iEventHandler -= ehTest;
             evntClass.clear();
             Console.WriteLine("event_noSubscribers run#2:");
-            evntClass.iEvent += ehTest;
-            evntClass.iEvent -= ehTest;
+            evntClass.iEventHandler += ehTest;
+            evntClass.iEventHandler -= ehTest;
 
 
 
