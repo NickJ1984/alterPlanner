@@ -68,11 +68,10 @@ namespace alter.iface
     /// Возможность объекта принимать ограничения типа <typeparamref name="T"/>.
     /// </summary>
     /// <typeparam name="T">Корректные перечисления: 
-    /// <see cref="e_TlLim"/>,
+    /// <see cref="e_TLLim"/>,
     /// <see cref="e_TskLim"/>,
     /// <see cref="e_GrpLim"/>,
-    /// <see cref="e_PrjLim"/>,
-    /// <see cref="e_LnkLim"/>.
+    /// <see cref="e_PrjLim"/>.
     /// </typeparam>
     public interface ILimit<T> where T : struct, IConvertible
     {
@@ -87,6 +86,10 @@ namespace alter.iface
         /// </summary>
         /// <returns>Значение ограничения типа <typeparamref name="T"/>.</returns>
         T GetLimit();
+        /// <summary>
+        /// Событие изменения ограничения
+        /// </summary>
+        event EventHandler<ea_ValueChange<T>> event_LimitChanged;
     }
     /// <summary>
     /// Возможность именовать объект.

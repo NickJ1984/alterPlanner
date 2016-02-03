@@ -40,9 +40,6 @@ namespace alterTesting.Emulators
             _project = project;
             _delay = 0;
             
-            dotMaster = master.Subscribe(e_DependType.Master, this);
-            dotSlave = slave.Subscribe(e_DependType.Slave, this);
-
             
         }
         public void subscribe(IDock master, IDock slave)

@@ -20,7 +20,7 @@ namespace alter.Task.classes
             private e_Direction _dir;
             private DateTime _date;
             private e_Dot _dot;
-            private e_TlLim _type;
+            private e_TLLim _type;
             private IFunction _func;
             #endregion
             #region props
@@ -101,12 +101,12 @@ namespace alter.Task.classes
                 OnDotTypeChanged(new ea_ValueChange<e_Dot>(temp, _dot));
             }
 
-            public void SetLLimit(e_TlLim localLimit)
+            public void SetLLimit(e_TLLim localLimit)
             {
                 throw new NotImplementedException();
             }
 
-            public e_TlLim GetLLimit()
+            public e_TLLim GetLLimit()
             { return _type; }
 
             public e_Dot GetDependDot()

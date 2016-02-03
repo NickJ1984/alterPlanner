@@ -13,7 +13,7 @@ namespace alter.Task.iface
     {
         ITask GetTask(string dtask);
 
-        ITask CreateTask(DateTime startDate, double duration, e_TlLim localLimit);
+        ITask CreateTask(DateTime startDate, double duration, e_TLLim localLimit);
         
         bool deleteTask(string dtask);
         bool deleteTask();

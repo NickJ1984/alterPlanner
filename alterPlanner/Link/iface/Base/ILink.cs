@@ -17,6 +17,8 @@ namespace alter.Link.iface
         void SetDelay(double days);
         double GetDelay();
 
+        event EventHandler<ea_ValueChange<double>> event_DelayChanged;
+
         ILMember GetInfoMember(e_DependType member);
         ILMember GetInfoMember(IId member);
         void Unsuscribe(string dsubscriber);

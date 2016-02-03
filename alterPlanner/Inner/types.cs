@@ -13,9 +13,7 @@ namespace alter.types
     /// </summary>
     public enum e_Direction
     {
-        /// <summary>
-        /// Тип "Как можно раньше"
-        /// </summary>
+        
         //LeftMax = -2,
         /// <summary>
         /// Тип "Не позднее"
@@ -29,15 +27,13 @@ namespace alter.types
         /// Тип "Не ранее"
         /// </summary>
         Right = 1,
-        /// <summary>
-        /// Тип "Как можно позже"
-        /// </summary>
+        
         //RightMax = 2
     }
     /// <summary>
     /// Внутреннее ограничение объекта задачи
     /// </summary>
-    public enum e_TlLim
+    public enum e_TLLim
     {
         /// <summary>
         /// Финиш не ранее
@@ -104,11 +100,11 @@ namespace alter.types
         /// <summary>
         /// Старт - значение предшественника
         /// </summary>
-        Start = 2,
+        Start_ = 2,
         /// <summary>
         /// Финиш - значение предшественника
         /// </summary>
-        Finish = 4,
+        Finish_ = 4,
         /// <summary>
         /// Старт - значение последователя
         /// </summary>
@@ -154,6 +150,7 @@ namespace alter.types
         /// </summary>
         Later = 31
     }
+    /*
     /// <summary>
     /// Ограничения используемые в объектах связей
     /// </summary>
@@ -191,7 +188,7 @@ namespace alter.types
         /// Не позднее
         /// </summary>
         NotLater = 33
-    }
+    }*/
     #endregion
 
     #region General

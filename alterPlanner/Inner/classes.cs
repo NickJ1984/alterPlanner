@@ -117,7 +117,7 @@ namespace alter.classes
         public static e_Dot GetPrecursor(e_TskLim type)
         {
             e_TskLimChunk tc = (e_TskLimChunk)type;
-            return ((tc & e_TskLimChunk.Finish) == e_TskLimChunk.Finish) ? e_Dot.Finish : e_Dot.Start;
+            return ((tc & e_TskLimChunk.Finish_) == e_TskLimChunk.Finish_) ? e_Dot.Finish : e_Dot.Start;
         }
         /// <summary>
         /// Получить тип зависимой точки последователя, из значения связи типа <see cref="e_TskLim"/>
@@ -128,6 +128,24 @@ namespace alter.classes
         {
             e_TskLimChunk tc = (e_TskLimChunk)type;
             return ((tc & e_TskLimChunk._Finish) == e_TskLimChunk._Finish) ? e_Dot.Finish : e_Dot.Start;
+        }
+        /// <summary>
+        /// Получить тип зависимой точки, из значения связи типа <see cref="e_TskLim"/>
+        /// </summary>
+        /// <param name="type">Значение ограничения типа "предшественник-последователь"</param>
+        /// <param name="dependType">Тип зависимости</param>
+        /// <returns></returns>
+        public static e_Dot GetDepenDot(e_TskLim type, e_DependType dependType)
+        {
+            e_TskLimChunk tc = (e_TskLimChunk)type;
+
+            return (dependType == e_DependType.Master)
+                ? ((tc.HasFlag(e_TskLimChunk.Finish_))
+                    ? e_Dot.Finish
+                    : e_Dot.Start)
+                : ((tc.HasFlag(e_TskLimChunk._Finish))
+                    ? e_Dot.Finish
+                    : e_Dot.Start);
         }
     }
     #endregion
@@ -173,11 +191,7 @@ namespace alter.classes
         public override DateTime date
         {
             get { return GetDateLim(); }
-            set
-            {
-                if (Subscribed) base.date = GetDateLim();
-                else base.date = value;
-            }
+            set { base.date = Subscribed ? GetDateLim() : value; }
         }
         /// <summary>
         /// Направление зависимости
@@ -185,11 +199,7 @@ namespace alter.classes
         public override e_Direction direction
         {
             get { return GetDir(); }
-            set
-            {
-                if (Subscribed) base.direction = GetDir();
-                else base.direction = value;
-            }
+            set { base.direction = Subscribed ? GetDir() : value; }
         }
         #endregion
         #region Events

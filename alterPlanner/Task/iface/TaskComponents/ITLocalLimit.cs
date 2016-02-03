@@ -11,8 +11,8 @@ namespace alter.Task.iface.TaskComponents
 {
     public interface ITLocalLimit : IDependence
     {
-        void SetLLimit(e_TlLim localLimit);
-        e_TlLim GetLLimit();
+        void SetLLimit(e_TLLim localLimit);
+        e_TLLim GetLLimit();
 
         void SetDate(DateTime date);
     }
