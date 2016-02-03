@@ -12,9 +12,9 @@ namespace alter.Task.classes
     {
         #region vars
         IProject _project;
-        cDot _start;
-        cDot _finish;
-        cDotManager dotManager;
+        CDot _start;
+        CDot _finish;
+        CDotManager _dotManager;
 
         #endregion
         #region vars

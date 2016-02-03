@@ -17,8 +17,8 @@ namespace alter.Group.classes
 
         #endregion
         #region events
-        public event EventHandler<EA_valueChange<double>> event_durationChanged;
-        public event EventHandler<EA_IDObject> event_objectDeleted;
+        public event EventHandler<ea_ValueChange<double>> event_DurationChanged;
+        public event EventHandler<ea_IdObject> event_ObjectDeleted;
         #endregion
         #region constructors
 
@@ -28,57 +28,57 @@ namespace alter.Group.classes
         #endregion
         #region methods
         #region object info
-        public string getID()
+        public string GetId()
         {
             throw new NotImplementedException();
         }
-        public eEntity getType()
+        public e_Entity GetType()
         {
             throw new NotImplementedException();
         }
-        public string getName()
+        public string GetName()
         {
             throw new NotImplementedException();
         }
-        public IId getGroupOwner()
+        public IId GetGroupOwner()
         {
             throw new NotImplementedException();
         }
         #endregion
         #region group info
 
-        public IDot getDot(eDot type)
+        public IDot GetDot(e_Dot type)
         {
             throw new NotImplementedException();
         }
-        public double getDuration()
+        public double GetDuration()
         {
             throw new NotImplementedException();
         }
-        public int enclosureCount()
+        public int EnclosureCount()
         {
             throw new NotImplementedException();
         }
 
         #endregion
         #region manage elements
-        public bool addInGroup(IDock newObject)
+        public bool AddInGroup(IDock newObject)
         {
             throw new NotImplementedException();
         }
-        public bool delFromGroup(string objectID)
+        public bool DelFromGroup(string objectId)
         {
             throw new NotImplementedException();
         }
         #endregion
         #region limit
-        public eGrpLim getLimit()
+        public e_GrpLim GetLimit()
         {
             throw new NotImplementedException();
         }
         #endregion
         #region object
-        public void deleteObject()
+        public void DeleteObject()
         {
             throw new NotImplementedException();
         }
@@ -90,32 +90,32 @@ namespace alter.Group.classes
 
         
 
-        public int groupCount()
+        public int GroupCount()
         {
             throw new NotImplementedException();
         }
 
-        public bool inGroup(string ID)
+        public bool InGroup(string id)
         {
             throw new NotImplementedException();
         }
 
-        public bool setLimit(eGrpLim limitType)
+        public bool SetLimit(e_GrpLim limitType)
         {
             throw new NotImplementedException();
         }
 
-        public void setName(string name)
+        public void SetName(string name)
         {
             throw new NotImplementedException();
         }
 
-        public IDot subscribe(eDependType dType, ILink link)
+        public IDot Subscribe(e_DependType dType, ILink link)
         {
             throw new NotImplementedException();
         }
 
-        public int taskCount()
+        public int TaskCount()
         {
             throw new NotImplementedException();
         }

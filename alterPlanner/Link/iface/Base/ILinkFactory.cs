@@ -13,9 +13,9 @@ namespace alter.Link.iface
 {
     public interface ILinkFactory : IId, IChild
     {
-        ILink getLink(string IDlink);
-        ILink createLink(eLnkType type, IDock master, IDock slave);
-        bool deleteLink(string IDlink);
+        ILink GetLink(string dlink);
+        ILink CreateLink(e_LnkType type, IDock master, IDock slave);
+        bool deleteLink(string dlink);
         bool deleteLink();
     }
 }

@@ -11,12 +11,12 @@ namespace alter.Task.iface.TaskComponents
 {
     public interface ITDotManager
     {
-        IDot getActive();
-        IDot getPassive();
+        IDot GetActive();
+        IDot GetPassive();
 
-        IDot getDot(eDot type);
-        void changeActiveDot(eDot type);
+        IDot GetDot(e_Dot type);
+        void ChangeActiveDot(e_Dot type);
 
-        event EventHandler<EA_valueChange<eDot>> event_activeChanged;
+        event EventHandler<ea_ValueChange<e_Dot>> event_ActiveChanged;
     }
 }

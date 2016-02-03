@@ -10,15 +10,15 @@ using alter.Function.iface;
 
 namespace alter.Link.iface
 {
-    public interface ILink : IId, IRemovable, ILimit<eTskLim>
+    public interface ILink : IId, IRemovable, ILimit<e_TskLim>
     {
-        eLnkState getLinkState();
+        e_LnkState GetLinkState();
 
-        void setDelay(double days);
-        double getDelay();
+        void SetDelay(double days);
+        double GetDelay();
 
-        ILMember getInfoMember(eDependType member);
-        ILMember getInfoMember(IId member);
-        void unsuscribe(string IDsubscriber);
+        ILMember GetInfoMember(e_DependType member);
+        ILMember GetInfoMember(IId member);
+        void Unsuscribe(string dsubscriber);
     }
 }

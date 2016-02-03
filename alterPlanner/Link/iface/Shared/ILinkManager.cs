@@ -12,20 +12,20 @@ namespace alter.Link.iface
 {
     public interface ILinkManager
     {
-        bool addLink(eDependType type, ILink newLink);
+        bool AddLink(e_DependType type, ILink newLink);
 
-        bool delLink(string linkID);
-        bool delLink(eDependType dependType);
-        bool delLink();
+        bool DelLink(string linkId);
+        bool DelLink(e_DependType dependType);
+        bool DelLink();
 
-        string[] getLinks(eDependType dependType);
-        string[] getLinks();
+        string[] GetLinks(e_DependType dependType);
+        string[] GetLinks();
 
-        bool linkExist(string linkID);
+        bool LinkExist(string linkId);
 
-        int getLinksCount(eDependType dependType);
+        int GetLinksCount(e_DependType dependType);
         
-        event EventHandler<EA_value<ILink>> event_linkAdded;
-        event EventHandler<EA_value<ILink>> event_linkDeleted;
+        event EventHandler<ea_Value<ILink>> event_LinkAdded;
+        event EventHandler<ea_Value<ILink>> event_LinkDeleted;
     }
 }

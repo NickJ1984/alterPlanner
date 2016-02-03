@@ -17,11 +17,11 @@ namespace alter.Service.iface
         /// <summary>
         /// Событие срабатывающее при изменении ссылки на внутреннюю точку.
         /// </summary>
-        event EventHandler<EA_valueChange<IDot>> event_dotChanged;
+        event EventHandler<ea_ValueChange<IDot>> event_DotChanged;
         /// <summary>
         /// Установить ссылку на внутреннюю точку.
         /// </summary>
         /// <param name="innerDot">Внутренняя точка.</param>
-        void setInnerDot(IDot innerDot);
+        void SetInnerDot(IDot innerDot);
     }
 }

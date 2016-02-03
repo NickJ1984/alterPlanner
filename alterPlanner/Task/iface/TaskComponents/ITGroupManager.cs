@@ -9,9 +9,9 @@ namespace alter.Task.iface.TaskComponents
 {
     public interface ITGroupManager : IDependence
     {
-        IId currentGroup();
-        void setGroup(IId group);
+        IId CurrentGroup();
+        void SetGroup(IId group);
 
-        event EventHandler<IId> event_groupJoined;
+        event EventHandler<IId> event_GroupJoined;
     }
 }

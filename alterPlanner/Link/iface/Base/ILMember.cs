@@ -11,8 +11,8 @@ namespace alter.Link.iface
 {
     public interface ILMember
     {
-        IId getMemberID();
-        eDependType getDependType();
-        IDependence getDependence();
+        IId GetMemberId();
+        e_DependType GetDependType();
+        IDependence GetDependence();
     }
 }

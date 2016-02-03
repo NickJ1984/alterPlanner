@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using alter.args;
+using alter.classes;
+using alter.Function.classes;
 using alter.iface;
 using alter.Link.iface;
 using alter.types;
@@ -22,35 +25,35 @@ namespace alterTesting
         }
         public class tiEv
         {
-            public alter.classes.iEvent<EA_value<int>> someEvent;
-            public event EventHandler<EA_value<int>> event_test
+            public alter.classes.IEvent<ea_Value<int>> someEvent;
+            public event EventHandler<ea_Value<int>> event_test
             {
                 add { someEvent.add(value); }
-                remove { someEvent.remove(value); }
+                remove { someEvent.Remove(value); }
             }
 
             public tiEv()
             {
-                someEvent = new alter.classes.iEvent<EA_value<int>>();
+                someEvent = new alter.classes.IEvent<ea_Value<int>>();
                 someEvent.iEventHandler += (s, e) => Console.WriteLine(string.Format("Parent handler {0}",e.Value));
             }
 
-            public Action unsuscribe(EventHandler<EA_value<int>> method)
+            public Action unsuscribe(EventHandler<ea_Value<int>> method)
             {
                 return () => someEvent.iEventHandler -= method;
             }
 
-            internal bool invokeEvent(object sender, EA_value<int> e)
-            { return someEvent.invokeEvent(sender, e); }
+            internal bool invokeEvent(object sender, ea_Value<int> e)
+            { return someEvent.InvokeEvent(sender, e); }
 
             internal void clear()
             {
-                someEvent.clear();
+                someEvent.Clear();
             }
             public void print()
             {
                 Console.WriteLine(new string('-',30));
-                for (int i1 = 0; i1 < someEvent.count; i1++) Console.WriteLine("{0}. {1}",i1, someEvent[i1].Method.Name);
+                for (int i1 = 0; i1 < someEvent.Count; i1++) Console.WriteLine("{0}. {1}",i1, someEvent[i1].Method.Name);
                 Console.WriteLine(new string('-', 30));
                 int[] i = new int[0];
             }
@@ -60,7 +63,7 @@ namespace alterTesting
         {
             private Action unsss;
 
-            private void handler(object sender, EA_value<int> e)
+            private void handler(object sender, ea_Value<int> e)
             {
                 Console.WriteLine(string.Format("Subscriber handler {0}", e.Value));
                 //unsss();
@@ -87,34 +90,55 @@ namespace alterTesting
         }
         static void Main(string[] args)
         {
-            EventHandler<EventArgs> ehTest = new EventHandler<EventArgs>((s, e) => Console.WriteLine("Handler for tests"));
-            EventHandler<EventArgs>[] fDelegates = new EventHandler<EventArgs>[10];
-            tstEvent tste = new tstEvent();
-            alter.classes.iEventObservable<EventArgs> evntClass = new alter.classes.iEventObservable<EventArgs>();
-            for (int i = 0; i < fDelegates.Length; i++)
+            function fnc = new function(DateTime.Now, e_Direction.Fixed);
+            Dependence dpn = new Dependence(DateTime.Now, e_Direction.Fixed, e_Dot.Start);
+            dpn.SetDirection(fnc.GetDirection);
+            dpn.SetDate(fnc.GetDate);
+            #region Вспомогательные функции
+            Action<string, string, string> dOut = (Obj, Old, New) =>
             {
-                int j = i + 1;
-                fDelegates[i] = new EventHandler<EventArgs>((o, e) => Console.WriteLine("#{0}. Object type: {1}", j, o.GetType()));
-            }
+                Console.WriteLine
+                ("Dependance changed: {0}\noldValue: {1}\nnewValue: {2}", Obj, Old, New);
+            };
+            #endregion
+            #region Функции для подписки
+            Func<EventHandler<ea_ValueChange<e_Direction>>, Action> fncDir =
+                (eHnd) =>
+                {
+                    fnc.event_DirectionChanged += eHnd;
+                    return () => fnc.event_DirectionChanged -= eHnd;
+                };
+            Func<EventHandler<ea_ValueChange<DateTime>>, Action> fncDate =
+                (eHnd) =>
+                {
+                    fnc.event_DateChanged += eHnd;
+                    return () => fnc.event_DateChanged -= eHnd;
+                };
+            #endregion
+            #region Автообновление зависимости
+            dpn.setAutoupdate(fncDate, fncDir);
+            #endregion
+            #region отслеживание
+            dpn.event_DependDotChanged += (s, e) =>
+            { dOut("dependDot", e.OldValue.ToString(), e.NewValue.ToString()); };
+            dpn.event_DateChanged += (s, e) =>
+            { dOut("manageDate", e.OldValue.ToString(), e.NewValue.ToString()); };
+            dpn.event_DirectionChanged += (s, e) =>
+            { dOut("Direction", e.OldValue.ToString(), e.NewValue.ToString()); };
+            #endregion
 
 
-            for (int i = 0; i < fDelegates.Length; i++)
-                evntClass.event_noSubscribers += fDelegates[i];
-            tste.subscribe(ref evntClass.event_noSubscribers);
 
-            Console.WriteLine("event_noSubscribers run#1:");
-            evntClass.iEventHandler += ehTest;
-            evntClass.iEventHandler -= ehTest;
-            evntClass.clear();
-            Console.WriteLine("event_noSubscribers run#2:");
-            evntClass.iEventHandler += ehTest;
-            evntClass.iEventHandler -= ehTest;
-
-
-
+            #region testing
+            fnc.SetDate(new DateTime(2000,1,1));
+            fnc.SetDirection(e_Direction.Left);
+            dpn.SetDependDot(e_Dot.Finish);
+            Console.WriteLine("Unsuscribe...");
+            fnc.SetDate(new DateTime(2001,10,12));
+            #endregion
 
             #region default
-            Console.WriteLine("Press Enter to exit...");
+            Console.WriteLine("\nPress Enter to exit...");
             Console.ReadLine(); 
             #endregion
         }

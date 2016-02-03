@@ -9,9 +9,9 @@ namespace alter.Task.iface.TaskComponents
 {
     public interface ITDuration
     {
-        double getDuration();
-        void setDuration(double days);
+        double GetDuration();
+        void SetDuration(double days);
 
-        event EventHandler<EA_valueChange<double>> event_durationChanged;
+        event EventHandler<ea_ValueChange<double>> event_DurationChanged;
     }
 }

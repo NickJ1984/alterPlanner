@@ -11,7 +11,7 @@ using alter.Task.iface.TaskComponents;
 
 namespace alter.Task.iface
 {
-    public interface ITask : IId, IRemovable, ILine, IName, ILimit<eTLLim>, IDock
+    public interface ITask : IId, IRemovable, ILine, IName, ILimit<e_TlLim>, IDock
     {
         
     }

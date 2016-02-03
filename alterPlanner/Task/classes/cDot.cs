@@ -12,15 +12,15 @@ namespace alter.Task.classes
 {
     public partial class task
     {
-        private class cDot : IDot
+        private class CDot : IDot
         {
             #region vars
-            private readonly eDot _type;
+            private readonly e_Dot _type;
             private DateTime _date;
             private Func<DateTime, DateTime> _fncCheck;
             #endregion
             #region props
-            public DateTime date
+            public DateTime Date
             {
                 get { return _date; }
                 private set
@@ -29,36 +29,36 @@ namespace alter.Task.classes
                     {
                         DateTime old = _date;
                         _date = value;
-                        onDateChanged(new EA_valueChange<DateTime>(old, _date));
+                        OnDateChanged(new ea_ValueChange<DateTime>(old, _date));
                     }
                 }
             }
             #endregion
             #region events
-            public event EventHandler<EA_valueChange<DateTime>> event_dateChanged;
+            public event EventHandler<ea_ValueChange<DateTime>> event_DateChanged;
             #endregion
             #region constr
-            public cDot(eDot type)
+            public CDot(e_Dot type)
             {
                 _fncCheck = (date) => date;
                 _type = type;
             }
             #endregion
             #region handlers
-            private void onDateChanged(EA_valueChange<DateTime> args)
+            private void OnDateChanged(ea_ValueChange<DateTime> args)
             {
-                EventHandler<EA_valueChange<DateTime>> handler = event_dateChanged;
+                EventHandler<ea_ValueChange<DateTime>> handler = event_DateChanged;
                 if (handler != null) handler(this, args);
             }
             #endregion
             #region methods
-            public DateTime getDate()
-            { return date; }
+            public DateTime GetDate()
+            { return Date; }
 
-            public eDot getDotType()
+            public e_Dot GetDotType()
             { return _type; }
-            public void setDate(object sender, DateTime date)
-            { this.date = date; }
+            public void SetDate(object sender, DateTime date)
+            { this.Date = date; }
             #endregion
         }
     }

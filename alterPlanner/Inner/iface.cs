@@ -27,12 +27,12 @@ namespace alter.iface
         /// (для генерации используется класс Guid).
         /// </summary>
         /// <returns>Уникальный идентификатор объекта.</returns>
-        string getID();
+        string GetId();
         /// <summary>
         /// Возвращает тип объекта.
         /// </summary>
         /// <returns>Тип объекта.</returns>
-        eEntity getType();
+        e_Entity GetType();
     }
     #endregion
     #region Inheritance
@@ -45,8 +45,8 @@ namespace alter.iface
         /// Обработчик на событие уничтожения родителя.
         /// </summary>
         /// <param name="sender">Объект родитель события.</param>
-        /// <param name="objectID">Идентификатор уничтожаемого объекта.</param>
-        void handler_ownerDelete(object sender, EA_IDObject objectID);
+        /// <param name="objectId">Идентификатор уничтожаемого объекта.</param>
+        void handler_ownerDelete(object sender, ea_IdObject objectId);
     }
     #endregion
     #region properties
@@ -58,21 +58,21 @@ namespace alter.iface
         /// <summary>
         /// Событие срабатывающее при уничтожении объекта, значение параметра является идентификатором уничтожаемого объекта.
         /// </summary>
-        event EventHandler<EA_IDObject> event_objectDeleted;
+        event EventHandler<ea_IdObject> event_ObjectDeleted;
         /// <summary>
         /// Уничтожение объекта.
         /// </summary>
-        void deleteObject();
+        void DeleteObject();
     }
     /// <summary>
     /// Возможность объекта принимать ограничения типа <typeparamref name="T"/>.
     /// </summary>
     /// <typeparam name="T">Корректные перечисления: 
-    /// <see cref="eTLLim"/>,
-    /// <see cref="eTskLim"/>,
-    /// <see cref="eGrpLim"/>,
-    /// <see cref="ePrjLim"/>,
-    /// <see cref="eLnkLim"/>.
+    /// <see cref="e_TlLim"/>,
+    /// <see cref="e_TskLim"/>,
+    /// <see cref="e_GrpLim"/>,
+    /// <see cref="e_PrjLim"/>,
+    /// <see cref="e_LnkLim"/>.
     /// </typeparam>
     public interface ILimit<T> where T : struct, IConvertible
     {
@@ -81,12 +81,12 @@ namespace alter.iface
         /// </summary>
         /// <param name="limitType">Значение ограничения типа <typeparamref name="T"/>.</param>
         /// <returns>True - если значение принято.</returns>
-        bool setLimit(T limitType);
+        bool SetLimit(T limitType);
         /// <summary>
         /// Получить значение ограничения типа <typeparamref name="T"/>.
         /// </summary>
         /// <returns>Значение ограничения типа <typeparamref name="T"/>.</returns>
-        T getLimit();
+        T GetLimit();
     }
     /// <summary>
     /// Возможность именовать объект.
@@ -97,12 +97,12 @@ namespace alter.iface
         /// Присвоить имя объекту.
         /// </summary>
         /// <param name="name">Имя объекта.</param>
-        void setName(string name);
+        void SetName(string name);
         /// <summary>
         /// Получить имя объекта.
         /// </summary>
         /// <returns>Имя объекта.</returns>
-        string getName();
+        string GetName();
     }
     #endregion
     #region planner
@@ -112,19 +112,19 @@ namespace alter.iface
     public interface IDot
     {
         /// <summary>
-        /// Получить тип точки <see cref="eDot"/>.
+        /// Получить тип точки <see cref="e_Dot"/>.
         /// </summary>
         /// <returns>Тип точки.</returns>
-        eDot getDotType();
+        e_Dot GetDotType();
         /// <summary>
         /// Получить дату точки.
         /// </summary>
         /// <returns>Дата точки.</returns>
-        DateTime getDate();
+        DateTime GetDate();
         /// <summary>
         /// Событие срабатывающее при изменении даты точки.
         /// </summary>
-        event EventHandler<EA_valueChange<DateTime>> event_dateChanged;
+        event EventHandler<ea_ValueChange<DateTime>> event_DateChanged;
     }
     /// <summary>
     /// Интерфейс датируемого отрезка.
@@ -136,16 +136,16 @@ namespace alter.iface
         /// </summary>
         /// <param name="type">Тип точки.</param>
         /// <returns></returns>
-        IDot getDot(eDot type);
+        IDot GetDot(e_Dot type);
         /// <summary>
         /// Длина датируемого отрезка измеряемая в днях.
         /// </summary>
         /// <returns>Длина датируемого отрезка в днях.</returns>
-        double getDuration();
+        double GetDuration();
         /// <summary>
         /// Событие срабатывающее при изменении длины датируемого отрезка.
         /// </summary>
-        event EventHandler<EA_valueChange<double>> event_durationChanged;
+        event EventHandler<ea_ValueChange<double>> event_DurationChanged;
     }
     #endregion
     #endregion
@@ -153,17 +153,17 @@ namespace alter.iface
     /// <summary>
     /// Интерфейс характеристик зависимости.
     /// </summary>
-    public interface IDependence : IFNCInfo
+    public interface IDependence : IFncInfo
     {
         /// <summary>
         /// Получить тип зависимой точки.
         /// </summary>
         /// <returns></returns>
-        eDot getDependDot();
+        e_Dot GetDependDot();
         /// <summary>
         /// Событие при изменении типа зависимой точки.
         /// </summary>
-        event EventHandler<EA_valueChange<eDot>> event_dependDotChanged;
+        event EventHandler<ea_ValueChange<e_Dot>> event_DependDotChanged;
     }
     #endregion
     #region link interfaces
@@ -178,7 +178,7 @@ namespace alter.iface
         /// <param name="dType">Тип зависимости объекта в связи.</param>
         /// <param name="link">Ссылка на связь.</param>
         /// <returns>Возвращает точку объекта зависимую от связи (для реализации рекомендуется <see cref="alter.Service.iface.IDotAdapter"/>).</returns>
-        IDot subscribe(eDependType dType, ILink link);
+        IDot Subscribe(e_DependType dType, ILink link);
     }
     #endregion
     

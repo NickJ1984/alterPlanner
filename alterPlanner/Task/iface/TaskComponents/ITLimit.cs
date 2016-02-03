@@ -12,13 +12,13 @@ namespace alter.Task.iface.TaskComponents
 {
     public interface ITLimit
     {
-        DateTime activeDotLimit(DateTime date);
-        DateTime passiveDotLimit(DateTime date);
+        DateTime ActiveDotLimit(DateTime date);
+        DateTime PassiveDotLimit(DateTime date);
 
-        void setLimit(eEntity Object, IDependence depend);
+        void SetLimit(e_Entity Object, IDependence depend);
         
 
-        event EventHandler event_activeUpdate;
-        event EventHandler event_passiveUpdate;
+        event EventHandler event_ActiveUpdate;
+        event EventHandler event_PassiveUpdate;
     }
 }

@@ -10,7 +10,7 @@ using alter.types;
 
 namespace alter.Service.classes
 {
-    public class dotAdapter : IDotAdapter
+    public class DotAdapter : IDotAdapter
     {
         #region vars
         private IDot _innerDot;
@@ -19,56 +19,56 @@ namespace alter.Service.classes
 
         #endregion
         #region events
-        public event EventHandler<EA_valueChange<IDot>> event_dotChanged;
-        public event EventHandler<EA_valueChange<DateTime>> event_dateChanged;
+        public event EventHandler<ea_ValueChange<IDot>> event_DotChanged;
+        public event EventHandler<ea_ValueChange<DateTime>> event_DateChanged;
         #endregion
         #region constructor
-        public dotAdapter(IDot innerDot)
+        public DotAdapter(IDot innerDot)
         {
-            setInnerDot(innerDot);
+            SetInnerDot(innerDot);
         }
         #endregion
         #region handlers
-        private void onDateChanged(EA_valueChange<DateTime> args)
+        private void OnDateChanged(ea_ValueChange<DateTime> args)
         {
-            EventHandler<EA_valueChange<DateTime>> handler = event_dateChanged;
+            EventHandler<ea_ValueChange<DateTime>> handler = event_DateChanged;
             if (handler != null) handler(this, args);
         }
-        private void onDotChanged(EA_valueChange<IDot> args)
+        private void OnDotChanged(ea_ValueChange<IDot> args)
         {
-            EventHandler<EA_valueChange<IDot>> handler = event_dotChanged;
+            EventHandler<ea_ValueChange<IDot>> handler = event_DotChanged;
             if (handler != null) handler(this, args);
         }
-        private void handler_dateChanged(object sender, EA_valueChange<DateTime> e)
+        private void handler_dateChanged(object sender, ea_ValueChange<DateTime> e)
         {
-            onDateChanged(new EA_valueChange<DateTime>(e.oldValue, e.newValue));
+            OnDateChanged(new ea_ValueChange<DateTime>(e.OldValue, e.NewValue));
         }
         #endregion
         #region methods
-        public DateTime getDate()
+        public DateTime GetDate()
         {
-            return _innerDot.getDate();
+            return _innerDot.GetDate();
         }
-        public eDot getDotType()
+        public e_Dot GetDotType()
         {
-            return _innerDot.getDotType();
+            return _innerDot.GetDotType();
         }
-        public void setInnerDot(IDot dot)
+        public void SetInnerDot(IDot dot)
         {
             if (dot == null || dot == _innerDot) return;
 
-            _innerDot.event_dateChanged -= handler_dateChanged;
+            _innerDot.event_DateChanged -= handler_dateChanged;
 
-            DateTime oldDate = _innerDot.getDate();
+            DateTime oldDate = _innerDot.GetDate();
             IDot oldDot = _innerDot;
             _innerDot = dot;
 
-            _innerDot.event_dateChanged += handler_dateChanged;
+            _innerDot.event_DateChanged += handler_dateChanged;
 
-            onDotChanged(new EA_valueChange<IDot>(oldDot, _innerDot));
+            OnDotChanged(new ea_ValueChange<IDot>(oldDot, _innerDot));
 
-            if (oldDate != _innerDot.getDate())
-                onDateChanged(new EA_valueChange<DateTime>(oldDate, _innerDot.getDate()));
+            if (oldDate != _innerDot.GetDate())
+                OnDateChanged(new ea_ValueChange<DateTime>(oldDate, _innerDot.GetDate()));
         }
         #endregion
     }

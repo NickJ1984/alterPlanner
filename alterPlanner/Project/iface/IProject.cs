@@ -16,38 +16,38 @@ namespace alter.Project.iface
     /// <summary>
     /// Интерфейс класса проекта.
     /// </summary>
-    public interface IProject : IId, IRemovable, ILine, IName, ILimit<ePrjLim>
+    public interface IProject : IId, IRemovable, ILine, IName, ILimit<e_PrjLim>
     {
         /// <summary>
         /// Получить ссылку на экземпляр информации о функции зависимости проекта.
         /// </summary>
         /// <returns>Ссылка на экземпляр информации о функции зависимости проекта.</returns>
-        IFNCInfo getCheckFunction();
+        IFncInfo GetCheckFunction();
         /// <summary>
         /// Установить дату ограничения зависимости проекта.
         /// </summary>
         /// <param name="date">Дата ограничения зависимости проекта.</param>
-        void setLimitDate(DateTime date);
+        void SetLimitDate(DateTime date);
 
         /// <summary>
         /// Получить ссылку на экземпляр фабрики связей.
         /// </summary>
         /// <returns>Ссылка на фабрику связей.</returns>
-        ILinkFactory getLinkFactory();
+        ILinkFactory GetLinkFactory();
         /// <summary>
         /// Получить ссылку на экземпляр фабрики задач.
         /// </summary>
         /// <returns>Ссылка на фабрику задач.</returns>
-        ITaskFactory getTaskFactory();
+        ITaskFactory GetTaskFactory();
         /// <summary>
         /// Получить ссылку на экземпляр фабрики групп.
         /// </summary>
         /// <returns>Ссылка на фабрику групп.</returns>
-        IGroupFactory getGroupFactory();
+        IGroupFactory GetGroupFactory();
         /// <summary>
         /// Получить ссылку на экземпляр фабрики функций.
         /// </summary>
         /// <returns>Ссылка на фабрику функций.</returns>
-        IFunctionFactory getFunctionFactory();
+        IFunctionFactory GetFunctionFactory();
     }
 }

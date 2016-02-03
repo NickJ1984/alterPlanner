@@ -18,7 +18,7 @@ namespace alter.Group.iface
         /// Получить количество существующих экземпляров групп.
         /// </summary>
         /// <returns>Количество существующих экземпляров групп.</returns>
-        int groupCount();
+        int GroupCount();
         
         /// <summary>
         /// Создать экземпляр группы с именем <paramref name="name"/>, датой ограничения <paramref name="date"/> и типом ограничения <paramref name="limit"/>.
@@ -27,12 +27,12 @@ namespace alter.Group.iface
         /// <param name="date">Дата ограничения новой группы.</param>
         /// <param name="limit">Тип ограничения новой группы.</param>
         /// <returns>Ссылка на созданный экземпляр группы.</returns>
-        IGroup createGroup(string name, DateTime date, eGrpLim limit);
+        IGroup CreateGroup(string name, DateTime date, e_GrpLim limit);
         /// <summary>
-        /// Получить ссылку на группу с уникальным идентификатором <paramref name="IDgroup"/>.
+        /// Получить ссылку на группу с уникальным идентификатором <paramref name="groupID"/>.
         /// </summary>
-        /// <param name="IDgroup">Уникальный идентификатор экземпляра группы.</param>
+        /// <param name="groupID">Уникальный идентификатор экземпляра группы.</param>
         /// <returns>Ссылка на экземпляр группы.</returns>
-        IGroup getGroup(string IDgroup);
+        IGroup GetGroup(string groupID);
     }
 }

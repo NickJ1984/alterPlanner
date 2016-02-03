@@ -11,11 +11,11 @@ namespace alter.Task.iface
 {
     public interface ITaskFactory : IId, ILine, IChild
     {
-        ITask getTask(string IDtask);
+        ITask GetTask(string dtask);
 
-        ITask createTask(DateTime startDate, double duration, eTLLim localLimit);
+        ITask CreateTask(DateTime startDate, double duration, e_TlLim localLimit);
         
-        bool deleteTask(string IDtask);
+        bool deleteTask(string dtask);
         bool deleteTask();
     }
 }

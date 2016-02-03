@@ -9,22 +9,22 @@ using alter.types;
 
 namespace alter.Function.classes
 {
-    public class functionFactory : IFunctionFactory
+    public class FunctionFactory : IFunctionFactory
     {
         #region vars
         private function _function;
         #endregion
         #region constructor
-        public functionFactory()
+        public FunctionFactory()
         {
-            _function = new function(__hlp.initDate, eDirection.Right);
+            _function = new function(Hlp.InitDate, e_Direction.Right);
         }
         #endregion
         #region methods
-        public IFunction createFunction(DateTime date, eDirection direction)
+        public IFunction CreateFunction(DateTime date, e_Direction direction)
         { return new function(date, direction); }
-        public Func<DateTime, DateTime, DateTime> createFunctionCheck(eDirection direction)
-        { return _function.getFunctionDir(direction); }
+        public Func<DateTime, DateTime, DateTime> CreateFunctionCheck(e_Direction direction)
+        { return _function.GetFunctionDir(direction); }
         #endregion
 
     }

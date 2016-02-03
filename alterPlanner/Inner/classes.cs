@@ -15,155 +15,188 @@ namespace alter.classes
     /// <summary>
     /// Класс реализующий механизм идентификации объектов.
     /// </summary>
-    public class identity : IId
+    public class Identity : IId
     {
         /// <summary>
         /// Уникальный идентификатор объекта, является константой для экземпляра к которому принадлежит.
         /// </summary>
-        private Guid _ID;
+        private Guid _id;
         /// <summary>
         /// Тип объекта, является константой для экземпляра к которому принадлежит.
         /// </summary>
-        private eEntity _type;
+        private e_Entity _type;
 
         /// <summary>
         /// Получить уникальный идентификатор объекта.
         /// </summary>
-        public string ID { get { return _ID.ToString(); } }
+        public string Id { get { return _id.ToString(); } }
         /// <summary>
         /// Получить тип объекта.
         /// </summary>
-        public eEntity type { get { return _type; } }
+        public e_Entity Type { get { return _type; } }
 
         /// <summary>
-        /// Конструктор класса <see cref="identity"/>.
+        /// Конструктор класса <see cref="Identity"/>.
         /// </summary>
         /// <param name="type">Тип идентифицируемого объекта.</param>
-        public identity(eEntity type)
+        public Identity(e_Entity type)
         {
-            _ID = Guid.NewGuid();
+            _id = Guid.NewGuid();
             _type = type;
         }
         /// <summary>
-        /// Конструктор класса <see cref="identity"/>, используется для утилитарных нужд.
+        /// Конструктор класса <see cref="Identity"/>, используется для утилитарных нужд.
         /// </summary>
         /// <param name="type">Тип идентифицируемого объекта.</param>
-        /// <param name="ID">Уникальный идентификатор объекта.</param>
-        public identity(eEntity type, string ID)
+        /// <param name="id">Уникальный идентификатор объекта.</param>
+        public Identity(e_Entity type, string id)
         {
-            _ID = new Guid(ID);
+            _id = new Guid(id);
             _type = type;
         }
         /// <summary>
-        /// Конструктор класса <see cref="identity"/>, используемый для полного копирования экземпляра класса <see cref="identity"/>.
+        /// Конструктор класса <see cref="Identity"/>, используемый для полного копирования экземпляра класса <see cref="Identity"/>.
         /// </summary>
-        /// <param name="IDobject">Экземпляр копируемого класса <see cref="identity"/>.</param>
-        public identity(identity IDobject)
-            : this(IDobject.type, IDobject.ID)
+        /// <param name="objectID">Экземпляр копируемого класса <see cref="Identity"/>.</param>
+        public Identity(Identity objectID)
+            : this(objectID.Type, objectID.Id)
         { }
         /// <summary>
         /// Получить уникальный идентификатор объекта.
         /// </summary>
-        /// <param name="ID">Уникальный идентификатор объекта.</param>
-        public void setID(string ID)
+        /// <param name="id">Уникальный идентификатор объекта.</param>
+        public void SetId(string id)
         {
-            _ID = new Guid(ID);
+            _id = new Guid(id);
         }
         /// <summary>
         /// Задать тип объекта.
         /// </summary>
         /// <param name="type">Тип объекта.</param>
-        public void setType(eEntity type)
+        public void SetType(e_Entity type)
         {
             _type = type;
         }
         /// <summary>
-        /// Скопировать все значения экземпляра <paramref name="IDobject"/>.
+        /// Скопировать все значения экземпляра <paramref name="objectID"/>.
         /// </summary>
-        /// <param name="IDobject">Экземпляр копируемого класса <see cref="identity"/>.</param>
-        public void copy(identity IDobject)
+        /// <param name="objectID">Экземпляр копируемого класса <see cref="Identity"/>.</param>
+        public void Copy(Identity objectID)
         {
-            _ID = new Guid(IDobject._ID.ToString());
-            _type = IDobject.type;
+            _id = new Guid(objectID._id.ToString());
+            _type = objectID.Type;
         }
         /// <summary>
         /// Возвращает уникальный идентификатор объекта
         /// (для генерации используется класс Guid).
         /// </summary>
         /// <returns>Уникальный идентификатор объекта.</returns>
-        public string getID() { return ID; }
+        public string GetId() { return Id; }
         /// <summary>
         /// Возвращает тип объекта.
         /// </summary>
         /// <returns>Тип объекта.</returns>
-        public eEntity getType() { return type; }
+        public e_Entity GetType() { return Type; }
     }
     #endregion
     #region Static
     /// <summary>
     /// Статический класс утилитарных функций
     /// </summary>
-    public static class __hlp
+    public static class Hlp
     {
         /// <summary>
         /// Стандартное значение для инициализации дат сборки.
         /// </summary>
-        public static readonly DateTime initDate = new DateTime(1900, 1, 1);
+        public static readonly DateTime InitDate = new DateTime(1900, 1, 1);
         /// <summary>
-        /// Получить тип зависимой точки предшественника, из значения связи типа <see cref="eTskLim"/>
+        /// Получить тип зависимой точки предшественника, из значения связи типа <see cref="e_TskLim"/>
         /// </summary>
-        /// <param name="Type">Значение ограничения типа "предшественник-последователь"</param>
+        /// <param name="type">Значение ограничения типа "предшественник-последователь"</param>
         /// <returns></returns>
-        public static eDot getPrecursor(eTskLim Type)
+        public static e_Dot GetPrecursor(e_TskLim type)
         {
-            eTskLimChunk TC = (eTskLimChunk)Type;
-            return ((TC & eTskLimChunk.Finish_) == eTskLimChunk.Finish_) ? eDot.finish : eDot.start;
+            e_TskLimChunk tc = (e_TskLimChunk)type;
+            return ((tc & e_TskLimChunk.Finish) == e_TskLimChunk.Finish) ? e_Dot.Finish : e_Dot.Start;
         }
         /// <summary>
-        /// Получить тип зависимой точки последователя, из значения связи типа <see cref="eTskLim"/>
+        /// Получить тип зависимой точки последователя, из значения связи типа <see cref="e_TskLim"/>
         /// </summary>
-        /// <param name="Type">Значение ограничения типа "предшественник-последователь"</param>
+        /// <param name="type">Значение ограничения типа "предшественник-последователь"</param>
         /// <returns></returns>
-        public static eDot getFollower(eTskLim Type)
+        public static e_Dot GetFollower(e_TskLim type)
         {
-            eTskLimChunk TC = (eTskLimChunk)Type;
-            return ((TC & eTskLimChunk._Finish) == eTskLimChunk._Finish) ? eDot.finish : eDot.start;
+            e_TskLimChunk tc = (e_TskLimChunk)type;
+            return ((tc & e_TskLimChunk._Finish) == e_TskLimChunk._Finish) ? e_Dot.Finish : e_Dot.Start;
         }
     }
     #endregion
     #region Limits
-    public class dependence : alter.Function.classes.function, IDependence
+    /// <summary>
+    /// Класс реализующий зависимость от календарной даты для некоей подчиненной точки.
+    /// </summary>
+    public class Dependence : alter.Function.classes.function, IDependence
     {
+        //Тестировал, все ОК
         #region Vars
-        private eDot _dDot;
+        /// <summary>
+        /// Зависимая точка подчиненного объекта
+        /// </summary>
+        protected e_Dot DDot;
 
-        private Func<eDot> getDDot;
-        private Func<eDirection> getDir;
-        private Func<DateTime> getDateLim;
+        /// <summary>
+        /// Функция получения зависимой точки
+        /// </summary>
+        protected Func<e_Dot> GetDDot;
+        /// <summary>
+        /// Функция получения направления
+        /// </summary>
+        protected Func<e_Direction> GetDir;
+        /// <summary>
+        /// Функция получения даты зависимости
+        /// </summary>
+        protected Func<DateTime> GetDateLim;
 
-        private Action autoupdateUnsuscribe;
+        /// <summary>
+        /// Делегат метода отписки от внешнего источника
+        /// </summary>
+        protected Action AutoupdateUnsuscribe;
         /// <summary>
         /// Свойство возвращает истину если экземпляр класса подписан на события управляющих параметров.
         /// </summary>
-        public bool subscribed { get; protected set; }
+        public bool Subscribed { get; protected set; }
         #endregion
         #region Props
+        /// <summary>
+        /// Дата зависимости
+        /// </summary>
         public override DateTime date
         {
-            get { return getDateLim(); }
-            set { base.date = value; }
+            get { return GetDateLim(); }
+            set
+            {
+                if (Subscribed) base.date = GetDateLim();
+                else base.date = value;
+            }
         }
-        public override eDirection direction
+        /// <summary>
+        /// Направление зависимости
+        /// </summary>
+        public override e_Direction direction
         {
-            get { return getDir(); }
-            set { base.direction = value; }
+            get { return GetDir(); }
+            set
+            {
+                if (Subscribed) base.direction = GetDir();
+                else base.direction = value;
+            }
         }
         #endregion
         #region Events
         /// <summary>
         /// Событие изменения зависимой точки подчиненного объекта.
         /// </summary>
-        public event EventHandler<EA_valueChange<eDot>> event_dependDotChanged;
+        public event EventHandler<ea_ValueChange<e_Dot>> event_DependDotChanged;
         #endregion
         #region Constructors
         /// <summary>
@@ -172,13 +205,13 @@ namespace alter.classes
         /// <param name="dateLimit">Значение управляющей даты.</param>
         /// <param name="direction">Значение направления.</param>
         /// <param name="dependDot">Зависимая точка подчиненного объекта.</param>
-        public dependence(DateTime dateLimit, eDirection direction, eDot dependDot)
+        public Dependence(DateTime dateLimit, e_Direction direction, e_Dot dependDot)
             : base(dateLimit, direction)
         {
-            _dDot = dependDot;
-            setDependDot(null);
-            setDirection(null);
-            setDate(null);
+            DDot = dependDot;
+            SetDependDot(null);
+            SetDirection(null);
+            SetDate(null);
 
             init_default();
         }
@@ -188,72 +221,122 @@ namespace alter.classes
         /// <param name="fDateLimit">Функция возвращающая значение управляющей даты.</param>
         /// <param name="fDirection">Функция возвращающая значение направления.</param>
         /// <param name="fDependDot">Функция возвращающая зависимую точки подчиненного объекта.</param>
-        public dependence(Func<DateTime> fDateLimit, Func<eDirection> fDirection, Func<eDot> fDependDot)
-            : base(fDateLimit(), fDirection())
+        public Dependence(Func<DateTime> fDateLimit, Func<e_Direction> fDirection, Func<e_Dot> fDependDot)
+            : this(fDateLimit(), fDirection(), fDependDot())
         {
-            setDependDot(fDependDot);
-            setDirection(fDirection);
-            setDate(fDateLimit);
-
-            init_default();
+            SetDependDot(fDependDot);
+            SetDirection(fDirection);
+            SetDate(fDateLimit);
+        }
+        /// <summary>
+        /// Конструктор экземпляра класса.
+        /// </summary>
+        /// <param name="fDateLimit">Функция возвращающая значение управляющей даты.</param>
+        /// <param name="fDirection">Функция возвращающая значение направления.</param>
+        /// <param name="dependDot">Зависимая точка подчиненного объекта.</param>
+        public Dependence(Func<DateTime> fDateLimit, Func<e_Direction> fDirection, e_Dot dependDot)
+            : this(fDateLimit(), fDirection(), dependDot)
+        {
+            SetDirection(fDirection);
+            SetDate(fDateLimit);
         }
         /// <summary>
         /// Метод инициализирующий стандартный набор переменных
         /// </summary>
         protected void init_default()
         {
-            subscribed = false;
-            autoupdateUnsuscribe = () => { };
+            Subscribed = false;
+            AutoupdateUnsuscribe = () => { };
         }
         /// <summary>
         /// Деструктор.
         /// </summary>
-        ~dependence()
+        ~Dependence()
         {
-            getDateLim = null;
-            getDDot = null;
-            getDir = null;
+            AutoupdateUnsuscribe();
+            GetDateLim = null;
+            GetDDot = null;
+            GetDir = null;
         }
         #endregion
         #region Params
-        public eDot getDependDot()
-        { return getDDot(); }
-        public void setDependDot(eDot dot)
+        #region dependDot
+        /// <summary>
+        /// Метод получения точки зависимости подчиненного объекта
+        /// </summary>
+        /// <returns>Точка зависимости подчиненного объекта</returns>
+        public e_Dot GetDependDot()
+        { return GetDDot(); }
+        /// <summary>
+        /// Метод установки точки зависимости подчиненного объекта
+        /// </summary>
+        /// <param name="dot">Точка зависимости подчиненного объекта</param>
+        public void SetDependDot(e_Dot dot)
         {
-            if (dot != _dDot)
+            if (dot != DDot)
             {
-                eDot tmp = _dDot;
-                _dDot = dot;
+                e_Dot tmp = DDot;
+                DDot = dot;
 
-                EventHandler<EA_valueChange<eDot>> handler = event_dependDotChanged;
-                if (handler != null) handler(this, new EA_valueChange<eDot>(tmp, _dDot));
+                EventHandler<ea_ValueChange<e_Dot>> handler = event_DependDotChanged;
+                if (handler != null) handler(this, new ea_ValueChange<e_Dot>(tmp, DDot));
             }
         }
-        public void setDependDot(Func<eDot> fDot)
+        /// <summary>
+        /// Метод установки точки зависимости подчиненного объекта
+        /// </summary>
+        /// <param name="fDot">Функция получения точки зависимости подчиненного объекта</param>
+        public void SetDependDot(Func<e_Dot> fDot)
         {
-            if (fDot == null) getDDot = () => _dDot;
-            else getDDot = fDot;
+            if (fDot == null) GetDDot = () => DDot;
+            else GetDDot = fDot;
         }
-        public void setDirection(Func<eDirection> fDirection)
+        #endregion
+        #region direction
+        /// <summary>
+        /// Метод установки направления зависимости
+        /// </summary>
+        /// <param name="fDirection">Направление зависимости</param>
+        public void SetDirection(Func<e_Direction> fDirection)
         {
-            if (fDirection == null) getDir = () => _direction;
-            else getDir = fDirection;
+            if (fDirection == null) GetDir = () => Direction;
+            else GetDir = fDirection;
         }
-        public override eDirection getDirection()
-        { return getDir(); }
-        public void setDate(Func<DateTime> fDate)
+        /// <summary>
+        /// Метод получения направления зависимости
+        /// </summary>
+        /// /// <returns>Направление зависимости</returns>
+        public override e_Direction GetDirection()
+        { return GetDir(); }
+        #endregion
+        #region date
+        /// <summary>
+        /// Метод установки даты зависимости
+        /// </summary>
+        /// <param name="fDate">Функция получения даты зависимости</param>
+        public void SetDate(Func<DateTime> fDate)
         {
-            if (fDate == null) getDateLim = () => _date;
-            else getDateLim = fDate;
+            if (fDate == null) GetDateLim = () => Date;
+            else GetDateLim = fDate;
         }
-        public override DateTime getDate()
-        { return getDateLim(); }
+        /// <summary>
+        /// Метод получения даты зависимости
+        /// </summary>
+        /// <returns></returns>
+        public override DateTime GetDate()
+        { return GetDateLim(); }
+        #endregion
         #endregion
         #region handlers
-        private void onDDotChange(EA_valueChange<eDot> args)
+        #region inner handlers
+        /// <summary>
+        /// Метод вызова события <see cref="event_DependDotChanged"/>
+        /// </summary>
+        /// <param name="args"></param>
+        protected void OnDDotChange(ea_ValueChange<e_Dot> args)
         {
-            EventHandler<EA_valueChange<eDot>> handler = event_dependDotChanged;
-            if (handler != null) handler(this, args);
+            var handler = event_DependDotChanged;
+            handler?.Invoke(this, args);
         }
         #endregion
         #region outer handlers
@@ -262,94 +345,139 @@ namespace alter.classes
         /// </summary>
         /// <param name="sender">Объект источник события</param>
         /// <param name="e">Аргументы события</param>
-        protected void onDateChange(object sender, EA_valueChange<DateTime> e)
-        { onDateChange(e); }
+        protected void OnDateChange(object sender, ea_ValueChange<DateTime> e)
+        { date = e.NewValue; }
         /// <summary>
         /// Обработчик события изменения направления управляющей функции
         /// </summary>
         /// <param name="sender">Объект источник события</param>
         /// <param name="e">Аргументы события</param>
-        protected void onDirectionChange(object sender, EA_valueChange<eDirection> e)
-        { onDirectionChange(e); }
+        protected void OnDirectionChange(object sender, ea_ValueChange<e_Direction> e)
+        { direction = e.NewValue; }
         /// <summary>
         /// Обработчик события изменения зависимой точки подчиненного объекта
         /// </summary>
         /// <param name="sender">Объект источник события</param>
         /// <param name="e">Аргументы события</param>
-        protected void onDependDotChange(object sender, EA_valueChange<eDot> e)
+        protected void OnDependDotChange(object sender, ea_ValueChange<e_Dot> e)
         {
-            _dDot = e.newValue;
-            onDDotChange(e);
+            DDot = e.NewValue;
+            OnDDotChange(e);
         }
+        #endregion 
         #endregion
-        #region service
+        #region Methods
+        #region autoUpdate
         /// <summary>
         /// Метод подписки экземпляра класса на изменение управляющих параметров.
         /// </summary>
         /// <param name="event_DateChanged">Анонимный метод подписки на изменение управляющей даты, принимающий на вход делегат метода обработчика события изменения управляющей даты, возвращает метод отписки обработчика.</param>
-        /// <param name="event_directionChanged">Анонимный метод подписки на изменение направления управляющей функции, принимающий на вход делегат метода обработчика события изменения направления, возвращает метод отписки обработчика.</param>
-        /// <param name="event_dependDotChanged">Анонимный метод подписки на изменение зависимой точки подчиненного объекта, принимающий на вход делегат метода обработчика события изменения подчиненной точки, возвращает метод отписки обработчика.</param>
+        /// <param name="event_DirectionChanged">Анонимный метод подписки на изменение направления управляющей функции, принимающий на вход делегат метода обработчика события изменения направления, возвращает метод отписки обработчика.</param>
+        /// <param name="event_DependDotChanged">Анонимный метод подписки на изменение зависимой точки подчиненного объекта, принимающий на вход делегат метода обработчика события изменения подчиненной точки, возвращает метод отписки обработчика.</param>
         /// <returns></returns>
         public bool setAutoupdate
-        (
-            Func<EventHandler<EA_valueChange<DateTime>>, Action> event_DateChanged,
-            Func<EventHandler<EA_valueChange<eDirection>>, Action> event_directionChanged,
-            Func<EventHandler<EA_valueChange<eDot>>, Action> event_dependDotChanged
-        )
+            (
+            Func<EventHandler<ea_ValueChange<DateTime>>, Action> event_DateChanged,
+            Func<EventHandler<ea_ValueChange<e_Direction>>, Action> event_DirectionChanged,
+            Func<EventHandler<ea_ValueChange<e_Dot>>, Action> event_DependDotChanged
+            )
         {
+            if (Subscribed) AutoupdateUnsuscribe();
+
             if (event_DateChanged == null
-               || event_directionChanged == null
-               || event_dependDotChanged == null) return false;
+                || event_DirectionChanged == null
+                || event_DependDotChanged == null) return false;
 
-            Action auDate = event_DateChanged(onDateChange);
-            Action auDot = event_dependDotChanged(onDependDotChange);
-            Action auDir = event_directionChanged(onDirectionChange);
+            Action auDate = event_DateChanged(OnDateChange);
+            Action auDot = event_DependDotChanged(OnDependDotChange);
+            Action auDir = event_DirectionChanged(OnDirectionChange);
 
-            autoupdateUnsuscribe = () =>
-                { auDate(); auDot(); auDir(); subscribed = false; };
-            subscribed = true;
+            AutoupdateUnsuscribe = () =>
+            {
+                auDate();
+                auDot();
+                auDir();
+                Subscribed = false;
+                AutoupdateUnsuscribe = () => { };
+            };
+
+            Subscribed = true;
             return true;
         }
+
+        /// <summary>
+        /// Метод подписки экземпляра класса на изменение управляющих параметров.
+        /// </summary>
+        /// <param name="event_DateChanged">Анонимный метод подписки на изменение управляющей даты, принимающий на вход делегат метода обработчика события изменения управляющей даты, возвращает метод отписки обработчика.</param>
+        /// <param name="event_DirectionChanged">Анонимный метод подписки на изменение направления управляющей функции, принимающий на вход делегат метода обработчика события изменения направления, возвращает метод отписки обработчика.</param>
+        /// <returns></returns>
+        public bool setAutoupdate
+            (
+            Func<EventHandler<ea_ValueChange<DateTime>>, Action> event_DateChanged,
+            Func<EventHandler<ea_ValueChange<e_Direction>>, Action> event_DirectionChanged
+            )
+        {
+            if (Subscribed) AutoupdateUnsuscribe();
+
+            if (event_DateChanged == null
+                || event_DirectionChanged == null) return false;
+
+            Action auDate = event_DateChanged(OnDateChange);
+            Action auDir = event_DirectionChanged(OnDirectionChange);
+
+            AutoupdateUnsuscribe = () =>
+            {
+                auDate();
+                auDir();
+                Subscribed = false;
+                AutoupdateUnsuscribe = () => { };
+            };
+
+            Subscribed = true;
+            return true;
+        }
+
+        public void unsetAutoupdate()
+        { AutoupdateUnsuscribe(); }
+        #endregion
+        #endregion
     }
-    #endregion
     #endregion
     #region iEvents
     /// <summary>
     /// Класс событий с предоставляемым функционалом по удаленной отписке делегатов.
     /// </summary>
     /// <typeparam name="T">Тип значений eventyArgs данного события.</typeparam>
-    public class iEvent<T>
+    public class IEvent<T>
         where T : EventArgs
     {
         #region Indexer
         /// <summary>
         /// Массив делегатов подписчиков события
         /// </summary>
-        protected EventHandler<T>[] invokationList;
+        protected EventHandler<T>[] InvokationList;
+        /// <summary>
         /// Предоставляет ссылки на методы подписанные на событие.
         /// </summary>
         /// <param name="index">Индекс элемента</param>
         /// <returns></returns>
-        public EventHandler<T> this[int index]
-        {
-            get { return invokationList[index]; }
-        }
+        public EventHandler<T> this[int index] => InvokationList[index];
         /// <summary>
-        /// Количество элементов массива <seealso cref="invokationList"/>
+        /// Количество элементов массива <seealso cref="InvokationList"/>
         /// </summary>
-        public int count { get { return invokationList.Length; } }
+        public int Count => InvokationList.Length;
         #endregion
         #region delegate
         /// <summary>
         /// Основной делегат класса
         /// </summary>
-        protected EventHandler<T> eventDelegate;
+        protected EventHandler<T> EventDelegate;
         #endregion
         #region property
         /// <summary>
-        /// Количество делегатов методов подписанных на <seealso cref="eventDelegate"/>
+        /// Количество делегатов методов подписанных на <seealso cref="EventDelegate"/>
         /// </summary>
-        protected int ilLength { get { return eventDelegate.GetInvocationList().Length; } }
+        protected int IlLength { get { return EventDelegate.GetInvocationList().Length; } }
         /// <summary>
         /// Свойство переменной события 
         /// </summary>
@@ -359,15 +487,15 @@ namespace alter.classes
             {
                 lock (this)
                 {
-                    eventDelegate -= value;
-                    eventDelegate += value;
+                    EventDelegate -= value;
+                    EventDelegate += value;
                 }
-                updateInvokationList();
+                UpdateInvokationList();
             }
             remove
             {
-                lock (this) { eventDelegate -= value; }
-                updateInvokationList();
+                lock (this) { EventDelegate -= value; }
+                UpdateInvokationList();
             }
         }
         #endregion
@@ -375,29 +503,29 @@ namespace alter.classes
         /// <summary>
         /// Конструктор класса
         /// </summary>
-        public iEvent()
+        public IEvent()
         {
-            invokationList = new EventHandler<T>[0];
+            InvokationList = new EventHandler<T>[0];
         }
         #endregion
         #region destructor
         /// <summary>
         /// Деструктор класса
         /// </summary>
-        ~iEvent()
+        ~IEvent()
         {
-            eventClean();
+            EventClean();
 
-            eventDelegate = null;
+            EventDelegate = null;
 
-            invokationList = null;
+            InvokationList = null;
         }
         /// <summary>
         /// Отписка всех событий данного экземпляра классов от их подписчиков.
         /// </summary>
-        protected virtual void eventClean()
+        protected virtual void EventClean()
         {
-            clearEvent(ref eventDelegate);
+            ClearEvent(ref EventDelegate);
         }
         #endregion
         #region subscribe methods
@@ -423,7 +551,7 @@ namespace alter.classes
         /// </summary>
         /// <param name="rDelegate">Донор подписчиков</param>
         /// <returns>Анонимный метод отписки подписанных на событие методов.</returns>
-        public Action addDelegateSubscribers(EventHandler<T> rDelegate)
+        public Action AddDelegateSubscribers(EventHandler<T> rDelegate)
         {
             if (rDelegate == null) throw new NullReferenceException();
             EventHandler<T>[] dlgs = rDelegate.GetInvocationList().Select(v => (EventHandler<T>)v).ToArray();
@@ -438,13 +566,13 @@ namespace alter.classes
         /// Отписать метод delegateMethod от данного события.
         /// </summary>
         /// <param name="delegateMethod">Делегат отписываемого метода.</param>
-        public void remove(EventHandler<T> delegateMethod)
+        public void Remove(EventHandler<T> delegateMethod)
         { iEventHandler -= delegateMethod; }
         /// <summary>
         /// Отписывает подписанный метод c указанным индексом перечисления getInvocationList()
         /// </summary>
         /// <param name="index"></param>
-        public void removeAt(int index)
+        public void RemoveAt(int index)
         { iEventHandler -= this[index]; }
         #endregion
         #region parent methods
@@ -454,9 +582,9 @@ namespace alter.classes
         /// <param name="sender">Объект запустивший событие.</param>
         /// <param name="args">Аргументы события наследуемые от <seealso cref="EventArgs"/></param>
         /// <returns></returns>
-        public bool invokeEvent(object sender, T args)
+        public bool InvokeEvent(object sender, T args)
         {
-            EventHandler<T> handler = eventDelegate;
+            EventHandler<T> handler = EventDelegate;
             if (handler != null)
             {
                 handler(sender, args);
@@ -467,8 +595,8 @@ namespace alter.classes
         /// <summary>
         /// Отписывает событие от всех его подписчиков.
         /// </summary>
-        public void clear()
-        { eventClean(); }
+        public void Clear()
+        { EventClean(); }
         #endregion
         #region invokation members methods
         /// <summary>
@@ -476,29 +604,27 @@ namespace alter.classes
         /// </summary>
         /// <param name="method">Делегат метода подписчика отписываемого от события.</param>
         /// <returns></returns>
-        public Action getUnsubscribeMethod(EventHandler<T> method)
+        public Action GetUnsubscribeMethod(EventHandler<T> method)
         { return () => iEventHandler -= method; }
         /// <summary>
         /// Возвращает индекс элемента массива подписчиков на событие. (Не тестировал)
         /// </summary>
         /// <param name="invokeMember"></param>
         /// <returns></returns>
-        public int indexOf(EventHandler<T> invokeMember)
+        public int IndexOf(EventHandler<T> invokeMember)
         {
-            int result = -1;
-            result = invokationList.Where((v, i) => v == invokeMember).Select((v, i) => i).First();
-            return result;
+            return InvokationList.Where((v, i) => v == invokeMember).Select((v, i) => i).First();
         }
         #endregion
         #region service
         /// <summary>
-        /// Метод обновления массива делегатов подписчиков <seealso cref="invokationList"/>
+        /// Метод обновления массива делегатов подписчиков <seealso cref="InvokationList"/>
         /// </summary>
-        protected virtual void updateInvokationList()
+        protected virtual void UpdateInvokationList()
         {
-            if(ilLength != count)
-                invokationList = 
-                    eventDelegate.GetInvocationList()
+            if(IlLength != Count)
+                InvokationList = 
+                    EventDelegate.GetInvocationList()
                     .Select(v => (EventHandler<T>)v).ToArray();
         }
         /// <summary>
@@ -506,7 +632,7 @@ namespace alter.classes
         /// </summary>
         /// <typeparam name="TArg">Тип EventArgs</typeparam>
         /// <param name="handler">Делегат</param>
-        protected void clearEvent<TArg>(ref EventHandler<TArg> handler) where TArg : EventArgs
+        protected void ClearEvent<TArg>(ref EventHandler<TArg> handler) where TArg : EventArgs
         {
             if (handler == null) return;
             EventHandler<TArg>[] dlgs = handler.GetInvocationList().Select(v => (EventHandler<TArg>)v).ToArray();
@@ -519,7 +645,7 @@ namespace alter.classes
     /// Класс событий с предоставляемым функционалом по удаленной отписке делегатов, и возможностью отслеживания манипуляций с подписчиками.
     /// </summary>
     /// <typeparam name="T">Тип значений eventyArgs данного события.</typeparam>
-    public class iEventObservable<T> : iEvent<T> where T : EventArgs
+    public class IEventObservable<T> : IEvent<T> where T : EventArgs
     {
         #region property
         /// <summary>
@@ -533,28 +659,28 @@ namespace alter.classes
 
                 lock (this)
                 {
-                    eventDelegate -= value;
-                    eventDelegate += value;
+                    EventDelegate -= value;
+                    EventDelegate += value;
                 }
-                if (count != ilLength)
+                if (Count != IlLength)
                 {
-                    updateInvokationList();
-                    onDelegateAdd(value);
+                    UpdateInvokationList();
+                    OnDelegateAdd(value);
                 }
             }
             remove
             {
                 if (value == null) throw new NullReferenceException();
 
-                lock (this) { eventDelegate -= value; }
+                lock (this) { EventDelegate -= value; }
 
-                int current = ilLength;
-                if (count != current)
+                int current = IlLength;
+                if (Count != current)
                 {
-                    updateInvokationList();
+                    UpdateInvokationList();
 
-                    onDelegateRemove(value);
-                    if(current == 0) onNoSubscribers();
+                    OnDelegateRemove(value);
+                    if(current == 0) OnNoSubscribers();
                 }
             }
         }
@@ -563,46 +689,46 @@ namespace alter.classes
         /// <summary>
         /// Событие при добавлении нового делегата в подписчики.
         /// </summary>
-        public event EventHandler<EA_delegateInfo> event_delegateAdded;
+        public event EventHandler<ea_DelegateInfo> EventDelegateAdded;
         /// <summary>
         /// Событие при отписке делегата из подписчиков.
         /// </summary>
-        public event EventHandler<EA_delegateInfo> event_delegateRemoved;
+        public event EventHandler<ea_DelegateInfo> EventDelegateRemoved;
         /// <summary>
         /// Событие при сокращении количества подписчиков до 0.
         /// </summary>
-        public event EventHandler<EventArgs> event_noSubscribers;
+        public event EventHandler<EventArgs> EventNoSubscribers;
         #endregion
         #region Constructor
         /// <summary>
         /// Конструктор класса
         /// </summary>
-        public iEventObservable() : base()
+        public IEventObservable() : base()
         { }
         #endregion
         #region destructor
         /// <summary>
         /// Деструктор класса
         /// </summary>
-        ~iEventObservable()
+        ~IEventObservable()
         {
-            eventClean();
-            eventDelegate = null;
-            event_delegateAdded = null;
-            event_delegateRemoved = null;
-            event_noSubscribers = null;
+            EventClean();
+            EventDelegate = null;
+            EventDelegateAdded = null;
+            EventDelegateRemoved = null;
+            EventNoSubscribers = null;
 
-            invokationList = null;
+            InvokationList = null;
         }
         /// <summary>
         /// Отписка всех событий данного экземпляра классов от их подписчиков.
         /// </summary>
-        protected override void eventClean()
+        protected override void EventClean()
         {
-            base.eventClean();
-            clearEvent(ref event_delegateAdded);
-            clearEvent(ref event_delegateRemoved);
-            clearEvent(ref event_noSubscribers);
+            base.EventClean();
+            ClearEvent(ref EventDelegateAdded);
+            ClearEvent(ref EventDelegateRemoved);
+            ClearEvent(ref EventNoSubscribers);
         }
         #endregion
         #region Handlers
@@ -610,26 +736,26 @@ namespace alter.classes
         /// Метод запуска события event_delegateAdded
         /// </summary>
         /// <param name="method">Ссылка на метод обрабатываемый основным событием</param>
-        protected void onDelegateAdd(EventHandler<T> method)
+        protected void OnDelegateAdd(EventHandler<T> method)
         {
-            EventHandler<EA_delegateInfo> handler = event_delegateAdded;
-            if (handler != null) handler(this, new EA_delegateInfo(method));
+            EventHandler<ea_DelegateInfo> handler = EventDelegateAdded;
+            if (handler != null) handler(this, new ea_DelegateInfo(method));
         }
         /// <summary>
         /// Метод запуска события event_delegateRemoved
         /// </summary>
         /// <param name="method">Ссылка на метод обрабатываемый основным событием</param>
-        protected void onDelegateRemove(EventHandler<T> method)
+        protected void OnDelegateRemove(EventHandler<T> method)
         {
-            EventHandler<EA_delegateInfo> handler = event_delegateRemoved;
-            if (handler != null) handler(this, new EA_delegateInfo(method));
+            EventHandler<ea_DelegateInfo> handler = EventDelegateRemoved;
+            if (handler != null) handler(this, new ea_DelegateInfo(method));
         }
         /// <summary>
         /// Метод запуска события event_noSubscribers
         /// </summary>
-        protected void onNoSubscribers()
+        protected void OnNoSubscribers()
         {
-            EventHandler<EventArgs> handler = event_noSubscribers;
+            EventHandler<EventArgs> handler = EventNoSubscribers;
             if (handler != null) handler(this, new EventArgs());
         }
         #endregion

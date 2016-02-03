@@ -11,12 +11,12 @@ namespace alter.Task.iface.TaskComponents
 {
     public interface ITActiveLink : IDependence
     {
-        string getActiveLinkID();
+        string GetActiveLinkId();
 
         void handler_newSubscriber(object sender,  ILink newLink);
-        void handler_unsuscribe(object sender, string stringID);
-        void findNewActiveLink(string[] linksID);
+        void handler_unsuscribe(object sender, string stringId);
+        void FindNewActiveLink(string[] linksId);
 
-        event EventHandler<EA_valueChange<string>> event_newActiveLink;
+        event EventHandler<ea_ValueChange<string>> event_NewActiveLink;
     }
 }

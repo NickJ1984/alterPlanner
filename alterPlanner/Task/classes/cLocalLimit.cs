@@ -14,102 +14,102 @@ namespace alter.Task.classes
 {
     public partial class task
     {
-        private class cLocalLimit : ITLocalLimit
+        private class CLocalLimit : ITLocalLimit
         {
             #region vars
-            private eDirection _dir;
+            private e_Direction _dir;
             private DateTime _date;
-            private eDot _dot;
-            private eTLLim _type;
-            private IFunction func;
+            private e_Dot _dot;
+            private e_TlLim _type;
+            private IFunction _func;
             #endregion
             #region props
 
             #endregion
             #region events
-            public event EventHandler<EA_valueChange<DateTime>> event_dateChanged;
-            public event EventHandler<EA_valueChange<eDirection>> event_directionChanged;
-            public event EventHandler<EA_valueChange<eDot>> event_dependDotChanged;
+            public event EventHandler<ea_ValueChange<DateTime>> event_DateChanged;
+            public event EventHandler<ea_ValueChange<e_Direction>> event_DirectionChanged;
+            public event EventHandler<ea_ValueChange<e_Dot>> event_DependDotChanged;
             #endregion
             #region constructors
-            public cLocalLimit(DateTime date, eDirection direction)
+            public CLocalLimit(DateTime date, e_Direction direction)
             {
                 _date = date;
                 _dir = direction;
 
-                func = new function(_date, _dir);
+                _func = new function(_date, _dir);
             }
             #endregion
             #region handlers
-            private void onDateChange(EA_valueChange<DateTime> args)
+            private void OnDateChange(ea_ValueChange<DateTime> args)
             {
-                EventHandler<EA_valueChange<DateTime>> handler = event_dateChanged;
+                EventHandler<ea_ValueChange<DateTime>> handler = event_DateChanged;
                 if (handler != null) handler(this, args);
             }
-            private void onDirectionChange(EA_valueChange<eDirection> args)
+            private void OnDirectionChange(ea_ValueChange<e_Direction> args)
             {
-                EventHandler<EA_valueChange<eDirection>> handler = event_directionChanged;
+                EventHandler<ea_ValueChange<e_Direction>> handler = event_DirectionChanged;
                 if (handler != null) handler(this, args);
             }
-            private void onDotTypeChanged(EA_valueChange<eDot> args)
+            private void OnDotTypeChanged(ea_ValueChange<e_Dot> args)
             {
-                EventHandler<EA_valueChange<eDot>> handler = event_dependDotChanged;
+                EventHandler<ea_ValueChange<e_Dot>> handler = event_DependDotChanged;
                 if (handler != null) handler(this, args);
             }
             #endregion
             #region methods
-            public DateTime checkDate(DateTime Date)
-            { return func.checkDate(Date); }
+            public DateTime CheckDate(DateTime date)
+            { return _func.CheckDate(date); }
 
-            public DateTime getDate()
+            public DateTime GetDate()
             { return _date; }
-            public void setDate(DateTime date)
+            public void SetDate(DateTime date)
             {
                 if (date == _date) return;
 
                 DateTime temp = _date;
                 _date = date;
 
-                func.setDate(_date);
+                _func.SetDate(_date);
 
-                onDateChange(new EA_valueChange<DateTime>(temp, _date));
+                OnDateChange(new ea_ValueChange<DateTime>(temp, _date));
             }
 
-            public eDirection getDirection()
+            public e_Direction GetDirection()
             { return _dir; }
-            public void setDirection(eDirection direction)
+            public void SetDirection(e_Direction direction)
             {
                 if (_dir == direction) return;
 
-                eDirection temp = _dir;
+                e_Direction temp = _dir;
                 _dir = direction;
 
-                func.setDirection(_dir);
+                _func.SetDirection(_dir);
                 
-                onDirectionChange(new EA_valueChange<eDirection>(temp, _dir));
+                OnDirectionChange(new ea_ValueChange<e_Direction>(temp, _dir));
             }
 
-            public eDot getDotType()
+            public e_Dot GetDotType()
             { return _dot; }
-            public void setDotType(eDot type)
+            public void SetDotType(e_Dot type)
             {
                 if (_dot == type) return;
 
-                eDot temp = _dot;
+                e_Dot temp = _dot;
                 _dot = type;
 
-                onDotTypeChanged(new EA_valueChange<eDot>(temp, _dot));
+                OnDotTypeChanged(new ea_ValueChange<e_Dot>(temp, _dot));
             }
 
-            public void setLLimit(eTLLim localLimit)
+            public void SetLLimit(e_TlLim localLimit)
             {
                 throw new NotImplementedException();
             }
 
-            public eTLLim getLLimit()
+            public e_TlLim GetLLimit()
             { return _type; }
 
-            public eDot getDependDot()
+            public e_Dot GetDependDot()
             { return _dot; }
             #endregion
             #region service

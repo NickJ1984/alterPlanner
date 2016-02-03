@@ -9,172 +9,172 @@ using alter.types;
 
 namespace alter.Link.classes
 {
-    class linkManager : ILinkManager
+    class LinkManager : ILinkManager
     {
         #region vars
-        private readonly string ownerID;
-        private ILinkFactory factory;
-        private neighborVault neighbor;
-        private HashSet<elem> uniqLinks;
+        private readonly string _ownerId;
+        private ILinkFactory _factory;
+        private NeighborVault _neighbor;
+        private HashSet<Elem> _uniqLinks;
         #endregion
         #region events
-        public event EventHandler<EA_value<ILink>> event_linkAdded;
-        public event EventHandler<EA_value<ILink>> event_linkDeleted;
+        public event EventHandler<ea_Value<ILink>> event_LinkAdded;
+        public event EventHandler<ea_Value<ILink>> event_LinkDeleted;
         #endregion
         #region constructors
-        public linkManager(ILinkFactory linkFactory, string ownerID)
+        public LinkManager(ILinkFactory linkFactory, string ownerId)
         {
-            this.ownerID = ownerID;
-            factory = linkFactory;
-            neighbor = new neighborVault(ownerID);
-            uniqLinks = new HashSet<elem>(new cmpElem());
+            this._ownerId = ownerId;
+            _factory = linkFactory;
+            _neighbor = new NeighborVault(ownerId);
+            _uniqLinks = new HashSet<Elem>(new CmpElem());
         }
         #endregion
         #region handlers
-        private void onLinkAdd(EA_value<ILink> args)
+        private void OnLinkAdd(ea_Value<ILink> args)
         {
-            EventHandler<EA_value<ILink>> handler = event_linkAdded;
+            EventHandler<ea_Value<ILink>> handler = event_LinkAdded;
             if (handler != null) handler(this, args);
         }
-        private void onLinkDelete(EA_value<ILink> args)
+        private void OnLinkDelete(ea_Value<ILink> args)
         {
-            EventHandler<EA_value<ILink>> handler = event_linkDeleted;
+            EventHandler<ea_Value<ILink>> handler = event_LinkDeleted;
             if (handler != null) handler(this, args);
         }
-        private void onLinkDelete(object sender, EA_IDObject e)
+        private void OnLinkDelete(object sender, ea_IdObject e)
         {
-            delLink(e.ID.ID);
+            DelLink(e.Id.Id);
         }
         #endregion
         #region methods
         #region delete
-        public bool delLink()
+        public bool DelLink()
         {
-            elem[] current = uniqLinks.ToArray();
+            Elem[] current = _uniqLinks.ToArray();
 
-            for(int i = 0; i < uniqLinks.Count; i++)
+            for(int i = 0; i < _uniqLinks.Count; i++)
             {
-                delLink(current[i]);
+                DelLink(current[i]);
             }
-            return (uniqLinks.Count == 0) ? true : false;
+            return (_uniqLinks.Count == 0) ? true : false;
         }
-        public bool delLink(string linkID)
+        public bool DelLink(string linkId)
         {
-            elem delElem = uniqLinks.Where((v, i) => v.ID == linkID).ElementAt(0);
+            Elem delElem = _uniqLinks.Where((v, i) => v.Id == linkId).ElementAt(0);
 
-            return delLink(delElem);
+            return DelLink(delElem);
         }
-        public bool delLink(eDependType dependType)
+        public bool DelLink(e_DependType dependType)
         {
             bool result = true;
-            elem[] indexes = uniqLinks.Where(v => v.type == dependType).ToArray();
+            Elem[] indexes = _uniqLinks.Where(v => v.Type == dependType).ToArray();
             if (indexes == null || indexes.Length == 0) return false;
 
-            for (int i = 0; i < indexes.Length; i++) result = result && delLink(indexes[i]);
+            for (int i = 0; i < indexes.Length; i++) result = result && DelLink(indexes[i]);
             return result;
         }
-        private bool delLink(elem delElement)
+        private bool DelLink(Elem delElement)
         {
-            ILink link = factory.getLink(delElement.ID);
+            ILink link = _factory.GetLink(delElement.Id);
 
-            if (uniqLinks.Remove(delElement))
+            if (_uniqLinks.Remove(delElement))
             {
-                link.event_objectDeleted -= onLinkDelete;
-                neighbor.del(delElement.type, link);
+                link.event_ObjectDeleted -= OnLinkDelete;
+                _neighbor.Del(delElement.Type, link);
 
-                onLinkDelete(new EA_value<ILink>(link));
-                link.unsuscribe(ownerID);
+                OnLinkDelete(new ea_Value<ILink>(link));
+                link.Unsuscribe(_ownerId);
                 return true;
             }
             else return false;
         }
         #endregion
         #region get
-        public string[] getLinks()
+        public string[] GetLinks()
         {
-            return uniqLinks.Select(s => s.ID).ToArray();
+            return _uniqLinks.Select(s => s.Id).ToArray();
         }
-        public string[] getLinks(eDependType dependType)
+        public string[] GetLinks(e_DependType dependType)
         {
-            return uniqLinks.Where(s => s.type == dependType).Select(e => e.ID).ToArray();
+            return _uniqLinks.Where(s => s.Type == dependType).Select(e => e.Id).ToArray();
         }
         #endregion
-        public bool addLink(eDependType type, ILink newLink)
+        public bool AddLink(e_DependType type, ILink newLink)
         {
-            elem newElem = new elem(newLink, type);
-            if (!uniqLinks.Add(newElem)) return false;
-            if (!neighbor.add(type, newLink))
+            Elem newElem = new Elem(newLink, type);
+            if (!_uniqLinks.Add(newElem)) return false;
+            if (!_neighbor.Add(type, newLink))
             {
-                uniqLinks.Remove(newElem);
+                _uniqLinks.Remove(newElem);
                 return false;
             }
 
-            newLink.event_objectDeleted += onLinkDelete;
+            newLink.event_ObjectDeleted += OnLinkDelete;
 
             return true;
         }
-        public int getLinksCount(eDependType dependType)
+        public int GetLinksCount(e_DependType dependType)
         {
-            return uniqLinks.Where(s => s.type == dependType).Count();
+            return _uniqLinks.Where(s => s.Type == dependType).Count();
         }
-        public bool linkExist(string linkID)
+        public bool LinkExist(string linkId)
         {
-            elem e = new elem();
-            e.ID = linkID;
-            e.type = eDependType.master;
-            return uniqLinks.Contains(e);
+            Elem e = new Elem();
+            e.Id = linkId;
+            e.Type = e_DependType.Master;
+            return _uniqLinks.Contains(e);
         }
         #endregion
         #region inner entities
-        protected struct elem
+        protected struct Elem
         {
-            public string ID;
-            public eDependType type;
+            public string Id;
+            public e_DependType Type;
 
-            public elem(ILink link, eDependType type)
+            public Elem(ILink link, e_DependType type)
             {
-                this.ID = link.getID();
-                this.type = type;
+                this.Id = link.GetId();
+                this.Type = type;
             }
         }
-        protected class cmpElem : IEqualityComparer<elem>
+        protected class CmpElem : IEqualityComparer<Elem>
         {
-            public bool Equals(elem x, elem y)
+            public bool Equals(Elem x, Elem y)
             {
-                return x.ID == y.ID;
+                return x.Id == y.Id;
             }
 
-            public int GetHashCode(elem obj)
+            public int GetHashCode(Elem obj)
             {
-                return obj.ID.GetHashCode();
+                return obj.Id.GetHashCode();
             }
         }
-        protected class neighborVault
+        protected class NeighborVault
         {
-            private HashSet<string> uniq;
+            private HashSet<string> _uniq;
 
-            public neighborVault(string ownerID)
+            public NeighborVault(string ownerId)
             {
-                uniq = new HashSet<string>();
-                uniq.Add(ownerID);
+                _uniq = new HashSet<string>();
+                _uniq.Add(ownerId);
             }
-            public bool add(eDependType type, ILink link)
+            public bool Add(e_DependType type, ILink link)
             {
-                string nID = link.getInfoMember(invert(type)).getMemberID().getID();
-                return uniq.Add(nID);
+                string nId = link.GetInfoMember(Invert(type)).GetMemberId().GetId();
+                return _uniq.Add(nId);
             }
-            public bool del(eDependType type, ILink link)
+            public bool Del(e_DependType type, ILink link)
             {
-                string nID = link.getInfoMember(invert(type)).getMemberID().getID();
-                return uniq.Remove(nID);
+                string nId = link.GetInfoMember(Invert(type)).GetMemberId().GetId();
+                return _uniq.Remove(nId);
             }
-            public void clear()
+            public void Clear()
             {
-                uniq.Clear();
+                _uniq.Clear();
             }
-            private eDependType invert(eDependType type)
+            private e_DependType Invert(e_DependType type)
             {
-                return (type == eDependType.master) ? eDependType.slave : eDependType.master;
+                return (type == e_DependType.Master) ? e_DependType.Slave : e_DependType.Master;
             }
         }
         #endregion

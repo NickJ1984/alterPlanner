@@ -17,22 +17,22 @@ namespace alterTesting.Emulators
         #region vars
         private IProject _project;
         private alter.iface.IId _ident;
-        private eLnkState _state;
-        private eTskLim _limit;
+        private e_LnkState _state;
+        private e_TskLim _limit;
         private double _delay;
 
-        private alter.Link.classes.linkMember masterMbr;
-        private alter.Link.classes.linkMember slaveMbr;
+        private alter.Link.classes.LinkMember masterMbr;
+        private alter.Link.classes.LinkMember slaveMbr;
         private IDot dotSlave;
         private IDot dotMaster;
 
         private Action unsuscribeMbrs;
 
-        private Func<eDot> dependDotMst;
-        private Func<eDot> dependDotSlv;
+        private Func<e_Dot> dependDotMst;
+        private Func<e_Dot> dependDotSlv;
         #endregion
         #region events
-        public event EventHandler<EA_IDObject> event_objectDeleted;
+        public event EventHandler<ea_IdObject> event_ObjectDeleted;
         #endregion
         #region constructors
         public tstLink(IProject project, IDock master, IDock slave)
@@ -40,127 +40,127 @@ namespace alterTesting.Emulators
             _project = project;
             _delay = 0;
             
-            dotMaster = master.subscribe(eDependType.master, this);
-            dotSlave = slave.subscribe(eDependType.slave, this);
+            dotMaster = master.Subscribe(e_DependType.Master, this);
+            dotSlave = slave.Subscribe(e_DependType.Slave, this);
 
             
         }
         public void subscribe(IDock master, IDock slave)
         {
-            masterMbr = new alter.Link.classes.linkMember(
-                        new alter.Function.classes.vectorF()
+            masterMbr = new alter.Link.classes.LinkMember(
+                        new alter.Function.classes.VectorF()
                         {
-                            date = alter.classes.__hlp.initDate,
-                            direction = eDirection.Fixed
+                            Date = alter.classes.Hlp.InitDate,
+                            Direction = e_Direction.Fixed
                         },
                         dependDotMst()
                         );
-            masterMbr.setInfo(master);
-            masterMbr.setDependType(eDependType.master);
+            masterMbr.SetInfo(master);
+            masterMbr.SetDependType(e_DependType.Master);
 
-            dotMaster = master.subscribe(eDependType.master, this);
+            dotMaster = master.Subscribe(e_DependType.Master, this);
 
-            masterMbr.depend.setDate(() => dotMaster.getDate());
-            masterMbr.depend.setDependDot(() => dependDotMst());
+            masterMbr.Depend.SetDate(() => dotMaster.GetDate());
+            masterMbr.Depend.SetDependDot(() => dependDotMst());
 
-            master.event_objectDeleted += onDeleteTask;
-            dotMaster.event_dateChanged += onMasterDateChange;
+            master.event_ObjectDeleted += onDeleteTask;
+            dotMaster.event_DateChanged += onMasterDateChange;
 
 
-            slaveMbr = new alter.Link.classes.linkMember(
-                new alter.Function.classes.vectorF()
+            slaveMbr = new alter.Link.classes.LinkMember(
+                new alter.Function.classes.VectorF()
                 {
-                    date = getDateLimit(),
-                    direction = eDirection.Fixed
+                    Date = getDateLimit(),
+                    Direction = e_Direction.Fixed
                 },
                 dependDotSlv()
                 );
-            slaveMbr.setInfo(slave);
-            slaveMbr.setDependType(eDependType.slave);
+            slaveMbr.SetInfo(slave);
+            slaveMbr.SetDependType(e_DependType.Slave);
 
-            dotSlave = slave.subscribe(eDependType.slave, this);
+            dotSlave = slave.Subscribe(e_DependType.Slave, this);
             
 
 
 
         }
-        public void initUnsuscribe(IDock dock, eDependType type)
+        public void initUnsuscribe(IDock dock, e_DependType type)
         {
 
         }
         public void initFunctions(IId mstID, IId slvID)
         {
-            dependDotMst = () => alter.classes.__hlp.getPrecursor(_limit);
-            dependDotSlv = () => alter.classes.__hlp.getFollower(_limit);
+            dependDotMst = () => alter.classes.Hlp.GetPrecursor(_limit);
+            dependDotSlv = () => alter.classes.Hlp.GetFollower(_limit);
         }
         #endregion
         #region handlers
-        private void onMasterDateChange(object sender, EA_valueChange<DateTime> e)
+        private void onMasterDateChange(object sender, ea_ValueChange<DateTime> e)
         {
 
         }
-        private void onSlaveDateChange(object sender, EA_valueChange<DateTime> e)
+        private void onSlaveDateChange(object sender, ea_ValueChange<DateTime> e)
         {
 
         }
-        private void onDeleteTask(object sender, EA_IDObject e)
+        private void onDeleteTask(object sender, ea_IdObject e)
         { onDeleteLink(); }
         private void onDeleteLink()
         {
             //unsuscribe();
-            EventHandler<EA_IDObject> handler = event_objectDeleted;
-            if (handler != null) handler(this, new EA_IDObject(this));
+            EventHandler<ea_IdObject> handler = event_ObjectDeleted;
+            if (handler != null) handler(this, new ea_IdObject(this));
         }
         #endregion
         #region Object
         #region ID
-        public eEntity getType()
-        { return _ident.getType(); }
-        public string getID()
-        { return _ident.getID(); }
+        public e_Entity GetType()
+        { return _ident.GetType(); }
+        public string GetId()
+        { return _ident.GetId(); }
         #endregion
         #region params
-        public eLnkState getLinkState()
+        public e_LnkState GetLinkState()
         {
             throw new NotImplementedException();
         }
-        public double getDelay()
+        public double GetDelay()
         { return _delay; }
-        public void setDelay(double days)
+        public void SetDelay(double days)
         {
             throw new NotImplementedException();
         }
-        public eTskLim getLimit()
+        public e_TskLim GetLimit()
         { return _limit; }
-        public bool setLimit(eTskLim limitType)
+        public bool SetLimit(e_TskLim limitType)
         {
             throw new NotImplementedException();
         } 
         #endregion
-        public void unsuscribe(string IDsubscriber)
+        public void Unsuscribe(string IDsubscriber)
         {
             //if (IDsubscriber == masterID || IDsubscriber == slaveID) onDeleteLink();
         }
-        public void deleteObject()
+        public void DeleteObject()
         {
             onDeleteLink();
         } 
         #endregion
-        public ILMember getInfoMember(IId member)
+        public ILMember GetInfoMember(IId member)
         {
             throw new NotImplementedException();
         }
-        public ILMember getInfoMember(eDependType member)
+        public ILMember GetInfoMember(e_DependType member)
         {
             throw new NotImplementedException();
         }
         #region Service
         private DateTime getDateLimit()
-        { return dotMaster.getDate().AddDays(_delay); }
+        { return dotMaster.GetDate().AddDays(_delay); }
         
-        private eDependType getDepend(string memberID)
+        private e_DependType getDepend(string memberID)
         {
-           return (memberID == masterMbr.getMemberID().getID()) ? eDependType.master : eDependType.slave;
+           return (memberID == masterMbr.GetMemberId().GetId()) ? e_DependType.Master : e_DependType.Slave;
         } 
         #endregion
     }

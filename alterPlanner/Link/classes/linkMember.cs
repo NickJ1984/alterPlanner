@@ -10,28 +10,28 @@ using alter.Function.classes;
 
 namespace alter.Link.classes
 {
-    public struct linkMember : alter.Link.iface.ILMember
+    public struct LinkMember : alter.Link.iface.ILMember
     {
         private IId _mbr;
-        private eDependType _type;
-        public dependence depend;
+        private e_DependType _type;
+        public Dependence Depend;
 
-        public linkMember(vectorF vector, eDot dependDot)
+        public LinkMember(VectorF vector, e_Dot dependDot)
         {
             _mbr = null;
-            _type = eDependType.master;
-            depend = new dependence(vector.date, vector.direction, dependDot);
+            _type = e_DependType.Master;
+            Depend = new Dependence(vector.Date, vector.Direction, dependDot);
         }
         
-        public void setInfo(IId member)
+        public void SetInfo(IId member)
         { _mbr = member; }
-        public eDependType getDependType()
+        public e_DependType GetDependType()
         { return _type; }
-        public void setDependType(eDependType type)
+        public void SetDependType(e_DependType type)
         { if (_type != type) _type = type; }
-        public IDependence getDependence()
-        { return depend; }
-        public IId getMemberID()
+        public IDependence GetDependence()
+        { return Depend; }
+        public IId GetMemberId()
         { return _mbr; }
     }
 }

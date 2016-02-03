@@ -11,7 +11,7 @@ namespace alter.types
     /// <summary>
     /// Характеризует направление в котором распространяется функция
     /// </summary>
-    public enum eDirection
+    public enum e_Direction
     {
         /// <summary>
         /// Тип "Как можно раньше"
@@ -37,32 +37,32 @@ namespace alter.types
     /// <summary>
     /// Внутреннее ограничение объекта задачи
     /// </summary>
-    public enum eTLLim
+    public enum e_TlLim
     {
         /// <summary>
         /// Финиш не ранее
         /// </summary>
-        finishNotEarlier = 3,
+        FinishNotEarlier = 3,
         /// <summary>
         /// Старт не ранее
         /// </summary>
-        startNotEarlier = 4,
+        StartNotEarlier = 4,
         /// <summary>
         /// Старт не позднее
         /// </summary>
-        startNotLater = 5,
+        StartNotLater = 5,
         /// <summary>
         /// Финиш не позднее
         /// </summary>
-        finishNotLater = 6,
+        FinishNotLater = 6,
         /// <summary>
         /// Старт фиксирован
         /// </summary>
-        startFixed = 7,
+        StartFixed = 7,
         /// <summary>
         /// Финиш фиксирован
         /// </summary>
-        finishFixed = 8,
+        FinishFixed = 8,
         /// <summary>
         /// Как можно раньше
         /// </summary>
@@ -75,7 +75,7 @@ namespace alter.types
     /// <summary>
     /// Типы ограничения, при типе связи "предшественник-последователь"
     /// </summary>
-    public enum eTskLim
+    public enum e_TskLim
     {
         /// <summary>
         /// старт-старт
@@ -95,20 +95,20 @@ namespace alter.types
         FinishFinish = 20
     }
     /// <summary>
-    /// Элементы составляющие перечисление <see cref="eTskLim"/>,
+    /// Элементы составляющие перечисление <see cref="e_TskLim"/>,
     /// необходимо для утилитарных функций. Данный тип имеет свойство флагов.
     /// </summary>
     [Flags]
-    public enum eTskLimChunk
+    public enum e_TskLimChunk
     {
         /// <summary>
         /// Старт - значение предшественника
         /// </summary>
-        Start_ = 2,
+        Start = 2,
         /// <summary>
         /// Финиш - значение предшественника
         /// </summary>
-        Finish_ = 4,
+        Finish = 4,
         /// <summary>
         /// Старт - значение последователя
         /// </summary>
@@ -121,7 +121,7 @@ namespace alter.types
     /// <summary>
     /// Ограничения используемые в объектах групп
     /// </summary>
-    public enum eGrpLim
+    public enum e_GrpLim
     {
         /// <summary>
         /// Как можно раньше
@@ -143,7 +143,7 @@ namespace alter.types
     /// <summary>
     /// Ограничения используемые в объекте проекта
     /// </summary>
-    public enum ePrjLim
+    public enum e_PrjLim
     {
         /// <summary>
         /// Как можно раньше
@@ -157,7 +157,7 @@ namespace alter.types
     /// <summary>
     /// Ограничения используемые в объектах связей
     /// </summary>
-    public enum eLnkLim
+    public enum e_LnkLim
     {
         /// <summary>
         /// старт-старт
@@ -198,32 +198,32 @@ namespace alter.types
     /// <summary>
     /// Основные типы объектов библиотеки alterPlanner
     /// </summary>
-    public enum eEntity
+    public enum e_Entity
     {
         /// <summary>
         /// Тип отсутствует
         /// </summary>
-        none = 0,
+        None = 0,
         /// <summary>
         /// Проект
         /// </summary>
-        project = 1,
+        Project = 1,
         /// <summary>
         /// Фабрика
         /// </summary>
-        factory = 2,
+        Factory = 2,
         /// <summary>
         /// Группа
         /// </summary>
-        group = 3,
+        Group = 3,
         /// <summary>
         /// Связь
         /// </summary>
-        link = 4,
+        Link = 4,
         /// <summary>
         /// Задача
         /// </summary>
-        task = 5
+        Task = 5
     }
     #endregion
 
@@ -235,63 +235,63 @@ namespace alter.types
     /// <summary>
     /// Зависимость объекта учавствующего в связи
     /// </summary>
-    public enum eDependType
+    public enum e_DependType
     {
         /// <summary>
         /// Управляющий объект
         /// </summary>
-        master = 1,
+        Master = 1,
         /// <summary>
         /// Подчинённый объект
         /// </summary>
-        slave = 2
+        Slave = 2
     }
     /// <summary>
     /// Состояние связи, показывает следует ли подчинённый объект ограничению связи
     /// </summary>
-    public enum eLnkState
+    public enum e_LnkState
     {
         /// <summary>
         /// Ограничение связи соблюдается
         /// </summary>
-        inTime = 0,
+        InTime = 0,
         /// <summary>
         /// Дата подчинённого объекта позднее даты ограничения
         /// </summary>
-        later = 1,
+        Later = 1,
         /// <summary>
         /// Дата подчинённого объекта раньше даты ограничения
         /// </summary>
-        early = 2
+        Early = 2
     }
 
     /// <summary>
     /// Тип связи
     /// </summary>
-    public enum eLnkType
+    public enum e_LnkType
     {
         /// <summary>
         /// Зависимость типа предшественник - последователь
         /// </summary>
-        depend = 1,
+        Depend = 1,
         /// <summary>
         /// Подчинённый объект является членом группы (управляющий объект)
         /// </summary>
-        group = 2
+        Group = 2
     }
     /// <summary>
     /// Тип точки
     /// </summary>
-    public enum eDot
+    public enum e_Dot
     {
         /// <summary>
         /// Начальная точка
         /// </summary>
-        start = 1,
+        Start = 1,
         /// <summary>
         /// Конечная точка
         /// </summary>
-        finish = 2
+        Finish = 2
     }
     #endregion
 }

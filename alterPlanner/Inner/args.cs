@@ -9,29 +9,29 @@ using alter.iface;
 namespace alter.args
 {
     /// <summary>
-    /// Аргумент события передающий идентификатор объекта <see cref="identity"/> со свойством readonly.
+    /// Аргумент события передающий идентификатор объекта <see cref="Identity"/> со свойством readonly.
     /// </summary>
-    public class EA_IDObject : System.EventArgs
+    public class ea_IdObject : System.EventArgs
     {
         /// <summary>
         /// Идентификатор объекта.
         /// </summary>
-        public readonly identity ID;
+        public readonly Identity Id;
 
         /// <summary>
         /// Конструктор класса аргументов.
         /// </summary>
         /// <param name="IDobject">Задать идентификатор объекта передаваемый аргументом события.</param>
-        public EA_IDObject(IId IDobject)
+        public ea_IdObject(IId dobject)
         {
-            ID = new identity(IDobject.getType(), IDobject.getID());
+            Id = new Identity(dobject.GetType(), dobject.GetId());
         }
     }
     /// <summary>
-    /// Аргумент события передающий объект типа <see cref="EA_value{T}(T)"/>.
+    /// Аргумент события передающий объект типа <see cref="ea_Value{T}(T)"/>.
     /// </summary>
     /// <typeparam name="T">Тип передаваемого объекта.</typeparam>
-    public class EA_value<T> : System.EventArgs
+    public class ea_Value<T> : System.EventArgs
     {
         /// <summary>
         /// Передаваемый объект типа <typeparamref name="T"/>.
@@ -41,70 +41,70 @@ namespace alter.args
         /// <summary>
         /// Конструктор класса аргумента события.
         /// </summary>
-        /// <param name="Value">Задать передаваемый объект типа <typeparamref name="T"/>.</param>
-        public EA_value(T Value)
+        /// <param name="value">Задать передаваемый объект типа <typeparamref name="T"/>.</param>
+        public ea_Value(T value)
         {
-            this.Value = Value;
+            this.Value = value;
         }
     }
 
     /// <summary>
-    /// Аргумент события передающий объект типа <see cref="EA_value{T}(T)"/>, до и после его изменения.
+    /// Аргумент события передающий объект типа <see cref="ea_Value{T}(T)"/>, до и после его изменения.
     /// </summary>
     /// <typeparam name="T">Тип передаваемого объекта.</typeparam>
-    public class EA_valueChange<T> : System.EventArgs
+    public class ea_ValueChange<T> : System.EventArgs
     {
         /// <summary>
         /// Старое значение объекта типа <typeparamref name="T"/>.
         /// </summary>
-        public T oldValue;
+        public T OldValue;
         /// <summary>
         /// Новое значение объекта типа <typeparamref name="T"/>.
         /// </summary>
-        public T newValue;
+        public T NewValue;
 
         /// <summary>
         /// Конструктор класса аргумента события.
         /// </summary>
-        /// <param name="Old">Задать старое значение передаваемого объекта типа <typeparamref name="T"/>.</param>
+        /// <param name="old">Задать старое значение передаваемого объекта типа <typeparamref name="T"/>.</param>
         /// <param name="New">Задать новое значение передаваемого объекта типа <typeparamref name="T"/>.</param>
-        public EA_valueChange(T Old, T New)
+        public ea_ValueChange(T old, T New)
         {
-            oldValue = Old;
-            newValue = New;
+            OldValue = old;
+            NewValue = New;
         }
     }
 
     /// <summary>
     /// Аргумент события передающий информацию о делегате
     /// </summary>
-    public class EA_delegateInfo : System.EventArgs
+    public class ea_DelegateInfo : System.EventArgs
     {
         /// <summary>
         /// Возвращает экземпляр класса, метод которого вызывает текущий делегат.
         /// </summary>
-        public readonly object target;
+        public readonly object Target;
         /// <summary>
         /// Возвращает метод представленный делегатом.
         /// </summary>
-        public readonly System.Reflection.MethodInfo method;
+        public readonly System.Reflection.MethodInfo Method;
 
         /// <summary>
-        /// Конструктор экземпляра класса <see cref="EA_delegateInfo"/>
+        /// Конструктор экземпляра класса <see cref="ea_DelegateInfo"/>
         /// </summary>
         /// <param name="method">Ссылка на метод представляемый делегатом.</param>
         /// <param name="target">Ссылка экземпляр класса, метод которого вызывает текущий делегат.</param>
-        public EA_delegateInfo(System.Reflection.MethodInfo method, object target)
+        public ea_DelegateInfo(System.Reflection.MethodInfo method, object target)
         {
-            this.target = target;
-            this.method = method;
+            this.Target = target;
+            this.Method = method;
         }
 
         /// <summary>
-        /// Конструктор экземпляра класса <see cref="EA_delegateInfo"/>
+        /// Конструктор экземпляра класса <see cref="ea_DelegateInfo"/>
         /// </summary>
         /// <param name="_delegate">Ссылка на делегат метод и источник которого будет передаваться данными аргументами.</param>
-        public EA_delegateInfo(Delegate _delegate)
+        public ea_DelegateInfo(Delegate _delegate)
             :this(_delegate.Method, _delegate.Target)
         { }
     }

@@ -12,43 +12,43 @@ namespace alter.Task.classes
 {
     public partial class task
     {
-        private class cDuration : ITDuration
+        private class CDuration : ITDuration
         {
             #region vars
-            public double minValue = 0;
-            private ITDotManager dManager;
+            public double MinValue = 0;
+            private ITDotManager _dManager;
             private double _duration;
             #endregion
             #region events
-            public event EventHandler<EA_valueChange<double>> event_durationChanged;
+            public event EventHandler<ea_ValueChange<double>> event_DurationChanged;
             #endregion
             #region constructors
-            public cDuration(ITDotManager dotManager)
+            public CDuration(ITDotManager dotManager)
             {
-                dManager = dotManager;
-                _duration = minValue;
+                _dManager = dotManager;
+                _duration = MinValue;
             }
             #endregion
             #region handlers
-            private void onDurationChange(EA_valueChange<double> args)
+            private void OnDurationChange(ea_ValueChange<double> args)
             {
-                EventHandler<EA_valueChange<double>> handler = event_durationChanged;
+                EventHandler<ea_ValueChange<double>> handler = event_DurationChanged;
                 if (handler != null) handler(this, args);
             }
             #endregion
             #region methods
-            public double getDuration()
+            public double GetDuration()
             {
                 throw new NotImplementedException();
             }
-            public void setDuration(double days)
+            public void SetDuration(double days)
             {
-                if (_duration == days || days < minValue) return;
+                if (_duration == days || days < MinValue) return;
 
                 double temp = _duration;
                 _duration = days;
 
-                onDurationChange(new EA_valueChange<double>(temp, _duration));
+                OnDurationChange(new ea_ValueChange<double>(temp, _duration));
             }
             #endregion
         }

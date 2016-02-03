@@ -9,125 +9,126 @@ using alter.types;
 
 namespace alter.Function.classes
 {
-    public struct vectorF
+    public struct VectorF
     {
-        public DateTime date;
-        public eDirection direction;
+        public DateTime Date;
+        public e_Direction Direction;
     }
     public class function : IFunction
     {
         #region vars
-        protected DateTime _date;
-        protected eDirection _direction;
-        protected Func<DateTime, DateTime> _function;
+        protected DateTime Date;
+        protected e_Direction Direction;
+        protected Func<DateTime, DateTime> Function;
         #endregion
         #region props
         public virtual DateTime date
         {
-            get { return _date; }
+            get { return Date; }
             set
             {
-                if(_date != value)
+                if(Date != value)
                 {
-                    DateTime temp = _date;
-                    _date = value;
-                    onDateChange(new EA_valueChange<DateTime>(temp, _date));
+                    DateTime temp = Date;
+                    Date = value;
+                    OnDateChange(new ea_ValueChange<DateTime>(temp, Date));
                 }
             }
         }
-        public virtual eDirection direction
+        public virtual e_Direction direction
         {
-            get { return _direction; }
+            get { return Direction; }
             set
             {
-                if (_direction != value)
+                if (Direction != value)
                 {
-                    eDirection temp = _direction;
-                    _direction = value;
-                    _function = getSvcFunction(_direction);
-                    onDirectionChange(new EA_valueChange<eDirection>(temp, _direction));
+                    e_Direction temp = Direction;
+                    Direction = value;
+                    Function = GetSvcFunction(Direction);
+                    OnDirectionChange(new ea_ValueChange<e_Direction>(temp, Direction));
                 }
             }
         }
         #endregion
         #region events
-        public event EventHandler<EA_valueChange<DateTime>> event_dateChanged;
-        public event EventHandler<EA_valueChange<eDirection>> event_directionChanged;
+        public event EventHandler<ea_ValueChange<DateTime>> event_DateChanged;
+        public event EventHandler<ea_ValueChange<e_Direction>> event_DirectionChanged;
         #endregion
         #region constructor
-        public function(DateTime date, eDirection direction)
+        public function(DateTime date, e_Direction direction)
         {
             this.direction = direction;
             this.date = date;
+            Function = GetSvcFunction(Direction);
         }
         #endregion
         #region handlers
-        protected void onDateChange(EA_valueChange<DateTime> args)
+        protected void OnDateChange(ea_ValueChange<DateTime> args)
         {
-            EventHandler<EA_valueChange<DateTime>> handler = event_dateChanged;
+            EventHandler<ea_ValueChange<DateTime>> handler = event_DateChanged;
             if (handler != null) handler(this, args);
         }
-        protected void onDirectionChange(EA_valueChange<eDirection> args)
+        protected void OnDirectionChange(ea_ValueChange<e_Direction> args)
         {
-            EventHandler<EA_valueChange<eDirection>> handler = event_directionChanged;
+            EventHandler<ea_ValueChange<e_Direction>> handler = event_DirectionChanged;
             if (handler != null) handler(this, args);
         }
         #endregion
         #region methods
-        public DateTime checkDate(DateTime Date)
+        public DateTime CheckDate(DateTime date)
         {
-            return _function(Date);
+            return Function(Date);
         }
-        public Func<DateTime, DateTime, DateTime> getFunctionDir(eDirection direction)
+        public Func<DateTime, DateTime, DateTime> GetFunctionDir(e_Direction direction)
         {
             switch (direction)
             {
                 //case eDirection.LeftMax:
                 //case eDirection.RightMax:
-                case eDirection.Fixed:
+                case e_Direction.Fixed:
                     return new Func<DateTime, DateTime, DateTime>(
-                        (Limit, Date) => Date = Limit);
+                        (limit, Date) => Date = limit);
 
-                case eDirection.Left:
+                case e_Direction.Left:
                     return new Func<DateTime, DateTime, DateTime>(
-                    (Limit, Date) => (Date > Limit) ? Limit : Date);
+                    (limit, Date) => (Date > limit) ? limit : Date);
 
-                case eDirection.Right:
+                case e_Direction.Right:
                     return new Func<DateTime, DateTime, DateTime>(
-                    (Limit, Date) => (Date < Limit) ? Limit : Date);
+                    (limit, Date) => (Date < limit) ? limit : Date);
                 default:
                     throw new Exception("getSvcFunction: wrong direction value");
             }
         }
 
 
-        public virtual DateTime getDate()
+        public virtual DateTime GetDate()
         { return date; }
-        public void setDate(DateTime date)
+        public void SetDate(DateTime date)
         { this.date = date; }
 
-        public virtual eDirection getDirection()
+        public virtual e_Direction GetDirection()
         { return direction; }
-        public void setDirection(eDirection direction)
+        public void SetDirection(e_Direction direction)
         { this.direction = direction; }
         #endregion
         #region service
-        protected Func<DateTime, DateTime> getSvcFunction(eDirection direction)
+        protected Func<DateTime, DateTime> GetSvcFunction(e_Direction direction)
         {
             switch(direction)
             {
                 //case eDirection.LeftMax:
                 //case eDirection.RightMax:
-                case eDirection.Fixed:
-                    return new Func<DateTime, DateTime>((Date) => _date);
+                case e_Direction.Fixed:
+                    return new Func<DateTime, DateTime>((Date) => this.Date);
 
-                case eDirection.Left:
+                case e_Direction.Left:
                     return new Func<DateTime, DateTime>(
-                    (Date) => (Date > _date) ? _date : Date);
+                    (Date) => (Date > this.Date) ? this.Date : Date);
 
-                case eDirection.Right:
+                case e_Direction.Right:
                     return new Func<DateTime, DateTime>(
-                    (Date) => (Date < _date) ? _date : Date);
+                    (Date) => (Date < this.Date) ? this.Date : Date);
                 default:
                     throw new Exception("getSvcFunction: wrong direction value");
             }   

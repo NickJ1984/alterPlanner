@@ -19,13 +19,13 @@ namespace alter.Function.iface
         /// </summary>
         /// <param name="direction"></param>
         /// <returns>Анонимный метод проверки зависимости с направлением <paramref name="direction"/>, первый параметр - дата ограничения функции, второй параметр - проверяемая дата.</returns>
-        Func<DateTime, DateTime, DateTime> createFunctionCheck(eDirection direction);
+        Func<DateTime, DateTime, DateTime> CreateFunctionCheck(e_Direction direction);
         /// <summary>
         /// Метод генерирующий функцию зависимости со значением направления <paramref name="direction"/> и динамической датой ограничения <typeparamref name="date"/>.
         /// </summary>
         /// <param name="direction">Направление зависимости для генерируемой функции.</param>
         /// /// <param name="date">Дата ограничения зависимости для генерируемой функции.</param>
         /// <returns>Функция зависимости .</returns>
-        IFunction createFunction(DateTime date, eDirection direction);
+        IFunction CreateFunction(DateTime date, e_Direction direction);
     }
 }
