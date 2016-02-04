@@ -30,6 +30,10 @@ namespace alter.Function.classes
     {
         #region vars
         /// <summary>
+        /// Ссылк на объект в аргументе события
+        /// </summary>
+        protected object sender;
+        /// <summary>
         /// Дата зависимости
         /// </summary>
         protected DateTime Date;
@@ -98,6 +102,7 @@ namespace alter.Function.classes
             this.direction = direction;
             this.date = date;
             Function = GetSvcFunction(Direction);
+            sender = this;
         }
         #endregion
         #region handlers
@@ -108,7 +113,7 @@ namespace alter.Function.classes
         protected void OnDateChange(ea_ValueChange<DateTime> args)
         {
             EventHandler<ea_ValueChange<DateTime>> handler = event_DateChanged;
-            if (handler != null) handler(this, args);
+            if (handler != null) handler(sender, args);
         }
         /// <summary>
         /// Метод запуска события <seealso cref="event_DirectionChanged"/>
@@ -117,7 +122,7 @@ namespace alter.Function.classes
         protected void OnDirectionChange(ea_ValueChange<e_Direction> args)
         {
             EventHandler<ea_ValueChange<e_Direction>> handler = event_DirectionChanged;
-            if (handler != null) handler(this, args);
+            if (handler != null) handler(sender, args);
         }
         #endregion
         #region methods
@@ -181,6 +186,18 @@ namespace alter.Function.classes
         /// <param name="direction">Направление зависимости</param>
         public void SetDirection(e_Direction direction)
         { this.direction = direction; }
+        #region identification
+        /// <summary>
+        /// Определяет аргумент события sender
+        /// </summary>
+        /// <param name="sender">Ссылка на объект запустивший событиек</param>
+        /// <exception cref="NullReferenceException"></exception>
+        public void setSender(object sender)
+        {
+            if (sender == null) throw new NullReferenceException();
+            this.sender = sender;
+        }
+        #endregion
         #endregion
         #region service
         /// <summary>

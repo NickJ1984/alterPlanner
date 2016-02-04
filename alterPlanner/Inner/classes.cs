@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Collections;
+using System.Runtime.CompilerServices;
 using alter.types;
 using alter.iface;
 using alter.args;
@@ -161,45 +162,24 @@ namespace alter.classes
         /// Зависимая точка подчиненного объекта
         /// </summary>
         protected e_Dot DDot;
-
-        /// <summary>
-        /// Функция получения зависимой точки
-        /// </summary>
-        protected Func<e_Dot> GetDDot;
-        /// <summary>
-        /// Функция получения направления
-        /// </summary>
-        protected Func<e_Direction> GetDir;
-        /// <summary>
-        /// Функция получения даты зависимости
-        /// </summary>
-        protected Func<DateTime> GetDateLim;
-
-        /// <summary>
-        /// Делегат метода отписки от внешнего источника
-        /// </summary>
-        protected Action AutoupdateUnsuscribe;
-        /// <summary>
-        /// Свойство возвращает истину если экземпляр класса подписан на события управляющих параметров.
-        /// </summary>
-        public bool Subscribed { get; protected set; }
         #endregion
         #region Props
         /// <summary>
-        /// Дата зависимости
+        /// Свойство установки точки зависимости подчиненного объекта
         /// </summary>
-        public override DateTime date
+        public e_Dot dependDot
         {
-            get { return GetDateLim(); }
-            set { base.date = Subscribed ? GetDateLim() : value; }
-        }
-        /// <summary>
-        /// Направление зависимости
-        /// </summary>
-        public override e_Direction direction
-        {
-            get { return GetDir(); }
-            set { base.direction = Subscribed ? GetDir() : value; }
+            get { return DDot; }
+            set
+            {
+                if (DDot != value && Enum.IsDefined(typeof(e_Dot), value))
+                {
+                    e_Dot tmp = DDot;
+                    DDot = value;
+
+                    OnDDotChange(new ea_ValueChange<e_Dot>(tmp, DDot));
+                }
+            }
         }
         #endregion
         #region Events
@@ -219,123 +199,32 @@ namespace alter.classes
             : base(dateLimit, direction)
         {
             DDot = dependDot;
-            SetDependDot(null);
-            SetDirection(null);
-            SetDate(null);
 
             init_default();
-        }
-        /// <summary>
-        /// Конструктор экземпляра класса.
-        /// </summary>
-        /// <param name="fDateLimit">Функция возвращающая значение управляющей даты.</param>
-        /// <param name="fDirection">Функция возвращающая значение направления.</param>
-        /// <param name="fDependDot">Функция возвращающая зависимую точки подчиненного объекта.</param>
-        public Dependence(Func<DateTime> fDateLimit, Func<e_Direction> fDirection, Func<e_Dot> fDependDot)
-            : this(fDateLimit(), fDirection(), fDependDot())
-        {
-            SetDependDot(fDependDot);
-            SetDirection(fDirection);
-            SetDate(fDateLimit);
-        }
-        /// <summary>
-        /// Конструктор экземпляра класса.
-        /// </summary>
-        /// <param name="fDateLimit">Функция возвращающая значение управляющей даты.</param>
-        /// <param name="fDirection">Функция возвращающая значение направления.</param>
-        /// <param name="dependDot">Зависимая точка подчиненного объекта.</param>
-        public Dependence(Func<DateTime> fDateLimit, Func<e_Direction> fDirection, e_Dot dependDot)
-            : this(fDateLimit(), fDirection(), dependDot)
-        {
-            SetDirection(fDirection);
-            SetDate(fDateLimit);
         }
         /// <summary>
         /// Метод инициализирующий стандартный набор переменных
         /// </summary>
         protected void init_default()
         {
-            Subscribed = false;
-            AutoupdateUnsuscribe = () => { };
-        }
-        /// <summary>
-        /// Деструктор.
-        /// </summary>
-        ~Dependence()
-        {
-            AutoupdateUnsuscribe();
-            GetDateLim = null;
-            GetDDot = null;
-            GetDir = null;
+            sender = this;
         }
         #endregion
         #region Params
-        #region dependDot
         /// <summary>
         /// Метод получения точки зависимости подчиненного объекта
         /// </summary>
         /// <returns>Точка зависимости подчиненного объекта</returns>
         public e_Dot GetDependDot()
-        { return GetDDot(); }
+        { return dependDot; }
         /// <summary>
         /// Метод установки точки зависимости подчиненного объекта
         /// </summary>
         /// <param name="dot">Точка зависимости подчиненного объекта</param>
         public void SetDependDot(e_Dot dot)
         {
-            if (dot != DDot)
-            {
-                e_Dot tmp = DDot;
-                DDot = dot;
-
-                EventHandler<ea_ValueChange<e_Dot>> handler = event_DependDotChanged;
-                if (handler != null) handler(this, new ea_ValueChange<e_Dot>(tmp, DDot));
-            }
+            dependDot = dot;
         }
-        /// <summary>
-        /// Метод установки точки зависимости подчиненного объекта
-        /// </summary>
-        /// <param name="fDot">Функция получения точки зависимости подчиненного объекта</param>
-        public void SetDependDot(Func<e_Dot> fDot)
-        {
-            if (fDot == null) GetDDot = () => DDot;
-            else GetDDot = fDot;
-        }
-        #endregion
-        #region direction
-        /// <summary>
-        /// Метод установки направления зависимости
-        /// </summary>
-        /// <param name="fDirection">Направление зависимости</param>
-        public void SetDirection(Func<e_Direction> fDirection)
-        {
-            if (fDirection == null) GetDir = () => Direction;
-            else GetDir = fDirection;
-        }
-        /// <summary>
-        /// Метод получения направления зависимости
-        /// </summary>
-        /// /// <returns>Направление зависимости</returns>
-        public override e_Direction GetDirection()
-        { return GetDir(); }
-        #endregion
-        #region date
-        /// <summary>
-        /// Метод установки даты зависимости
-        /// </summary>
-        /// <param name="fDate">Функция получения даты зависимости</param>
-        public void SetDate(Func<DateTime> fDate)
-        {
-            if (fDate == null) GetDateLim = () => Date;
-            else GetDateLim = fDate;
-        }
-        /// <summary>
-        /// Метод получения даты зависимости
-        /// </summary>
-        /// <returns></returns>
-        public override DateTime GetDate()
-        { return GetDateLim(); }
-        #endregion
         #endregion
         #region handlers
         #region inner handlers
@@ -346,7 +235,7 @@ namespace alter.classes
         protected void OnDDotChange(ea_ValueChange<e_Dot> args)
         {
             var handler = event_DependDotChanged;
-            handler?.Invoke(this, args);
+            handler?.Invoke(sender, args);
         }
         #endregion
         #region outer handlers
@@ -355,100 +244,25 @@ namespace alter.classes
         /// </summary>
         /// <param name="sender">Объект источник события</param>
         /// <param name="e">Аргументы события</param>
-        protected void OnDateChange(object sender, ea_ValueChange<DateTime> e)
+        public void handler_DateChange(object sender, ea_ValueChange<DateTime> e)
         { date = e.NewValue; }
         /// <summary>
         /// Обработчик события изменения направления управляющей функции
         /// </summary>
         /// <param name="sender">Объект источник события</param>
         /// <param name="e">Аргументы события</param>
-        protected void OnDirectionChange(object sender, ea_ValueChange<e_Direction> e)
+        protected void handler_DirectionChange(object sender, ea_ValueChange<e_Direction> e)
         { direction = e.NewValue; }
         /// <summary>
         /// Обработчик события изменения зависимой точки подчиненного объекта
         /// </summary>
         /// <param name="sender">Объект источник события</param>
         /// <param name="e">Аргументы события</param>
-        protected void OnDependDotChange(object sender, ea_ValueChange<e_Dot> e)
+        protected void handler_DependDotChange(object sender, ea_ValueChange<e_Dot> e)
         {
             DDot = e.NewValue;
             OnDDotChange(e);
         }
-        #endregion 
-        #endregion
-        #region Methods
-        #region autoUpdate
-        /// <summary>
-        /// Метод подписки экземпляра класса на изменение управляющих параметров.
-        /// </summary>
-        /// <param name="event_DateChanged">Анонимный метод подписки на изменение управляющей даты, принимающий на вход делегат метода обработчика события изменения управляющей даты, возвращает метод отписки обработчика.</param>
-        /// <param name="event_DirectionChanged">Анонимный метод подписки на изменение направления управляющей функции, принимающий на вход делегат метода обработчика события изменения направления, возвращает метод отписки обработчика.</param>
-        /// <param name="event_DependDotChanged">Анонимный метод подписки на изменение зависимой точки подчиненного объекта, принимающий на вход делегат метода обработчика события изменения подчиненной точки, возвращает метод отписки обработчика.</param>
-        /// <returns></returns>
-        public bool setAutoupdate
-            (
-            Func<EventHandler<ea_ValueChange<DateTime>>, Action> event_DateChanged,
-            Func<EventHandler<ea_ValueChange<e_Direction>>, Action> event_DirectionChanged,
-            Func<EventHandler<ea_ValueChange<e_Dot>>, Action> event_DependDotChanged
-            )
-        {
-            if (Subscribed) AutoupdateUnsuscribe();
-
-            if (event_DateChanged == null
-                || event_DirectionChanged == null
-                || event_DependDotChanged == null) return false;
-
-            Action auDate = event_DateChanged(OnDateChange);
-            Action auDot = event_DependDotChanged(OnDependDotChange);
-            Action auDir = event_DirectionChanged(OnDirectionChange);
-
-            AutoupdateUnsuscribe = () =>
-            {
-                auDate();
-                auDot();
-                auDir();
-                Subscribed = false;
-                AutoupdateUnsuscribe = () => { };
-            };
-
-            Subscribed = true;
-            return true;
-        }
-
-        /// <summary>
-        /// Метод подписки экземпляра класса на изменение управляющих параметров.
-        /// </summary>
-        /// <param name="event_DateChanged">Анонимный метод подписки на изменение управляющей даты, принимающий на вход делегат метода обработчика события изменения управляющей даты, возвращает метод отписки обработчика.</param>
-        /// <param name="event_DirectionChanged">Анонимный метод подписки на изменение направления управляющей функции, принимающий на вход делегат метода обработчика события изменения направления, возвращает метод отписки обработчика.</param>
-        /// <returns></returns>
-        public bool setAutoupdate
-            (
-            Func<EventHandler<ea_ValueChange<DateTime>>, Action> event_DateChanged,
-            Func<EventHandler<ea_ValueChange<e_Direction>>, Action> event_DirectionChanged
-            )
-        {
-            if (Subscribed) AutoupdateUnsuscribe();
-
-            if (event_DateChanged == null
-                || event_DirectionChanged == null) return false;
-
-            Action auDate = event_DateChanged(OnDateChange);
-            Action auDir = event_DirectionChanged(OnDirectionChange);
-
-            AutoupdateUnsuscribe = () =>
-            {
-                auDate();
-                auDir();
-                Subscribed = false;
-                AutoupdateUnsuscribe = () => { };
-            };
-
-            Subscribed = true;
-            return true;
-        }
-
-        public void unsetAutoupdate()
-        { AutoupdateUnsuscribe(); }
         #endregion
         #endregion
     }
@@ -461,6 +275,11 @@ namespace alter.classes
     public class IEvent<T>
         where T : EventArgs
     {
+        #region Vars
+        /// <summary>
+        /// Ссылк на объект в аргументе события
+        /// </summary>
+        protected object sender;
         #region Indexer
         /// <summary>
         /// Массив делегатов подписчиков события
@@ -516,6 +335,7 @@ namespace alter.classes
         public IEvent()
         {
             InvokationList = new EventHandler<T>[0];
+            sender = this;
         }
         #endregion
         #region destructor
@@ -589,10 +409,9 @@ namespace alter.classes
         /// <summary>
         /// Запустить событие.
         /// </summary>
-        /// <param name="sender">Объект запустивший событие.</param>
         /// <param name="args">Аргументы события наследуемые от <seealso cref="EventArgs"/></param>
         /// <returns></returns>
-        public bool InvokeEvent(object sender, T args)
+        public bool InvokeEvent(T args)
         {
             EventHandler<T> handler = EventDelegate;
             if (handler != null)
@@ -650,6 +469,18 @@ namespace alter.classes
             for (int i = 0; i < dlgs.Length; i++) handler -= dlgs[i];
         }
         #endregion
+        #region identification
+        /// <summary>
+        /// Определяет аргумент события sender
+        /// </summary>
+        /// <param name="sender">Ссылка на объект запустивший событиек</param>
+        /// <exception cref="NullReferenceException"></exception>
+        public void setSender(object sender)
+        {
+            if (sender == null) throw new NullReferenceException();
+            this.sender = sender;
+        }
+        #endregion
     }
     /// <summary>
     /// Класс событий с предоставляемым функционалом по удаленной отписке делегатов, и возможностью отслеживания манипуляций с подписчиками.
@@ -657,6 +488,8 @@ namespace alter.classes
     /// <typeparam name="T">Тип значений eventyArgs данного события.</typeparam>
     public class IEventObservable<T> : IEvent<T> where T : EventArgs
     {
+        
+        #endregion
         #region property
         /// <summary>
         /// Свойство переменной события 
@@ -710,11 +543,14 @@ namespace alter.classes
         public event EventHandler<EventArgs> EventNoSubscribers;
         #endregion
         #region Constructor
+
         /// <summary>
         /// Конструктор класса
         /// </summary>
         public IEventObservable() : base()
-        { }
+        {
+            sender = this;
+        }
         #endregion
         #region destructor
         /// <summary>

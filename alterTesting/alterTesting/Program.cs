@@ -88,6 +88,8 @@ namespace alterTesting
                 Console.WriteLine("OKOKOKOK");
             }
         }
+
+        
         static void Main(string[] args)
         {
             function fnc = new function(DateTime.Now, e_Direction.Fixed);

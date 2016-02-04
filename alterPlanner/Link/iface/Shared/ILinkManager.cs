@@ -10,10 +10,9 @@ using alter.Link.iface;
 
 namespace alter.Link.iface
 {
+    
     public interface ILinkManager
     {
-        bool AddLink(e_DependType type, ILink newLink);
-
         bool DelLink(string linkId);
         bool DelLink(e_DependType dependType);
         bool DelLink();
@@ -27,5 +26,9 @@ namespace alter.Link.iface
         
         event EventHandler<ea_Value<ILink>> event_LinkAdded;
         event EventHandler<ea_Value<ILink>> event_LinkDeleted;
+    }
+    public interface ILinkConnector : ILinkManager
+    {
+        bool AddLink(e_DependType type, ILink newLink);
     }
 }
