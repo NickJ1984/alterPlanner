@@ -15,7 +15,6 @@ namespace alter.Service.classes
     public class dependDotAdapter : IDependDotAdapter
     {
         #region Variables
-
         protected bool cleared = false;
         protected object sender;
         protected IId parentID;
@@ -26,7 +25,6 @@ namespace alter.Service.classes
         protected Action unsubscribe = () => { };
         #endregion
         #region Properties
-
         public e_Dot dotType => selectedDot.GetDotType();
         public DateTime date => selectedDot.GetDate();
         #endregion
@@ -49,24 +47,20 @@ namespace alter.Service.classes
         public dependDotAdapter(IGroup groupInterface)
             :this(groupInterface, groupInterface, groupInterface)
         { }
-
         ~dependDotAdapter()
         {
             if(!cleared) clear();
         }
         #endregion
         #region Handlers
-
         protected void handler_dotDateChanged(object sender, ea_ValueChange<DateTime> e)
         {
             eventDateChangedInvoke(sender, e);
         }
-
         protected void onDotTypeChange(e_Dot Old, e_Dot New)
         {
             event_dotTypeChanged?.Invoke(sender,new ea_ValueChange<e_Dot>(Old, New));
         }
-
         protected void eventDateChangedInvoke(object sender, ea_ValueChange<DateTime> e)
         {
             event_DateChanged?.Invoke(sender, e);
@@ -78,7 +72,6 @@ namespace alter.Service.classes
         {
             return date;
         }
-
         public e_Dot GetDotType()
         {
             return dotType;
@@ -97,7 +90,6 @@ namespace alter.Service.classes
         }
         #endregion
         #region Object
-
         public void clear()
         {
             unsubscribe();
@@ -123,7 +115,6 @@ namespace alter.Service.classes
                 unsubscribe = () => { };
             };
         }
-
         protected void checkChangedValues(DateTime OldDate, e_Dot OldType)
         {
             if(OldType != dotType) onDotTypeChange(OldType, dotType);
@@ -142,7 +133,6 @@ namespace alter.Service.classes
             checkChangedValues(oldDate, oldType);
             return true;
         }
-
         #endregion
     }
 }
