@@ -8,18 +8,24 @@ using alter.Service.iface;
 namespace alter.Service.classes
 {
 
+
     public class node<T> : INode<T>
         where T : IComparable
     {
         #region variables
         private string nodeID;
+
         protected T _data;
         protected node<T> _next;
         protected node<T> _previous;
         #endregion
+        #region flag
+        private bool bIsHead = false;
+        private bool bIsTail = false;
+        #endregion
         #region property
-        public bool isTail => previous == null;
-        public bool isHead => next == null;
+        public bool isTail => bIsHead;
+        public bool isHead => bIsTail;
         public string ID => nodeID;
         public bool isConnected { get; private set; }
         public T data { get { return _data; } }
@@ -29,6 +35,8 @@ namespace alter.Service.classes
             private set
             {
                 _next = value;
+                checkConnected();
+                checkHead();
             }
         }
         public node<T> previous
@@ -37,6 +45,8 @@ namespace alter.Service.classes
             private set
             {
                 _previous = value;
+                checkConnected();
+                checkTail();
             }
         }
         #endregion
@@ -44,6 +54,8 @@ namespace alter.Service.classes
         public event EventHandler<node<T>> event_nextNull;
         public event EventHandler<node<T>> event_previousNull;
         public event EventHandler<node<T>> event_dataChanged;
+        public event EventHandler<node<T>> event_Tail;
+        public event EventHandler<node<T>> event_Head;
         public event EventHandler<node<T>> event_Remove;
         #endregion
         #region Constructor
@@ -172,16 +184,14 @@ namespace alter.Service.classes
         #region Set
         protected bool setNextNode(node<T> nextNode)
         {
-            if (this == nextNode || _next == nextNode || _previous == nextNode) return false;
+            if (this == nextNode || next == nextNode || previous == nextNode) return false;
             next = nextNode;
-            checkNullNeighbours();
             return true;
         }
         protected bool setPreviousNode(node<T> previousNode)
         {
-            if (this == previousNode || _next == previousNode || _previous == previousNode) return false;
+            if (this == previousNode || next == previousNode || previous == previousNode) return false;
             previous = previousNode;
-            checkNullNeighbours();
             return true;
         }
         #endregion
@@ -248,10 +258,30 @@ namespace alter.Service.classes
         #endregion
         #endregion
         #region Service
-        private void checkNullNeighbours()
+        private void checkHead()
         {
-            if (next == null) onNextNull();
-            if (previous == null) onPreviousNull();
+            if (!isConnected) return;
+            if (bIsHead && next != null) bIsHead = false;
+            if (!bIsHead && next == null)
+            {
+                bIsHead = true;
+                event_Head?.Invoke(this, this);
+            }
+        }
+
+        private void checkTail()
+        {
+            if (!isConnected) return;
+            if (bIsTail && previous != null) bIsTail = false;
+            if (!bIsTail && previous == null)
+            {
+                bIsTail = true;
+                event_Tail?.Invoke(this, this);
+            }
+        }
+
+        private void checkConnected()
+        {
             if (next == null && previous == null && isConnected) isConnected = false;
             if ((next != null || previous != null) && !isConnected) isConnected = true;
         }
@@ -271,10 +301,6 @@ namespace alter.Service.classes
             connectNode.setNextNode(this);
         }
         #endregion
-
-
     }
-
-
 
 }
