@@ -61,8 +61,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service\classes\dependDotAdapter.cs" />
     <Compile Include="Service\classes\dotAdapter.cs" />
+    <Compile Include="Service\classes\Node.cs" />
     <Compile Include="Service\iface\IDependDotAdapter.cs" />
     <Compile Include="Service\iface\IDotAdapter.cs" />
+    <Compile Include="Service\iface\INode.cs" />
     <Compile Include="Task\classes\cDuration.cs" />
     <Compile Include="Task\classes\cDot.cs" />
     <Compile Include="Task\classes\cDotManager.cs" />

@@ -189,7 +189,6 @@ namespace alter.Link.classes
         { delay = e.NewValue; }
         #endregion
         #region Internal
-
         protected void onDeltaChange(double Old, double New)
         {
             event_neighboursDeltaChanged?.Invoke(this, new ea_ValueChange<double>(Old, New));
@@ -224,7 +223,6 @@ namespace alter.Link.classes
         /// <returns></returns>
         public IId GetMemberId()
         { return memberID; }
-
         public IDot getObjectDependDotInfo()
         {
             return ddAdapter;

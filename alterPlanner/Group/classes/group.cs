@@ -13,12 +13,14 @@ namespace alter.Group.classes
 {
     public class group : IGroup
     {
+        //Допилить
         #region vars
 
         #endregion
         #region events
         public event EventHandler<ea_ValueChange<double>> event_DurationChanged;
         public event EventHandler<ea_IdObject> event_ObjectDeleted;
+        public event EventHandler<ea_ValueChange<e_GrpLim>> event_LimitChanged;
         #endregion
         #region constructors
 
@@ -116,6 +118,11 @@ namespace alter.Group.classes
         }
 
         public int TaskCount()
+        {
+            throw new NotImplementedException();
+        }
+
+        public ILinkConnector getConnector()
         {
             throw new NotImplementedException();
         }
