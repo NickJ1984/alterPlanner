@@ -20,7 +20,7 @@ namespace alter.Service.iface
 
         int comparePrevious();
         int compareNext();
-        bool processData(Action<T> aDataProcess);
+        bool process(Action<T> aDataProcess);
         bool setData(T data);
     }
 

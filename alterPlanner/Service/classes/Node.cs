@@ -7,25 +7,23 @@ using alter.Service.iface;
 
 namespace alter.Service.classes
 {
-
-
     public class node<T> : INode<T>
         where T : IComparable
     {
         #region variables
         private string nodeID;
-
         protected T _data;
         protected node<T> _next;
         protected node<T> _previous;
         #endregion
         #region flag
-        private bool bIsHead = false;
-        private bool bIsTail = false;
+        private bool bIsHead;
+        private bool bIsTail;
         #endregion
         #region property
-        public bool isTail => bIsHead;
-        public bool isHead => bIsTail;
+        public string debug_information => __debug_information();
+        public bool isTail => bIsTail;
+        public bool isHead => bIsHead;
         public string ID => nodeID;
         public bool isConnected { get; private set; }
         public T data { get { return _data; } }
@@ -51,8 +49,6 @@ namespace alter.Service.classes
         }
         #endregion
         #region Events
-        public event EventHandler<node<T>> event_nextNull;
-        public event EventHandler<node<T>> event_previousNull;
         public event EventHandler<node<T>> event_dataChanged;
         public event EventHandler<node<T>> event_Tail;
         public event EventHandler<node<T>> event_Head;
@@ -66,6 +62,9 @@ namespace alter.Service.classes
             _next = null;
             _previous = null;
             isConnected = false;
+            bIsHead = true;
+            bIsTail = true;
+
         }
         public node(T data) : this()
         {
@@ -75,7 +74,6 @@ namespace alter.Service.classes
         {
             if (!connectTo(nextNode)) throw new ArgumentException();
         }
-
         ~node()
         {
             remove();
@@ -86,10 +84,6 @@ namespace alter.Service.classes
         {
             event_dataChanged?.Invoke(sender, this);
         }
-        protected void onNextNull()
-        { event_nextNull?.Invoke(this, this); }
-        protected void onPreviousNull()
-        { event_previousNull?.Invoke(this, this); }
         protected void onRemove()
         { event_Remove?.Invoke(this, this); }
         #endregion
@@ -123,7 +117,7 @@ namespace alter.Service.classes
         public bool moveToHead()
         {
             if (!isConnected || next == null) return false;
-            moveBefore(getHead());
+            moveAfter(getHead());
             return true;
         }
         public bool moveToTail()
@@ -149,14 +143,18 @@ namespace alter.Service.classes
             if (previousNode == null) return;
             if (!isConnected) return;
             unset();
+            setNextNode(previousNode.next);
             setMeNext(previousNode);
+            setPreviousNode(previousNode);
         }
         public void moveBefore(node<T> nextNode)
         {
             if (nextNode == null) return;
             if (!isConnected) return;
             unset();
-            setMeNext(nextNode);
+            setPreviousNode(nextNode.previous);
+            setMePrevious(nextNode);
+            setNextNode(nextNode);
         }
         #endregion
         #region Find
@@ -194,6 +192,21 @@ namespace alter.Service.classes
             previous = previousNode;
             return true;
         }
+        private void setMePrevious(node<T> connectNode)
+        {
+            if (connectNode.previous != null) connectNode.previous.setNextNode(this);
+            connectNode.setPreviousNode(this);
+        }
+        private void setMeNext(node<T> connectNode)
+        {
+            if (connectNode.next != null) connectNode.next.setPreviousNode(this);
+            connectNode.setNextNode(this);
+        }
+        private void unset()
+        {
+            if (next != null) next.setPreviousNode(previous);
+            if (previous != null) previous.setNextNode(next);
+        }
         #endregion
         #region object
         public void remove()
@@ -208,7 +221,12 @@ namespace alter.Service.classes
         #endregion
         #region Data
         #region delegateProcessing
-        public bool processData(Action<T> aDataProcess)
+        public object process(Func<node<T>,object,object> aDataProcess, object Object)
+        {
+            if (data != null) return aDataProcess(this, Object);
+            return Object;
+        }
+        public bool process(Action<T> aDataProcess)
         {
             if (data != null)
             {
@@ -217,7 +235,7 @@ namespace alter.Service.classes
             }
             return false;
         }
-        public bool processData(Action<node<T>> aDataProcess)
+        public bool process(Action<node<T>> aDataProcess)
         {
             if (data != null)
             {
@@ -226,25 +244,39 @@ namespace alter.Service.classes
             }
             return false;
         }
-        public void processDataNext(Action<node<T>> aDataProcess)
+        public object processNext(Func<node<T>, object, object> aDataProcess, object Object)
+        {
+            object result = Object;
+            if (data != null) result  = aDataProcess(this, Object);
+            if (!isHead) result = next.processNext(aDataProcess, result);
+            return result;
+        }
+        public void processNext(Action<node<T>> aDataProcess)
         {
             if (data != null) aDataProcess(this);
-            if (isHead) next.processDataNext(aDataProcess);
+            if (!isHead) next.processNext(aDataProcess);
         }
-        public void processDataPrevious(Action<node<T>> aDataProcess)
+        public object processPrevious(Func<node<T>, object, object> aDataProcess, object Object)
+        {
+            object result = Object;
+            if (data != null) result = aDataProcess(this, Object);
+            if (!isTail) result = next.processPrevious(aDataProcess, result);
+            return result;
+        }
+        public void processPrevious(Action<node<T>> aDataProcess)
         {
             if (data != null) aDataProcess(this);
-            if (isTail) previous.processDataPrevious(aDataProcess);
+            if (!isTail) previous.processPrevious(aDataProcess);
         }
-        public void processDataNext(Action<T> aDataProcess)
+        public void processNext(Action<T> aDataProcess)
         {
             if (data != null) aDataProcess(data);
-            if (isHead) next.processDataNext(aDataProcess);
+            if (!isHead) next.processNext(aDataProcess);
         }
-        public void processDataPrevious(Action<T> aDataProcess)
+        public void processPrevious(Action<T> aDataProcess)
         {
-            if (data != null) aDataProcess(data);
-            if (isTail) previous.processDataPrevious(aDataProcess);
+            aDataProcess(data);
+            if (!isTail) previous.processPrevious(aDataProcess);
         }
         #endregion
         #region manipulation
@@ -258,9 +290,23 @@ namespace alter.Service.classes
         #endregion
         #endregion
         #region Service
+
+        private string __debug_information()
+        {
+            string bound = new string('-', 40);
+            string nextID = (next != null) ? next.ID : "null";
+            string previousID = (previous != null) ? previous.ID : "null";
+            string result =
+                string.Format
+                    ("{0}\nNode ID: {1}\nConnected: {2} isHead: {4} isTail: {3}\nData: {5}" +
+                     "\nNext node: {6}\nPrevious node: {7}\n{0}",
+                        bound, ID.ToString(), isConnected, isTail, isHead,
+                        data.ToString(), nextID, previousID);
+
+            return result;
+        }
         private void checkHead()
         {
-            if (!isConnected) return;
             if (bIsHead && next != null) bIsHead = false;
             if (!bIsHead && next == null)
             {
@@ -271,7 +317,6 @@ namespace alter.Service.classes
 
         private void checkTail()
         {
-            if (!isConnected) return;
             if (bIsTail && previous != null) bIsTail = false;
             if (!bIsTail && previous == null)
             {
@@ -279,26 +324,10 @@ namespace alter.Service.classes
                 event_Tail?.Invoke(this, this);
             }
         }
-
         private void checkConnected()
         {
             if (next == null && previous == null && isConnected) isConnected = false;
             if ((next != null || previous != null) && !isConnected) isConnected = true;
-        }
-        private void unset()
-        {
-            if (next != null) next.setPreviousNode(previous);
-            if (previous != null) previous.setNextNode(next);
-        }
-        private void setMePrevious(node<T> connectNode)
-        {
-            if (connectNode.previous != null) connectNode.previous.setNextNode(this);
-            connectNode.setPreviousNode(this);
-        }
-        private void setMeNext(node<T> connectNode)
-        {
-            if (connectNode.next != null) connectNode.next.setPreviousNode(this);
-            connectNode.setNextNode(this);
         }
         #endregion
     }
