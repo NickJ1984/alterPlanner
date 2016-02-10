@@ -11,7 +11,7 @@ using alter.types;
 
 namespace alter.Link.classes
 {
-    public partial class link : ILink
+    public class link : ILink
     {
         //НАДО ТЕСТИРОВАТЬ!
         #region Vars
@@ -163,15 +163,22 @@ namespace alter.Link.classes
         #region Object
         public string GetId()
         {
-            throw new NotImplementedException();
+            return _identity.Id;
         }
         e_Entity IId.GetType()
         {
-            throw new NotImplementedException();
+            return _identity.Type;
         }
         public void DeleteObject()
         {
-            throw new NotImplementedException();
+            aUnsuscribeDependSlave();
+            aUnsuscribeSlave();
+            aUnsuscribeMaster();
+            _dependSlave = null;
+            _slave = null;
+            _master = null;
+            _identity = null;
+            aUnsuscribeDependSlave = aUnsuscribeMaster = aUnsuscribeSlave = null;
         }
         #endregion
         #region Limit
