@@ -11,7 +11,7 @@ namespace alter.Service.classes
         where T : IComparable
     {
         #region variables
-        private string nodeID;
+        private readonly string nodeID;
         protected T _data;
         protected node<T> _next;
         protected node<T> _previous;
@@ -290,7 +290,6 @@ namespace alter.Service.classes
         #endregion
         #endregion
         #region Service
-
         private string __debug_information()
         {
             string bound = new string('-', 40);
@@ -314,7 +313,6 @@ namespace alter.Service.classes
                 event_Head?.Invoke(this, this);
             }
         }
-
         private void checkTail()
         {
             if (bIsTail && previous != null) bIsTail = false;

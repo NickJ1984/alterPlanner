@@ -13,7 +13,6 @@ namespace alter.Link.iface
     {
         IId GetMemberId();
         e_DependType GetDependType();
-        IDependence GetDependence();
         IDot getObjectDependDotInfo();
     }
 }

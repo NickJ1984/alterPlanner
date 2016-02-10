@@ -92,9 +92,12 @@ namespace alter.Service.classes
         #region Object
         public void clear()
         {
-            unsubscribe();
-            unsubscribe();
-            unsubscribe = null;
+            if (unsubscribe != null)
+            {
+                unsubscribe();
+                unsubscribe();
+                unsubscribe = null;
+            }
             sender = null;
             parentID = null;
             selectedDot = null;
@@ -122,15 +125,22 @@ namespace alter.Service.classes
         }
         protected bool subscribeDot(e_Dot type)
         {
-            if (type == selectedDot.GetDotType() && !Enum.IsDefined(typeof (e_Dot), type)) return false;
-
-            DateTime oldDate = date;
-            e_Dot oldType = dotType;
+            if (!Enum.IsDefined(typeof (e_Dot), type)) return false;
+            DateTime oldDate;
+            e_Dot oldType;
+            Action eventInvoke = () => { };
+            if (selectedDot != null)
+            {
+                if (type == selectedDot.GetDotType()) return false;
+                oldDate = date;
+                oldType = dotType;
+                eventInvoke = () => checkChangedValues(oldDate, oldType);
+            }
             IDot dot = line.GetDot(type);
 
             subscribeHandler(dot);
             selectedDot = dot;
-            checkChangedValues(oldDate, oldType);
+            eventInvoke();
             return true;
         }
         #endregion

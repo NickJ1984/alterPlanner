@@ -83,7 +83,7 @@ namespace alter.Link.classes
                 _neighbor.Del(delElement.Type, link);
 
                 OnLinkDelete(new ea_Value<ILink>(link));
-                link.Unsuscribe(_ownerId);
+                //link.Unsuscribe(_ownerId);
                 return true;
             }
             else return false;

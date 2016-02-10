@@ -46,7 +46,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Emulators\tstLink.cs" />
+    <Compile Include="Emulators\dotCLass.cs" />
+    <Compile Include="Emulators\lineClass.cs" />
+    <Compile Include="Emulators\linkClass.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

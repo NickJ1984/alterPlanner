@@ -14,13 +14,14 @@ namespace alter.Link.iface
     {
         e_LnkState GetLinkState();
 
-        void SetDelay(double days);
+        bool SetDelay(double days);
         double GetDelay();
 
         event EventHandler<ea_ValueChange<double>> event_DelayChanged;
 
+        IDependence GetSlaveDependence();
         ILMember GetInfoMember(e_DependType member);
         ILMember GetInfoMember(IId member);
-        void Unsuscribe(string dsubscriber);
+        //void Unsuscribe(string dsubscriber); реализовать через фабрику
     }
 }

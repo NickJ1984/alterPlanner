@@ -1,6 +1,7 @@
 ﻿using System;
 using System.CodeDom;
 using System.Collections.Generic;
+using System.Data.OleDb;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,20 +23,21 @@ namespace alter.Link.classes
     /// <exception cref="objectAlreadyExistException"></exception>
     public class linkMember : alter.Link.iface.ILMember
     {
-        //НАДО ТЕСТИРОВАТЬ!
+        //Работает тестировал
         #region Vars
-
-        protected dependDotAdapter ddAdapter = null;
+        /// <summary>
+        /// Ссылка на объект родитель
+        /// </summary>
+        private object sender;
+        /// <summary>
+        /// Класс выбора зависимой точки объекта
+        /// </summary>
+        protected dependDotAdapter ddAdapter;
         /// <summary>
         /// Так как в классе ILink используются только связи СтартСтарт, 
         /// СтартФиниш, ФинишСтарт, ФинишФиниш, то направление задано константой
         /// </summary>
-        private const e_Direction cDirection = e_Direction.Fixed;
-
-        /// <summary>
-        /// Экземпляр класса зависимости
-        /// </summary>
-        protected Dependence depend = null;
+        protected const e_Direction cDirection = e_Direction.Fixed;
         /// <summary>
         /// Переменная хранящая значение задержки связи
         /// </summary>
@@ -44,8 +46,19 @@ namespace alter.Link.classes
         /// Переменная хранящая значение даты точки зависимости другого участника связи
         /// </summary>
         protected DateTime _date;
+        /// <summary>
+        /// Дата зависимости подчиненного объекта
+        /// </summary>
+        protected DateTime _dependDate;
         #endregion
         #region Properties
+        /// <summary>
+        /// Направление зависимости
+        /// </summary>
+        public e_Direction direction => cDirection;
+        /// <summary>
+        /// Разность дат зависимости и зависимой точки подчиненного объекта
+        /// </summary>
         public double membersDaysDelta { get; protected set; }
         /// <summary>
         /// Свойство задающее значение даты точки зависимости другого участника связи
@@ -56,7 +69,7 @@ namespace alter.Link.classes
             set
             {
                 _date = value;
-                onDependDateRecalculate();
+                dependDateRecalculate();
             }
         }
         /// <summary>
@@ -67,21 +80,18 @@ namespace alter.Link.classes
             get { return _delay; }
             set
             {
-                if(value < 0) return;
                 _delay = value;
-                onDependDateRecalculate();
+                dependDateRecalculate();
             }
         }
-
         /// <summary>
         /// Свойство задающее точку зависимости подчиненного объекта
         /// </summary>
         public e_Dot dependDot
         {
-            get { return depend.dependDot; }
+            get { return ddAdapter.dotType; }
             set
             {
-                depend.dependDot = value;
                 ddAdapter.setDependDot(value);
             }
         } 
@@ -93,58 +103,79 @@ namespace alter.Link.classes
         /// Свойство возвращающее тип зависимости члена связи
         /// </summary>
         public e_DependType dependType { get; protected set; }
+
         /// <summary>
-        /// Свойство возвращает дату зависимости (транслирует метод IDependence.GetDate())
+        /// Свойство возвращает дату зависимости подчиненного объекта
         /// </summary>
-        public DateTime dependDate => depend.GetDate();
+        public DateTime dependDate
+        {
+            get { return _dependDate; }
+            protected set
+            {
+                if (value != _dependDate)
+                {
+                    _dependDate = value;
+                    deltaRecalculate();
+                }
+            }
+        }
         #endregion
         #region Events
+        /// <summary>
+        /// Событие при изменении разности дат зависимости связи и зависимой точки подчиненного объекта
+        /// </summary>
         public event EventHandler<ea_ValueChange<double>>  event_neighboursDeltaChanged;
+        /// <summary>
+        /// Событие при изменении даты зависисмости подчиненного объекта
+        /// </summary>
+        public event EventHandler<ea_ValueChange<DateTime>> event_dependDateChanged;
         #endregion
         #region Constructor
         /// <summary>
-        /// НАДО ТЕСТИРОВАТЬ!
         /// Класс участника связи, хранит информацию об участнике, а так же зависимость связи для него
         /// </summary>
-        /// <param name="member">Идентификатор участника связи</param>
+        /// <param name="parent">Ссылка на объект владелец</param>
         /// <param name="dependType">Тип зависимости участника связи</param>
-        /// <param name="delay">Значение задержки связи</param>
         /// <exception cref="NullReferenceException"></exception>
         /// <exception cref="objectAlreadyExistException"></exception>
-        public linkMember(IId member, e_DependType dependType, double delay)
+        public linkMember(ILink parent, e_DependType dependType)
         {
-            memberID = member;
+            sender = parent;
             this.dependType = dependType;
+            this._delay = delay;
             membersDaysDelta = 0;
 
-            this._delay = delay;
-            ddAdapter = new dependDotAdapter(memberID, memberID, (ILine)memberID);
+            memberID = null;
+            ddAdapter = null;
         }
         /// <summary>
         /// Деструктор экземпляра класса
         /// </summary>
         ~linkMember()
         {
-            depend = null;
             memberID = null;
-            ddAdapter.clear();
+            ddAdapter.event_DateChanged -= handler_dependObjectDateChanged;
+            ddAdapter?.clear();
             ddAdapter = null;
+            sender = null;
         }
         #endregion
         #region Initialize
         /// <summary>
-        /// Инициализирует класс зависимости <seealso cref="Dependence"/>
+        /// Инициализирует класс зависимой точки <seealso cref="dependDotAdapter"/>
         /// </summary>
-        /// <param name="dependDate">Дата зависимости</param>
-        /// <param name="limitType">Тип зависимости</param>
-        /// <exception cref="objectAlreadyExistException">Выбрасывает исключение если класс <seealso cref="Dependence"/> уже был инициализирован</exception>
-        public void init_Dependence(ILink parent, DateTime dependDate, e_TskLim limitType)
+        /// <param name="memberID">Идентификатор участника связи</param>
+        /// <param name="memberLine">Интерфейс <seealso cref="ILine"/> участника связи</param>
+        /// <param name="dependDot">Зависимая точка подчиненного объекта</param>
+        /// <exception cref="objectAlreadyExistException">Выбрасывает исключение если класс <seealso cref="dependDotAdapter"/> уже был инициализирован</exception>
+        public void init_member(IId memberID, ILine memberLine, e_Dot dependDot)
         {
-            if(depend != null) throw new objectAlreadyExistException();
+            if(ddAdapter != null) throw new objectAlreadyExistException();
 
-            date = dependDate;
-            depend = new Dependence(date, cDirection, Hlp.GetDepenDot(limitType, dependType));
-            depend.setSender(parent);
+            this.memberID = memberID;
+            ddAdapter = new dependDotAdapter(sender, memberID, memberLine);
+            ddAdapter.event_DateChanged += handler_dependObjectDateChanged;
+            this.dependDot = dependDot;
         }
         #endregion
         #region Handlers
@@ -156,15 +187,7 @@ namespace alter.Link.classes
         /// <param name="e"></param>
         protected void handler_dependObjectDateChanged(object sender, ea_ValueChange<DateTime> e)
         {
-            var diff = (dependDate - e.NewValue).Ticks;
-            double newDelta = TimeSpan.FromTicks(diff).Days;
-            if (newDelta != membersDaysDelta)
-            {
-                double old = membersDaysDelta;
-                membersDaysDelta = newDelta;
-
-                onDeltaChange(old, membersDaysDelta);
-            }
+            deltaRecalculate();
         }
         /// <summary>
         /// Обработчик события изменения типа связи
@@ -172,21 +195,29 @@ namespace alter.Link.classes
         /// <param name="sender">Объект вызвавший событие</param>
         /// <param name="e">Аргумент события</param>
         public void handler_limitTypeChanged(object sender, ea_ValueChange<e_TskLim> e)
-        { dependDot = Hlp.GetDepenDot(e.NewValue, dependType); }
+        {
+            dependDot = Hlp.GetDepenDot(e.NewValue, dependType); 
+        }
+
         /// <summary>
         /// Обработчик события изменения даты зависимости (дата зависящей точки другого участника связи)
         /// </summary>
         /// <param name="sender">Объект вызвавший событие</param>
         /// <param name="e">Аргумент события</param>
         public void handler_dependDateChange(object sender, ea_ValueChange<DateTime> e)
-        { date = e.NewValue; }
+        {
+            date = e.NewValue; 
+        }
+
         /// <summary>
         /// Обработчик события изменения задержки связи
         /// </summary>
         /// <param name="sender">Объект вызвавший событие</param>
         /// <param name="e">Аргумент события</param>
         public void handler_delayChanged(object sender, ea_ValueChange<double> e)
-        { delay = e.NewValue; }
+        {
+            delay = e.NewValue; 
+        }
         #endregion
         #region Internal
         protected void onDeltaChange(double Old, double New)
@@ -196,21 +227,17 @@ namespace alter.Link.classes
         /// <summary>
         /// Метод пересчета даты зависимости
         /// </summary>
-        protected void onDependDateRecalculate()
-        { depend.date = _date.AddDays(_delay); }
+        protected void dependDateRecalculate()
+        {
+            DateTime old = dependDate;
+            dependDate = _date.AddDays(_delay);
+            if(dependDate != old)
+                event_dependDateChanged?.Invoke
+                    (sender, new ea_ValueChange<DateTime>(old, dependDate));
+        }
         #endregion
         #endregion
         #region Methods
-        /// <summary>
-        /// Метод передачи зависимости в виде интерфейса <seealso cref="IDependence"/>
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="NullReferenceException">Если класс зависимости не инициализирован</exception>
-        public IDependence GetDependence()
-        {
-            if(depend == null) throw new NullReferenceException();
-            return depend;
-        }
         /// <summary>
         /// Метод получения типа зависимости члена связи
         /// </summary>
@@ -223,10 +250,30 @@ namespace alter.Link.classes
         /// <returns></returns>
         public IId GetMemberId()
         { return memberID; }
+        /// <summary>
+        /// Возвращает ссылку на зависимую точку подчиненного объекта (используется <seealso cref="dependDotAdapter"/>)
+        /// </summary>
+        /// <returns>Ссылка на зависимую точку подчиненного объекта </returns>
         public IDot getObjectDependDotInfo()
         {
             return ddAdapter;
         }
+        #region Service
+        /// <summary>
+        /// Пересчет разности дат зависимости и зависимой точки подчиненного объекта
+        /// </summary>
+        protected void deltaRecalculate()
+        {
+            var diff = (ddAdapter.date - dependDate).Ticks;
+            double newDelta = TimeSpan.FromTicks(diff).Days;
+            if (!newDelta.Equals(membersDaysDelta))
+            {
+                double old = membersDaysDelta;
+                membersDaysDelta = newDelta;
+                onDeltaChange(old, membersDaysDelta);
+            }
+        }
+        #endregion
         #endregion
         #region Exceptions
         /// <summary>
