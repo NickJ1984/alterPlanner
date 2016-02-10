@@ -126,5 +126,10 @@ namespace alter.Group.classes
         {
             throw new NotImplementedException();
         }
+
+        public bool connect(ILink link)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -92,7 +92,9 @@ namespace alter.Link.classes
             get { return ddAdapter.dotType; }
             set
             {
-                ddAdapter.setDependDot(value);
+                e_Dot Old = ddAdapter.dotType;
+                if (ddAdapter.setDependDot(value))
+                    event_dependDotChanged?.Invoke(sender, new ea_ValueChange<e_Dot>(Old, ddAdapter.dotType));
             }
         } 
         /// <summary>
@@ -129,6 +131,10 @@ namespace alter.Link.classes
         /// Событие при изменении даты зависисмости подчиненного объекта
         /// </summary>
         public event EventHandler<ea_ValueChange<DateTime>> event_dependDateChanged;
+        /// <summary>
+        /// Событие при изменении зависимой точки подчиненного объекта
+        /// </summary>
+        public event EventHandler<ea_ValueChange<e_Dot>> event_dependDotChanged;
         #endregion
         #region Constructor
         /// <summary>

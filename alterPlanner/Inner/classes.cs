@@ -251,14 +251,14 @@ namespace alter.classes
         /// </summary>
         /// <param name="sender">Объект источник события</param>
         /// <param name="e">Аргументы события</param>
-        protected void handler_DirectionChange(object sender, ea_ValueChange<e_Direction> e)
+        public void handler_DirectionChange(object sender, ea_ValueChange<e_Direction> e)
         { direction = e.NewValue; }
         /// <summary>
         /// Обработчик события изменения зависимой точки подчиненного объекта
         /// </summary>
         /// <param name="sender">Объект источник события</param>
         /// <param name="e">Аргументы события</param>
-        protected void handler_DependDotChange(object sender, ea_ValueChange<e_Dot> e)
+        public void handler_DependDotChange(object sender, ea_ValueChange<e_Dot> e)
         {
             DDot = e.NewValue;
             OnDDotChange(e);

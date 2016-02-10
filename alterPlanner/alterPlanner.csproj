@@ -52,6 +52,7 @@
     <Compile Include="Inner\classes.cs" />
     <Compile Include="Inner\iface.cs" />
     <Compile Include="Inner\types.cs" />
+    <Compile Include="Link\classes\link.cs" />
     <Compile Include="Link\classes\linkManager.cs" />
     <Compile Include="Link\classes\linkMember.cs" />
     <Compile Include="Link\iface\Base\ILink.cs" />
