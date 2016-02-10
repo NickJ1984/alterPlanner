@@ -170,6 +170,7 @@ namespace alter.iface
     }
     #endregion
     #region link interfaces
+    /*
     /// <summary>
     /// Интерфейс взаимодействия с объектами связи.
     /// </summary>
@@ -182,11 +183,18 @@ namespace alter.iface
         /// <param name="link">Ссылка на связь.</param>
         /// <returns>Возвращает точку объекта зависимую от связи (для реализации рекомендуется <see cref="alter.Service.iface.IDotAdapter"/>).</returns>
         IDot Subscribe(e_DependType dType, ILink link);
-    }
-
-    public interface IDock : IId, IRemovable
+    }*/
+    /// <summary>
+    /// Интерфейс взаимодействия с объектами связи.
+    /// </summary>
+    public interface IDock : IId, IRemovable, ILine
     {
-        alter.Link.iface.ILinkConnector getConnector();
+        /// <summary>
+        /// Регистрация подключения связи в объекте участнике связи
+        /// </summary>
+        /// <param name="link">Объект связи</param>
+        /// <returns></returns>
+        bool connect(ILink link);
     }
     #endregion
 
