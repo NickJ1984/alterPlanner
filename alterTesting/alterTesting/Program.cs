@@ -92,6 +92,7 @@ namespace alterTesting
             }
         }
 
+       
         
         static void Main(string[] args)
         {
@@ -100,97 +101,63 @@ namespace alterTesting
                 start = new DateTime(2000, 1, 1),
                 finish = new DateTime(2002, 1, 1)
             };
-            lineDebug(master, e_DependType.Master);
             lineClass slave = new lineClass()
             {
                 start = new DateTime(2010, 2, 2),
                 duration = 30
             };
-            lineDebug(slave, e_DependType.Slave);
-            linkClass link = new linkClass(master, master, slave, slave, e_TskLim.StartFinish);
-            linkDebug(link);
-            dependDebug(link.depend);
-            memberDebug(link.lmMaster, e_DependType.Master);
-            memberDebug(link.lmSlave, e_DependType.Slave);
-            link.delay = 10;
+            link Link = new link(master, slave, e_TskLim.StartFinish);
             #region actions
+
+            Action newTest = () => Console.WriteLine(new string('+', 50));
             Action printSlave = () =>
             {
                 Console.WriteLine(new string('*', 50));
-                Console.WriteLine("Slave task start at {0:dd.MM.yyyy} finish at {1:dd.MM.yyyy}", slave.start, slave.finish);
+                Console.WriteLine("Slave information:");
+                Console.WriteLine("Start: {0:dd.MM.yyyy}   Finish: {1:dd.MM.yyyy}   Duration: {2}", slave.start, slave.finish, slave.duration);
                 Console.WriteLine(new string('*', 50));
             };
             Action printMaster = () =>
             {
                 Console.WriteLine(new string('*', 50));
-                Console.WriteLine("Master task start at {0:dd.MM.yyyy} finish at {1:dd.MM.yyyy}", master.start, master.finish);
+                Console.WriteLine("Master information");
+                Console.WriteLine("Start: {0:dd.MM.yyyy}   Finish: {1:dd.MM.yyyy}   Duration: {2}", master.start, master.finish, master.duration);
                 Console.WriteLine(new string('*', 50));
             };
-            Action print = () =>
+            Action printLink = () =>
             {
                 Console.WriteLine(new string('*', 50));
-                Console.WriteLine("Link:");
-                Console.WriteLine("Limit: [{0}]    Delay: {1}", link.limit.ToString(), link.delay);
-                Console.WriteLine("Master:");
-                Console.WriteLine("Depend dot: [{0}]    Depend dot date: {1:dd.MM.yyyy}",
-                    link.GetInfoMember(e_DependType.Master).getObjectDependDotInfo().GetDotType(),
-                    link.GetInfoMember(e_DependType.Master).getObjectDependDotInfo().GetDate());
-                Console.WriteLine("Function:");
-                Console.WriteLine("Depend date: {0:dd.MM.yyyy}    Depend dot: {1}",
-                    link.GetSlaveDependence().GetDate(),
-                    link.GetSlaveDependence().GetDependDot());
+                Console.WriteLine("Link information: ");
+                Console.WriteLine("Limit: {0}    Delay: {1}", Link.limit, Link.delay);
                 Console.WriteLine(new string('*', 50));
-            }; 
+            };
             #endregion
-
+            printSlave();
+            printMaster();
+            printLink();
+            slave.setDependence(Link.depend);
+            printSlave();
+            newTest();
+            Link.delay = 10;
+            printLink();
+            printSlave();
+            newTest();
+            Link.limit = e_TskLim.FinishStart;
+            printLink();
             printMaster();
             printSlave();
-            print();
-            link.SetLimit(e_TskLim.FinishFinish);
-            link.SetLimit(e_TskLim.FinishStart);
-            master.finish = new DateTime(2010, 2, 2);
-            link.delay = 0;
+            newTest();
+            Link.delay = 20;
+            Link.limit = e_TskLim.StartStart;
+            printLink();
+            printMaster();
+            printSlave();
             #region default
             Console.WriteLine("\nPress Enter to exit...");
             Console.ReadLine(); 
             #endregion
         }
 
-        public static void lineDebug(ILine obj, e_DependType dType)
-        {
-            string name = string.Format("{0} task => ", dType);
-            obj.GetDot(e_Dot.Start).event_DateChanged += (o, v) =>
-                Console.WriteLine("{0}[Start] changed from {1:dd.MM.yyyy} to {2:dd.MM.yyyy}",
-                name, v.OldValue, v.NewValue);
-            obj.GetDot(e_Dot.Finish).event_DateChanged += (o, v) =>
-                Console.WriteLine("{0}[Finish] changed from {1:dd.MM.yyyy} to {2:dd.MM.yyyy}",
-                name, v.OldValue, v.NewValue);
-        }
-        public static void linkDebug(linkClass link)
-        {
-            string name = "Link => ";
-            link.event_DelayChanged += (o, v) =>
-                Console.WriteLine("{0}Delay changed from {1} to {2}", name, v.OldValue, v.NewValue);
-            link.event_LimitChanged += (o, v) =>
-                Console.WriteLine("{0}Limit changed from {1} to {2}", name, v.OldValue, v.NewValue);
-        }
-
-        public static void memberDebug(linkMember member, e_DependType type)
-        {
-            string name = string.Format("{0} member => ", type);
-            member.event_dependDateChanged += (o, v) =>
-                Console.WriteLine("{0}Depend date changed from {1:dd.MM.yyyy} to {2:dd.MM.yyyy}", name, v.OldValue, v.NewValue);
-            member.event_neighboursDeltaChanged += (o, v) =>
-                Console.WriteLine("{0}Delta changed from {1} to {2}", name, v.OldValue, v.NewValue);
-        }
-
-        public static void dependDebug(Dependence depend)
-        {
-            string name = "Depend slave => ";
-            depend.event_DependDotChanged += (o, v) =>
-                Console.WriteLine("{0}Dot changed from {1} to {2}", name, v.OldValue, v.NewValue);
-            depend.event_DateChanged += (o, v) =>
-                Console.WriteLine("{0}Date changed from {1:dd.MM.yyyy} to {2:dd.MM.yyyy}", name, v.OldValue, v.NewValue);
-        }
+        
     }
 }

@@ -7,33 +7,55 @@ using System.Threading.Tasks;
 using alter.args;
 using alter.classes;
 using alter.iface;
+using alter.Link.iface;
 using alter.types;
 
 namespace alterTesting.Emulators
 {
-    public class lineClass : IId, ILine
+    public class lineClass : IDock
     {
         protected alter.classes.Identity ident;
         protected dotCLass _start;
         protected dotCLass _finish;
+        protected Dependence dcDepend = null;
         public event EventHandler<ea_ValueChange<double>> event_DurationChanged;
+        public event EventHandler<ea_IdObject> event_ObjectDeleted;
 
         public double duration
         {
             get { return GetDuration(); }
             set
             {
-                if(value >= 0) _finish.date = start.AddDays(value);
+                if (value >= 0)
+                {
+                    _finish.date = start.AddDays(value);
+                }
             }
         }
         public DateTime start
         {
-            get { return _start.date; }
+            get
+            {
+                if (dcDepend != null)
+                {
+                    if (dcDepend.dependDot == e_Dot.Start) return dcDepend.date;
+                    else return finish.AddDays(-duration);
+                }
+                return _start.date;
+            }
             set { _start.date = value; }
         }
         public DateTime finish
         {
-            get { return _finish.date; }
+            get
+            {
+                if (dcDepend != null)
+                {
+                    if (dcDepend.dependDot == e_Dot.Finish) return dcDepend.date;
+                    else return start.AddDays(duration);
+                }
+                return _finish.date;
+            }
             set { _finish.date = value; }
         }
 
@@ -65,5 +87,19 @@ namespace alterTesting.Emulators
         {
             return ident.Type;
         }
+
+        public bool connect(ILink link)
+        {
+            return true;
+        }
+
+        public void setDependence(Dependence depend)
+        {
+            dcDepend = depend;
+        }
+        public void DeleteObject()
+        {
+            throw new NotImplementedException();
+        }    
     }
 }

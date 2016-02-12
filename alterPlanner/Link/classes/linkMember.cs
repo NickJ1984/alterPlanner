@@ -181,7 +181,7 @@ namespace alter.Link.classes
             this.memberID = memberID;
             ddAdapter = new dependDotAdapter(sender, memberID, memberLine);
             ddAdapter.event_DateChanged += handler_dependObjectDateChanged;
-            this.dependDot = dependDot;
+            ddAdapter.setDependDot(dependDot);
         }
         #endregion
         #region Handlers
