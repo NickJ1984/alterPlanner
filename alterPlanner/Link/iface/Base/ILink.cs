@@ -55,6 +55,5 @@ namespace alter.Link.iface
         /// <param name="member">Идентификатор члена связи</param>
         /// <returns>Ссылка на интерфейс класса информации о члене связи</returns>
         ILMember GetInfoMember(IId member);
-        //void Unsuscribe(string dsubscriber); реализовать через фабрику
     }
 }

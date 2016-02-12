@@ -15,6 +15,13 @@ namespace alter.Link.iface
     {
         ILink GetLink(string dlink);
         ILink CreateLink(e_LnkType type, IDock master, IDock slave);
+        /// <summary>
+        /// Отписаться от связи
+        /// </summary>
+        /// <param name="subscriberID">Идентификатор отписывающегося подписчика</param>
+        /// /// <param name="linkID">Идентификатор связи</param>
+        void unsuscribe(string subscriberID, string linkID);
+
         bool deleteLink(string dlink);
         bool deleteLink();
     }

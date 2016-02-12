@@ -13,22 +13,24 @@ namespace alter.Link.iface
     
     public interface ILinkManager
     {
-        bool DelLink(string linkId);
-        bool DelLink(e_DependType dependType);
-        bool DelLink();
+        bool delLink(string linkId);
+        bool delLink(e_DependType dependType);
+        bool delLink();
 
-        string[] GetLinks(e_DependType dependType);
-        string[] GetLinks();
+        string[] getLinks(e_DependType dependType);
+        string[] getLinks();
+        ILink getLink(string linkID);
 
-        bool LinkExist(string linkId);
+        ILink getActiveLink();
+
+        bool LinkExist(string linkID);
 
         int GetLinksCount(e_DependType dependType);
-        
+
+        bool connect(ILink link);
+
+        event EventHandler<ea_Value<ILink>> event_ActiveLink;
         event EventHandler<ea_Value<ILink>> event_LinkAdded;
         event EventHandler<ea_Value<ILink>> event_LinkDeleted;
-    }
-    public interface ILinkConnector : ILinkManager
-    {
-        bool AddLink(e_DependType type, ILink newLink);
     }
 }

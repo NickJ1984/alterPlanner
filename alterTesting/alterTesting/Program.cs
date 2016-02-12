@@ -92,66 +92,42 @@ namespace alterTesting
             }
         }
 
+        public class test
+        {
+            public readonly string text;
+            public string addOn;
+
+            public test(string text)
+            {
+                this.text = text;
+                addOn = "";
+            }
+
+            public void print()
+            {
+                if(string.IsNullOrEmpty(addOn)) Console.WriteLine(text);
+                else Console.WriteLine("{0}; AddOn: {1}", text, addOn);
+            }
+        }
        
-        
+        public struct MyStruct
+        {
+            public test reference;
+            public string addOn;
+        }
         static void Main(string[] args)
         {
-            lineClass master = new lineClass()
+            test ttt = new test("First entry");
+            MyStruct str = new MyStruct()
             {
-                start = new DateTime(2000, 1, 1),
-                finish = new DateTime(2002, 1, 1)
+                addOn = ttt.addOn,
+                reference = ttt
             };
-            lineClass slave = new lineClass()
-            {
-                start = new DateTime(2010, 2, 2),
-                duration = 30
-            };
-            link Link = new link(master, slave, e_TskLim.StartFinish);
-            #region actions
+            ttt.addOn = "this is second added";
+            str.reference.print();
+            str.reference.addOn = str.addOn;
+            str.reference.print();
 
-            Action newTest = () => Console.WriteLine(new string('+', 50));
-            Action printSlave = () =>
-            {
-                Console.WriteLine(new string('*', 50));
-                Console.WriteLine("Slave information:");
-                Console.WriteLine("Start: {0:dd.MM.yyyy}   Finish: {1:dd.MM.yyyy}   Duration: {2}", slave.start, slave.finish, slave.duration);
-                Console.WriteLine(new string('*', 50));
-            };
-            Action printMaster = () =>
-            {
-                Console.WriteLine(new string('*', 50));
-                Console.WriteLine("Master information");
-                Console.WriteLine("Start: {0:dd.MM.yyyy}   Finish: {1:dd.MM.yyyy}   Duration: {2}", master.start, master.finish, master.duration);
-                Console.WriteLine(new string('*', 50));
-            };
-            Action printLink = () =>
-            {
-                Console.WriteLine(new string('*', 50));
-                Console.WriteLine("Link information: ");
-                Console.WriteLine("Limit: {0}    Delay: {1}", Link.limit, Link.delay);
-                Console.WriteLine(new string('*', 50));
-            };
-            #endregion
-            printSlave();
-            printMaster();
-            printLink();
-            slave.setDependence(Link.depend);
-            printSlave();
-            newTest();
-            Link.delay = 10;
-            printLink();
-            printSlave();
-            newTest();
-            Link.limit = e_TskLim.FinishStart;
-            printLink();
-            printMaster();
-            printSlave();
-            newTest();
-            Link.delay = 20;
-            Link.limit = e_TskLim.StartStart;
-            printLink();
-            printMaster();
-            printSlave();
             #region default
             Console.WriteLine("\nPress Enter to exit...");
             Console.ReadLine(); 

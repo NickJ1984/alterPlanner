@@ -227,7 +227,7 @@ namespace alter.Link.classes
                     _slave.direction,
                     dotDependSlave);
             _dependSlave.setSender(this);
-
+            
             _slave.event_dependDateChanged += _dependSlave.handler_DateChange;
             _slave.event_dependDotChanged += _dependSlave.handler_DependDotChange;
 
