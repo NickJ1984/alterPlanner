@@ -69,26 +69,26 @@ namespace alter.Link.classes
         }
     }
     #endregion
-    #region Основные переменные
+    #region Реализация класса
     public partial class linkManager : ILinkManager
     {
+        #region Переменные
         protected IId owner;
         protected Vault links;
         protected Watcher watcher;
-    }
-    #endregion
-    #region Основные события и их инвокеры
-    public partial class linkManager : ILinkManager
-    {
-        #region Внешние события
-        public event EventHandler<ea_Value<ILink>> event_ActiveLink;
-        public event EventHandler<ea_Value<ILink>> event_LinkAdded;
-        public event EventHandler<ea_Value<ILink>> event_LinkDeleted;
+        protected activeLinkManager alManager;
         #endregion
-        #region Инвокеры внешних событий
-        protected void onLinkAdded(ILink link)
+        #region События
+        public event EventHandler<ea_Value<ILink>> event_newActiveLink;
+        public event EventHandler<ea_Value<ILink>> event_activeLinkDateChanged;
+        public event EventHandler<ea_Value<ILink>> event_linkAdded;
+        public event EventHandler<ea_Value<ILink>> event_linkDeleted;
+        #endregion
+        #region Конструкторы
+
+        public linkManager(IId owner)
         {
-            event_LinkAdded?.Invoke(this, new ea_Value<ILink>(link));
+            this.owner = owner;
         }
         #endregion
     }
@@ -96,7 +96,7 @@ namespace alter.Link.classes
     #region Активная связь
     public partial class linkManager : ILinkManager
     {
-        protected class activeLinkManager : Watcher.IDependSubscriber
+        public class activeLinkManager : Watcher.IDependSubscriber
         {
             #region Переменные
             protected linkManager parent;
@@ -223,7 +223,7 @@ namespace alter.Link.classes
     #region Отслеживание изменений в связях
     public partial class linkManager : ILinkManager
     {
-        protected class Watcher
+        public class Watcher
         {
             #region Переменные
             protected Dictionary<string, HashSet<onChange<e_Direction>>> hndsDir;
@@ -456,7 +456,7 @@ namespace alter.Link.classes
     public partial class linkManager : ILinkManager
     {
         #region Реализация класса хранилища
-        protected class Vault
+        public class Vault
         {
             #region Индексатор
             public storedLink this[string linkID]

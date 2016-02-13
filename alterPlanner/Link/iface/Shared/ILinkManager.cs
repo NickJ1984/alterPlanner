@@ -29,8 +29,9 @@ namespace alter.Link.iface
 
         bool connect(ILink link);
 
-        event EventHandler<ea_Value<ILink>> event_ActiveLink;
-        event EventHandler<ea_Value<ILink>> event_LinkAdded;
-        event EventHandler<ea_Value<ILink>> event_LinkDeleted;
+        event EventHandler<ea_Value<ILink>> event_newActiveLink;
+        event EventHandler<ea_Value<ILink>> event_activeLinkDateChanged;
+        event EventHandler<ea_Value<ILink>> event_linkAdded;
+        event EventHandler<ea_Value<ILink>> event_linkDeleted;
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using alter.args;
@@ -14,6 +15,197 @@ using alter.Project.iface;
 
 namespace alterTesting.Emulators
 {
+    public class simpleLink : ILink
+    {
+        public Identity id = new Identity(e_Entity.Link);
+        protected e_TskLim limit;
+        protected double delay;
+        public simpleDepend depend;
+        public simpleLMember master;
+        public simpleLMember slave;
+
+        public event EventHandler<ea_ValueChange<double>> event_DelayChanged;
+        public event EventHandler<ea_ValueChange<e_TskLim>> event_LimitChanged;
+        public event EventHandler<ea_IdObject> event_ObjectDeleted;
+
+        public simpleLink(IId idMaster, ILine lMaster, IId idSlave, ILine lSlave, e_TskLim limit)
+        {
+            id = new Identity(e_Entity.Link);
+            this.limit = limit;
+            master = new simpleLMember(this, idMaster, lMaster, e_DependType.Master);
+            depend = new simpleDepend(lMaster, Hlp.GetPrecursor(limit));
+            slave = new simpleLMember(this, idSlave, lSlave, e_DependType.Slave);
+        }
+
+        public void DeleteObject()
+        {
+            event_ObjectDeleted?.Invoke(this, new ea_IdObject(this));
+        }
+
+        public double GetDelay()
+        {
+            return delay;
+        }
+
+        public string GetId()
+        {
+            return id.Id;
+        }
+
+        public ILMember GetInfoMember(IId member)
+        {
+            return (member.GetId() == master.GetMemberId().GetId()) ? master : slave;
+        }
+
+        public ILMember GetInfoMember(e_DependType member)
+        {
+            return member == e_DependType.Master ? master : slave;
+        }
+
+        public e_TskLim GetLimit()
+        {
+            return limit;
+        }
+
+        public e_LnkState GetLinkState()
+        {
+            return e_LnkState.InTime;
+        }
+
+        public IDependence GetSlaveDependence()
+        {
+            return depend;
+        }
+
+        public bool SetDelay(double days)
+        {
+            double Old = delay;
+            delay = days;
+            event_DelayChanged?.Invoke(this, new ea_ValueChange<double>(Old, delay));
+            return true;
+        }
+
+        public bool SetLimit(e_TskLim limitType)
+        {
+            e_TskLim Old = limit;
+            limit = limitType;
+            event_LimitChanged?.Invoke(this, new ea_ValueChange<e_TskLim>(Old, limit));
+            return true;
+        }
+
+        e_Entity IId.GetType()
+        {
+            return id.Type;
+        }
+        #region SimpleDependence
+        public class simpleDepend : IDependence
+        {
+            protected ILine parent;
+            protected e_Dot dependDot;
+            public object sender;
+            public DateTime lastDate { get; protected set; }
+
+            public event EventHandler<ea_ValueChange<DateTime>> event_DateChanged;
+            public event EventHandler<ea_ValueChange<e_Dot>> event_DependDotChanged;
+            public event EventHandler<ea_ValueChange<e_Direction>> event_DirectionChanged;
+
+            public simpleDepend(ILine parent, e_Dot dependDot)
+            {
+                this.parent = parent;
+                this.dependDot = dependDot;
+                lastDate = parent.GetDot(dependDot).GetDate();
+                parent.GetDot(e_Dot.Finish).event_DateChanged += onDateChange;
+                parent.GetDot(e_Dot.Start).event_DateChanged += onDateChange;
+            }
+
+            public DateTime CheckDate(DateTime date)
+            {
+                return parent.GetDot(dependDot).GetDate();
+            }
+
+            public DateTime GetDate()
+            {
+                return parent.GetDot(dependDot).GetDate();
+            }
+
+            public e_Dot GetDependDot()
+            {
+                return dependDot;
+            }
+
+            public e_Direction GetDirection()
+            {
+                return e_Direction.Fixed;
+            }
+
+            public void setDependDot(e_Dot dependDot)
+            {
+                changeDot(parent.GetDot(this.dependDot), parent.GetDot(dependDot));
+            }
+            
+            private void onDateChange(object sender, ea_ValueChange<DateTime> e)
+            {
+                if (parent.GetDot(this.dependDot).GetDate() != lastDate)
+                {
+                    lastDate = e.NewValue;
+                    event_DateChanged?.Invoke(sender, e);
+                }
+            }
+            private void changeDot(IDot Old, IDot New)
+            {
+                e_Dot dOld = dependDot;
+                if (Old != null)
+                {
+                    Old.event_DateChanged -= onDateChange;
+                    dOld = Old.GetDotType();
+                }
+                New.event_DateChanged += onDateChange;
+                e_Dot dNew = New.GetDotType();
+                dependDot = dNew;
+                event_DependDotChanged?.Invoke(sender, new ea_ValueChange<e_Dot>(dOld, dNew));
+
+                if (lastDate != parent.GetDot(dependDot).GetDate())
+                {
+                    DateTime OldDate = lastDate;
+                    lastDate = parent.GetDot(dependDot).GetDate();
+                    event_DateChanged?.Invoke(sender, new ea_ValueChange<DateTime>(OldDate, lastDate));
+                }
+            }
+        }
+
+        #endregion
+        #region SimpleLM
+        public class simpleLMember : ILMember
+        {
+            protected simpleLink parent;
+            protected IId memberID;
+            protected ILine lMember;
+            protected e_DependType depend;
+
+            public simpleLMember(simpleLink parent, IId memberID, ILine lMember, e_DependType dependType)
+            {
+                depend = dependType;
+                this.memberID = memberID;
+                this.lMember = lMember;
+            }
+
+            public e_DependType GetDependType()
+            {
+                return depend;
+            }
+
+            public IId GetMemberId()
+            {
+                return memberID;
+            }
+
+            public IDot getObjectDependDotInfo()
+            {
+                return lMember.GetDot(Hlp.GetDepenDot(parent.limit, depend));
+            }
+        }
+        #endregion
+    }
     public class linkClass : ILink
     {
         #region Vars
