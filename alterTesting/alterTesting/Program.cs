@@ -109,24 +109,51 @@ namespace alterTesting
                 else Console.WriteLine("{0}; AddOn: {1}", text, addOn);
             }
         }
-       
+        public class MyStructComparer : IEqualityComparer<MyStruct>
+        {
+            public bool Equals(MyStruct x, MyStruct y)
+            {
+                return x.Check == y.Check || x.Check == 50 || y.Check == 50;
+            }
+
+            public int GetHashCode(MyStruct obj)
+            {
+                return obj.Check.GetHashCode();
+            }
+        }
         public struct MyStruct
         {
             public test reference;
             public string addOn;
+            public int Check;
+
+            
         }
+
+        public class testCMP : IComparable<testCMP>
+        {
+            public readonly int index = -1;
+            private static Random rnd = new Random();
+            protected readonly int cmpValue = rnd.Next(1, 100);
+
+            public testCMP(int index)
+            {
+                this.index = index;
+            }
+
+            public int CompareTo(testCMP other)
+            {
+                int result = cmpValue == other.cmpValue ? 0 : -1;
+                return cmpValue > other.cmpValue ? 1 : result;
+            }
+        }
+
         static void Main(string[] args)
         {
-            test ttt = new test("First entry");
-            MyStruct str = new MyStruct()
-            {
-                addOn = ttt.addOn,
-                reference = ttt
-            };
-            ttt.addOn = "this is second added";
-            str.reference.print();
-            str.reference.addOn = str.addOn;
-            str.reference.print();
+            testCMP[] array = new testCMP[20];
+            for(int i = 0; i < 20; i++) array[i] = new testCMP(i);
+            testCMP max = array.Max();
+            Console.WriteLine(max?.index);
 
             #region default
             Console.WriteLine("\nPress Enter to exit...");

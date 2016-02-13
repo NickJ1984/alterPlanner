@@ -285,6 +285,20 @@ namespace alter.Link.classes
             aUnsuscribeDependSlave = aUnsuscribeMaster = aUnsuscribeSlave = null;
             event_ObjectDeleted?.Invoke(this, new ea_IdObject(this));
         }
+
+        public override int GetHashCode()
+        {
+            return _identity.Id.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            ILink ilObj = obj as ILink;
+            if(ilObj == null) throw new Exception("Параметр метода имеет недопустимый тип");
+
+            return ilObj.GetId() == _identity.Id;
+        }
+
         #endregion
         #region Limit
         /// <summary>

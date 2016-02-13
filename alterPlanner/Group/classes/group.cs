@@ -122,10 +122,7 @@ namespace alter.Group.classes
             throw new NotImplementedException();
         }
 
-        public ILinkConnector getConnector()
-        {
-            throw new NotImplementedException();
-        }
+        
 
         public bool connect(ILink link)
         {
