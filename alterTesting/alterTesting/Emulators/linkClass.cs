@@ -15,6 +15,41 @@ using alter.Project.iface;
 
 namespace alterTesting.Emulators
 {
+    public struct completeLink
+    {
+        public simpleLink link;
+        public lineClass slave;
+        public lineClass master;
+        public string idLink => link.id.Id;
+        public string idSlave => slave.GetId();
+        public string idMaster => master.GetId();
+        public e_TskLim linkDependType => link.GetLimit();
+
+
+        public completeLink(DateTime masterStart, double masterDuration, DateTime slaveStart, double slaveDuration,
+            e_TskLim linkDependType)
+        {
+            master = new lineClass(masterStart, masterDuration);
+            slave = new lineClass(slaveStart, slaveDuration);
+            link = new simpleLink(master, master, slave, slave, linkDependType);
+        }
+
+        public void reinitLink(e_TskLim linkDependType)
+        {
+            link = new simpleLink(master, master, slave, slave, linkDependType);
+        }
+
+        public void reinitMaster(DateTime masterStart, double masterDuration)
+        {
+            master = new lineClass(masterStart, masterDuration);
+        }
+
+        public void reinitSlave(DateTime slaveStart, double slaveDuration)
+        {
+            slave = new lineClass(slaveStart, slaveDuration);
+        }
+    }
+
     public class simpleLink : ILink
     {
         public Identity id = new Identity(e_Entity.Link);
@@ -35,6 +70,7 @@ namespace alterTesting.Emulators
             master = new simpleLMember(this, idMaster, lMaster, e_DependType.Master);
             depend = new simpleDepend(lMaster, Hlp.GetPrecursor(limit));
             slave = new simpleLMember(this, idSlave, lSlave, e_DependType.Slave);
+            depend.sender = this;
         }
 
         public void DeleteObject()
@@ -54,7 +90,9 @@ namespace alterTesting.Emulators
 
         public ILMember GetInfoMember(IId member)
         {
-            return (member.GetId() == master.GetMemberId().GetId()) ? master : slave;
+            if (member.GetId() == master.GetMemberId().GetId()) return master;
+            else if (member.GetId() == slave.GetMemberId().GetId()) return slave;
+            return null;
         }
 
         public ILMember GetInfoMember(e_DependType member)
@@ -111,6 +149,7 @@ namespace alterTesting.Emulators
 
             public simpleDepend(ILine parent, e_Dot dependDot)
             {
+                sender = this;
                 this.parent = parent;
                 this.dependDot = dependDot;
                 lastDate = parent.GetDot(dependDot).GetDate();
@@ -148,7 +187,7 @@ namespace alterTesting.Emulators
                 if (parent.GetDot(this.dependDot).GetDate() != lastDate)
                 {
                     lastDate = e.NewValue;
-                    event_DateChanged?.Invoke(sender, e);
+                    event_DateChanged?.Invoke(this.sender, e);
                 }
             }
             private void changeDot(IDot Old, IDot New)

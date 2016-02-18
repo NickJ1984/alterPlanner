@@ -14,11 +14,12 @@ namespace alter.Link.iface
     public interface ILinkManager
     {
         bool delLink(string linkId);
+        bool delLink(ILink Link);
         bool delLink(e_DependType dependType);
-        bool delLink();
+        bool delLinks();
 
-        string[] getLinks(e_DependType dependType);
-        string[] getLinks();
+        ILink[] getLinks(e_DependType dependType);
+        ILink[] getLinks();
         ILink getLink(string linkID);
 
         ILink getActiveLink();
@@ -29,8 +30,8 @@ namespace alter.Link.iface
 
         bool connect(ILink link);
 
-        event EventHandler<ea_Value<ILink>> event_newActiveLink;
-        event EventHandler<ea_Value<ILink>> event_activeLinkDateChanged;
+        event EventHandler<ea_ValueChange<ILink>> event_newActiveLink;
+        event EventHandler<ea_ValueChange<DateTime>> event_activeLinkDateChanged;
         event EventHandler<ea_Value<ILink>> event_linkAdded;
         event EventHandler<ea_Value<ILink>> event_linkDeleted;
     }

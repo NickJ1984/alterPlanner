@@ -16,6 +16,7 @@ namespace alterTesting.Emulators
     {
         protected DateTime _date;
         protected e_Dot _type;
+        protected object sender;
         public virtual DateTime date
         {
             get { return _date; }
@@ -25,7 +26,7 @@ namespace alterTesting.Emulators
                 {
                     DateTime old = _date;
                     _date = value;
-                    event_DateChanged?.Invoke(this, new ea_ValueChange<DateTime>(old, _date));
+                    event_DateChanged?.Invoke(sender, new ea_ValueChange<DateTime>(old, _date));
                 }
             } 
         }
@@ -37,8 +38,13 @@ namespace alterTesting.Emulators
         {
             this._type = type;
             _date = Hlp.InitDate;
+            sender = this;
         }
 
+        public void setSender(object sender)
+        {
+            this.sender = sender;
+        }
         public DateTime GetDate()
         {
             return date;

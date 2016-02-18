@@ -66,6 +66,12 @@ namespace alterTesting.Emulators
             ident = new Identity(e_Entity.Task);
         }
 
+        public lineClass(DateTime start, double duration)
+            :this()
+        {
+            this.start = start;
+            this.duration = duration;
+        }
 
         public IDot GetDot(e_Dot type)
         {

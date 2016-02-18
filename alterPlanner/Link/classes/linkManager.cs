@@ -8,88 +8,160 @@ using alter.args;
 using alter.iface;
 using alter.Link.iface;
 using alter.Service.classes;
+using alter.Service.Extensions;
 using alter.Service.iface;
 using alter.types;
 
 namespace alter.Link.classes
 {
-    #region Реализация интерфейса
-    public partial class linkManager : ILinkManager
-    {
-        
-
-        public bool connect(ILink link)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool delLink()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool delLink(e_DependType dependType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool delLink(string linkId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ILink getActiveLink()
-        {
-            throw new NotImplementedException();
-        }
-
-        public ILink getLink(string linkID)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string[] getLinks()
-        {
-            throw new NotImplementedException();
-        }
-
-        public string[] getLinks(e_DependType dependType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int GetLinksCount(e_DependType dependType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool LinkExist(string linkID)
-        {
-            throw new NotImplementedException();
-        }
-    }
-    #endregion
     #region Реализация класса
     public partial class linkManager : ILinkManager
     {
         #region Переменные
         protected IId owner;
         protected Vault links;
-        protected Watcher watcher;
+        protected Watcher cWatcher;
         protected activeLinkManager alManager;
         #endregion
+        #region Делегаты
+        protected Action unSetMembers;
+        #endregion
         #region События
-        public event EventHandler<ea_Value<ILink>> event_newActiveLink;
-        public event EventHandler<ea_Value<ILink>> event_activeLinkDateChanged;
+        public event EventHandler<ea_ValueChange<ILink>> event_newActiveLink;
+        public event EventHandler<ea_ValueChange<DateTime>> event_activeLinkDateChanged;
         public event EventHandler<ea_Value<ILink>> event_linkAdded;
         public event EventHandler<ea_Value<ILink>> event_linkDeleted;
         #endregion
         #region Конструкторы
-
         public linkManager(IId owner)
         {
             this.owner = owner;
+            links = new Vault(this);
+            cWatcher = new Watcher();
+            alManager = new activeLinkManager(this, links.getSlaveDependences);
         }
+
+        ~linkManager()
+        {
+            owner = null;
+            links = null;
+            cWatcher = null;
+            alManager = null;
+        }
+        #endregion
+        #region Обработчики событий
+        protected void handler_activeLinkNew(object sender, ea_ValueChange<ILink> e)
+        {
+            event_newActiveLink?.Invoke(this, e);
+        }
+        protected void handler_activeLinkDateChanged(object sender, ea_ValueChange<DateTime> e)
+        {
+            event_activeLinkDateChanged?.Invoke(this, e);
+        }
+        #endregion
+        #region Методы
+        #region Добавление связи
+        public bool connect(ILink link)
+        {
+            if(link == null) throw new NullReferenceException(nameof(link));
+            if (!links.Add(link)) return false;
+
+            cWatcher.watchSlaveDependence(link);
+            alManager.setNewLink(link);
+            if(!cWatcher.subscribe(link.GetId(), alManager)) throw new ArgumentException(nameof(cWatcher));
+
+            event_linkAdded?.Invoke(this, new ea_Value<ILink>(link));
+
+            return true;
+        }
+        #endregion
+        #region Удаление связи
+        public bool delLinks()
+        {
+            if (links.count == 0) return false;
+            ILink[] rmLinks = links.getLinks();
+            cWatcher.removeLinks();
+            alManager.resetActiveLink();
+            links.Remove();
+            if (event_linkDeleted != null)
+            {
+                for (int i = 0; i < rmLinks.Length; i++)
+                    event_linkDeleted?.Invoke(this, new ea_Value<ILink>(rmLinks[i]));
+            }
+            return true;
+        }
+        public bool delLink(e_DependType dependType)
+        {
+            if (links.count == 0) return false;
+
+            ILink[] rmLinks = links.getLinks(dependType);
+            if (rmLinks.isNullOrEmpty()) return false;
+
+            for (int i = 0; i < rmLinks.Length; i++)
+            {
+                delLink(rmLinks[i]);
+                event_linkDeleted?.Invoke(this, new ea_Value<ILink>(rmLinks[i]));
+            }
+
+            return true;
+        }
+        public bool delLink(string linkID)
+        {
+            if (links.count == 0) return false;
+
+            ILink rmLink = links[linkID].Link;
+
+            cWatcher.removeLink(linkID);
+            alManager.linkRemoved(linkID);
+            if (!links.Remove(linkID)) throw new ArgumentException(nameof(links));
+
+            event_linkDeleted?.Invoke(this, new ea_Value<ILink>(rmLink));
+
+            return true;
+        }
+        public bool delLink(ILink Link)
+        {
+            return delLink(Link.GetId());
+        }
+        #endregion
+        #region Доступ к связям
+        public ILink getActiveLink()
+        {
+            return alManager.activeLink;
+        }
+        public ILink getLink(string linkID)
+        {
+            return links[linkID].Link;
+        }
+        public ILink[] getLinks()
+        {
+            return links.getLinks();
+        }
+        public ILink[] getLinks(e_DependType dependType)
+        {
+            if(!Enum.IsDefined(typeof(e_DependType), dependType)) throw new ArgumentNullException(nameof(dependType));
+            return links.getLinks(dependType);
+        }
+        #endregion
+        #region Информационные методы
+        public int GetLinksCount(e_DependType dependType)
+        {
+            return links.count;
+        }
+        public bool LinkExist(string linkID)
+        {
+            return links.isExist(linkID);
+        }
+        #endregion
+        #region Методы объекта
+        public void clear()
+        {
+            delLinks();
+        }
+        #endregion
+        #region Служебные
+
+        #endregion
         #endregion
     }
     #endregion
@@ -104,6 +176,7 @@ namespace alter.Link.classes
             protected DateTime lastDate;
             #endregion
             #region Свойства
+            public DateTime LDate => lastDate;
             public ILink activeLink
             {
                 get { return _activeLink; }
@@ -117,7 +190,7 @@ namespace alter.Link.classes
                     string New = _activeLink != null ? activeLink.GetId() : string.Empty;
 
                     updateLastDate();
-                    if(oldLink != _activeLink) event_newActive?.Invoke(parent, new ea_ValueChange<string>(Old, New));
+                    if(oldLink != _activeLink) event_newActive?.Invoke(parent, new ea_ValueChange<ILink>(oldLink, activeLink));
 
                     DateTime dNew = lastDate;
                     if (dNew != dOld) event_dateUpdated?.Invoke(parent, new ea_ValueChange<DateTime>(dOld, dNew));
@@ -129,7 +202,7 @@ namespace alter.Link.classes
             protected Func<DateTime, DateTime, int> fComparator;
             #endregion
             #region События
-            public event EventHandler<ea_ValueChange<string>> event_newActive; //если активные связи отсутствуют, отсылаем string.Empty
+            public event EventHandler<ea_ValueChange<ILink>> event_newActive; //если активные связи отсутствуют, отсылаем string.Empty
             public event EventHandler<ea_ValueChange<DateTime>> event_dateUpdated;
             #endregion
             #region Конструктор
@@ -156,7 +229,7 @@ namespace alter.Link.classes
             {
                 ILink lSender = sender as ILink;
                 if(lSender == null) throw new NullReferenceException();
-                if(lSender.GetId() != activeLink.GetId()) compareWithActive(lSender);
+                compareWithActive(lSender);
             }
 
             public void handler_directionChanged(object sender, ea_ValueChange<e_Direction> e)
@@ -170,16 +243,24 @@ namespace alter.Link.classes
             public void handler_linkRemoved(object sender, ea_ValueChange<string> e)
             {
                 ILink lSender = sender as ILink;
-                if (lSender.GetId() == activeLink.GetId()) activeLink = findActive();
+                linkRemoved(lSender.GetId());
             }
             #endregion
             #region Методы
+            public bool linkRemoved(string linkID)
+            {
+                if (linkID == activeLink.GetId())
+                {
+                    activeLink = findActive(activeLink);
+                    return true;
+                }
+                return false;
+            }
             public void setNewLink(ILink link)
             {
                 if (_activeLink == null) activeLink = link;
                 else compareWithActive(link);
             }
-
             public void resetActiveLink()
             {
                 activeLink = null;
@@ -192,9 +273,14 @@ namespace alter.Link.classes
                 if (result > 0) activeLink = newLink;
                 if (result < 0 && newLink.GetId() == _activeLink.GetId()) activeLink = findActive();
             }
-            protected ILink findActive()
+            protected ILink findActive(ILink exceptLink = null)
             {
-                ILink[] slaves = delegate_getSlaveLinks();
+                ILink[] slaves;
+                if (exceptLink != null)
+                    slaves = delegate_getSlaveLinks()
+                        .Where(val => val.GetId() != exceptLink.GetId()).ToArray();
+                else slaves = delegate_getSlaveLinks();
+
                 ILink result = _activeLink;
                 DateTime dResult = lastDate;
                 DateTime tempDate;
@@ -305,7 +391,7 @@ namespace alter.Link.classes
                 return false;
             }
 
-            public bool subscribe<T>(string linkID, Watcher.IDependSubscriber subscriber)
+            public bool subscribe(string linkID, Watcher.IDependSubscriber subscriber)
             {
                 bool result = true;
                 Action<bool> aRes = (bl) => result = (!result) ? result : bl;
@@ -339,7 +425,7 @@ namespace alter.Link.classes
 
                 return false;
             }
-            public bool unsubscribe<T>(string linkID, Watcher.IDependSubscriber subscriber)
+            public bool unsubscribe(string linkID, Watcher.IDependSubscriber subscriber)
             {
                 bool result = true;
                 Action<bool> aRes = (bl) => result = (!result) ? result : bl;
@@ -350,6 +436,31 @@ namespace alter.Link.classes
                 aRes(unsubscribe(ref hndsRemove, linkID, subscriber.handler_linkRemoved));
 
                 return result;
+            }
+            public void removeLink(string linkID)
+            {
+                aUnsuscribe[linkID]();
+                aUnsuscribe.Remove(linkID);
+
+                hndsDir.Remove(linkID);
+                hndsDate.Remove(linkID);
+                hndsDot.Remove(linkID);
+                hndsRemove.Remove(linkID);
+            }
+
+            public void removeLinks()
+            {
+                if(aUnsuscribe.Count == 0) return;
+                var aUns = aUnsuscribe.Values.ToArray();
+
+                for (int i = 0; i < aUnsuscribe.Count; i++)
+                    aUns[i]();
+
+                hndsDir.Clear();
+                hndsDate.Clear();
+                hndsDot.Clear();
+                hndsRemove.Clear();
+                aUnsuscribe.Clear();
             }
             #endregion
             #region Обработчики
@@ -366,15 +477,16 @@ namespace alter.Link.classes
                 ILink link = sender as ILink;
                 if (link == null) throw new NullReferenceException();
 
-                pushDelegates(sender, e, hndsDot[link.GetId()]);
+                if (hndsDot.ContainsKey(link.GetId()))
+                    pushDelegates(sender, e, hndsDot[link.GetId()]);
             }
 
             protected void handler_dateChanged(object sender, ea_ValueChange<DateTime> e)
             {
                 ILink link = sender as ILink;
                 if (link == null) throw new NullReferenceException();
-
-                pushDelegates(sender, e, hndsDate[link.GetId()]);
+                if(hndsDate.ContainsKey(link.GetId()))
+                    pushDelegates(sender, e, hndsDate[link.GetId()]);
             }
 
             protected void handler_linkRemoved(object sender, ea_IdObject e)
@@ -382,7 +494,8 @@ namespace alter.Link.classes
                 ILink link = sender as ILink;
                 if (link == null) throw new NullReferenceException();
 
-                pushDelegates(sender, new ea_ValueChange<string>(e.Id.Id, e.Id.Id), hndsRemove[link.GetId()]);
+                if (hndsRemove.ContainsKey(link.GetId()))
+                    pushDelegates(sender, new ea_ValueChange<string>(e.Id.Id, e.Id.Id), hndsRemove[link.GetId()]);
                 removeLink(e.Id.Id);
             }
             #endregion
@@ -415,7 +528,6 @@ namespace alter.Link.classes
 
                 return true;
             }
-
             protected bool unsubscribe<T>(ref Dictionary<string, HashSet<onChange<T>>> vault, string linkID, onChange<T> handler)
             {
                 if (vault.Count == 0) return false;
@@ -433,20 +545,10 @@ namespace alter.Link.classes
 
                 if (!HSet.Contains(handler)) return false;
                 HSet.Remove(handler);
-                vault[linkID] = HSet;
+
+                if (HSet.Count == 0) vault.Remove(linkID);
 
                 return true;
-            }
-
-            protected void removeLink(string linkID)
-            {
-                aUnsuscribe[linkID]();
-                aUnsuscribe.Remove(linkID);
-
-                hndsDir.Remove(linkID);
-                hndsDate.Remove(linkID);
-                hndsDot.Remove(linkID);
-                hndsRemove.Remove(linkID);
             }
             #endregion
         }
@@ -455,7 +557,6 @@ namespace alter.Link.classes
     #region Хранение связей
     public partial class linkManager : ILinkManager
     {
-        #region Реализация класса хранилища
         public class Vault
         {
             #region Индексатор
@@ -513,14 +614,20 @@ namespace alter.Link.classes
                 if(!vault.Remove(linkID)) return false;
                 return true;
             }
+            public bool Remove()
+            {
+                if (vault.Count == 0) return false;
+
+                vault.Clear();
+                neighbours.Clear();
+                return true;
+            }
             #endregion
             #region Утилитарные
-
             private bool neighbourAdd(string neighbourID)
             {
                 return neighbours.Add(neighbourID);
             }
-
             #endregion
             #region Доступ
             public string[] getNeighbours()
@@ -533,6 +640,10 @@ namespace alter.Link.classes
                 return vault.Select(v => v.Value.Link).ToArray();
             }
 
+            public ILink[] getLinks(e_DependType depend)
+            {
+                return (depend == e_DependType.Master) ? getMasterDependences() : getSlaveDependences();
+            }
             public ILink[] getSlaveDependences()
             {
                 return vault.Where(v => v.Value.dependType == e_DependType.Slave).Select(v => v.Value.Link).ToArray();
@@ -542,18 +653,22 @@ namespace alter.Link.classes
                 return vault.Where(v => v.Value.dependType == e_DependType.Master).Select(v => v.Value.Link).ToArray();
             }
             #endregion
+            #region Информационные
+            public bool isExist(string linkID)
+            {
+                return vault.Keys.Contains(linkID);
+            }
+            #endregion
             #endregion
         }
         #endregion
-
     }
-    #endregion
     #region Внутренние сущности
 
     public partial class linkManager : ILinkManager
     {
         #region Структуры
-        protected struct storedLink
+        public struct storedLink
         {
             public readonly ILink Link;
             public Action unsuscribe;
