@@ -35,6 +35,9 @@ namespace alter.Link.classes
         #region Конструкторы
         public linkManager(IId owner)
         {
+            if (owner.isNull()) throw new NullReferenceException(nameof(owner));
+            
+            
             
             this.owner = owner;
             links = new Vault(this);
