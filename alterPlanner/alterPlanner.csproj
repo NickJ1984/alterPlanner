@@ -64,6 +64,7 @@
     <Compile Include="Service\classes\dotAdapter.cs" />
     <Compile Include="Service\classes\Node.cs" />
     <Compile Include="Service\Extensions\ArrayExt.cs" />
+    <Compile Include="Service\Extensions\ObjectExt.cs" />
     <Compile Include="Service\iface\IDependDotAdapter.cs" />
     <Compile Include="Service\iface\IDotAdapter.cs" />
     <Compile Include="Service\iface\INode.cs" />

@@ -35,6 +35,7 @@ namespace alter.Link.classes
         #region Конструкторы
         public linkManager(IId owner)
         {
+            
             this.owner = owner;
             links = new Vault(this);
             cWatcher = new Watcher();

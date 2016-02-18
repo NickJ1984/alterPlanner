@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "alterTesting", "alterTestin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "alterPlanner", "..\alterPlanner\alterPlanner.csproj", "{40FD4266-F7DE-4689-B9BA-A9F3772AB1E0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "alterPlanner.Tests", "..\alterPlanner.Tests\alterPlanner.Tests.csproj", "{ECCA70BE-3DDB-46D0-8FC1-ABB17E571598}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{40FD4266-F7DE-4689-B9BA-A9F3772AB1E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40FD4266-F7DE-4689-B9BA-A9F3772AB1E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40FD4266-F7DE-4689-B9BA-A9F3772AB1E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECCA70BE-3DDB-46D0-8FC1-ABB17E571598}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECCA70BE-3DDB-46D0-8FC1-ABB17E571598}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECCA70BE-3DDB-46D0-8FC1-ABB17E571598}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECCA70BE-3DDB-46D0-8FC1-ABB17E571598}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
