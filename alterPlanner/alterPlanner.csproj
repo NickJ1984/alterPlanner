@@ -63,6 +63,7 @@
     <Compile Include="Service\classes\dependDotAdapter.cs" />
     <Compile Include="Service\classes\dotAdapter.cs" />
     <Compile Include="Service\classes\Node.cs" />
+    <Compile Include="Service\Exceptions\IdentityExceptions.cs" />
     <Compile Include="Service\Extensions\ArrayExt.cs" />
     <Compile Include="Service\Extensions\ObjectExt.cs" />
     <Compile Include="Service\iface\IDependDotAdapter.cs" />

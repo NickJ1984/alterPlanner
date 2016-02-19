@@ -36,9 +36,7 @@ namespace alter.Link.classes
         public linkManager(IId owner)
         {
             if (owner.isNull()) throw new NullReferenceException(nameof(owner));
-            
-            
-            
+            if(!owner.GetType().HasFlag(e_Entity.Task) || !owner.GetType().HasFlag(e_Entity.Group)) throw new alter.Service.Exceptions.wrongObjectEntityException(owner);
             this.owner = owner;
             links = new Vault(this);
             cWatcher = new Watcher();
