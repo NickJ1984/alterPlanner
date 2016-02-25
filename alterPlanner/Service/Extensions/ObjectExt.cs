@@ -8,12 +8,18 @@ namespace alter.Service.Extensions
 {
     internal static class ObjectExt
     {
-        internal static bool hasInterface(this object target, params Type[] interfaces)
+        internal static bool isNull<TIn>(this TIn instance)
+            where TIn : class
         {
-            if (target == null) return false;
+            return instance == null;
+        }
+        internal static bool hasInterface<TIn>(this TIn self, params Type[] interfaces)
+            where TIn : class
+        {
+            if (self == null) return false;
             bool result = false;
 
-            Type[] iTarget = target.GetType().GetInterfaces();
+            Type[] iTarget = self.GetType().GetInterfaces();
 
             for (int i = 0; i < interfaces.Length; i++)
             {
@@ -22,6 +28,11 @@ namespace alter.Service.Extensions
             }
 
             return result;
+        }
+
+        internal static bool isType(this object instance, Type checkType)
+        {
+            return instance.GetType() == checkType;
         }
     }
 }

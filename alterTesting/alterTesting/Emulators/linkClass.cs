@@ -15,6 +15,147 @@ using alter.Project.iface;
 
 namespace alterTesting.Emulators
 {
+    public class completeLinkArray
+    {
+        public completeLink this[int index]
+        {
+            get
+            {
+                if(index < 0 || index >= array.Length) throw new IndexOutOfRangeException();
+                return array[index];
+            }
+        }
+        private Random rand;
+        public completeLink[] array;
+        public DateTime dateMax => getMaxDate();
+        public e_TskLim randomLimit => getRandomLimit();
+        public int length => array.Length;
+        public int yearMin;
+        public int yearMax;
+        public int monthMin;
+        public int monthMax;
+        public int dayMin;
+        public int dayMax;
+        
+        public int rDay => rand.Next(dayMin, dayMax);
+        public int rMonth => rand.Next(monthMin, monthMax);
+        public int rYear => rand.Next(yearMin, yearMax);
+
+        public completeLinkArray(int count = 0)
+        {
+            if(count < 0) throw new ArgumentException(nameof(count) + " below 0");
+
+            rand = new Random(DateTime.Now.Millisecond);
+            array = new completeLink[0];
+
+            yearMin = rand.Next(1990, 2010);
+            yearMax = rand.Next(yearMin + 1, yearMin + 10);
+
+            monthMin = 1;
+            monthMax = 12;
+
+            dayMin = 1;
+            dayMax = 25;
+
+            addArrayElement(count);
+        }
+
+        public completeLink getNewLink(lineClass master, lineClass slave, e_TskLim limitType)
+        {
+            completeLink cLink = new completeLink();
+            cLink.slave = slave;
+            cLink.master = master;
+            cLink.reinitLink(limitType);
+            return cLink;
+        }
+
+        public bool addLineClass(lineClass lClass, int number)
+        {
+            if (number <= 0 || number > array.Length || lClass == null) return false;
+            int[] indexes = getRandomCells(number);
+
+            for (int i = 0; i < indexes.Length; i++)
+            {
+                e_DependType depend = getRandomDepend();
+                if (depend == e_DependType.Master) array[indexes[i]].master = lClass;
+                else array[indexes[i]].slave = lClass;
+                array[indexes[i]].reinitLink(array[indexes[i]].link.GetLimit());
+            }
+            return true;
+        }
+        public completeLink getNewLink()
+        {
+            DateTime mStart = getRandomDate();
+            double mDuration = rand.Next(0, getDuration(mStart));
+            DateTime sStart = getRandomDate();
+            double sDuration = rand.Next(0, getDuration(sStart));
+            
+            return new completeLink(mStart, mDuration, sStart, sDuration, randomLimit);
+        }
+
+        public void addArrayElement(int number)
+        {
+            if(number <= 0) return;
+
+            int startIndex = array.Length;
+            Array.Resize(ref array, array.Length + number);
+
+            for (int i = startIndex; i < array.Length; i++)
+            {
+                array[i] = getNewLink();
+            }
+        }
+        private int getDuration(DateTime date)
+        {
+            return dateMax.Subtract(date).Days;
+        }
+
+        private int[] getRandomCells(int count)
+        {
+            List<int> indexes = Enumerable.Range(0, array.Length).ToList();
+            int[] result = new int[count];
+            int temp = 0;
+
+            for (int i = 0; i < count; i++)
+            {
+                temp = rand.Next(0, indexes.Count);
+                result[i] = indexes[temp];
+                indexes.RemoveAt(temp);
+            }
+
+            return result;
+        }
+        private e_DependType getRandomDepend()
+        {
+            return  (e_DependType)rand.Next(1, 3);
+        }
+        private e_TskLim getRandomLimit()
+        {
+            int iLimit = rand.Next(1, 4);
+
+            switch (iLimit)
+            {
+                case 1:
+                    return e_TskLim.FinishFinish;
+                case 2:
+                    return e_TskLim.FinishStart;
+                case 3:
+                    return e_TskLim.StartFinish;
+                case 4:
+                    return e_TskLim.StartStart;
+                default:
+                    throw new ApplicationException("Unexpected error");
+            }
+        }
+        private DateTime getRandomDate()
+        {
+            return new DateTime(rYear, rMonth, rDay);
+        }
+        private DateTime getMaxDate()
+        {
+            return new DateTime(yearMax, monthMax, dayMax);
+        }
+    }
     public struct completeLink
     {
         public simpleLink link;

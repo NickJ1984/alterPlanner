@@ -12,5 +12,11 @@ namespace alter.Service.Extensions
         {
             return instance?.Length == 0;
         }
+
+        internal static bool isInRange<T>(this T[] instance, int index)
+        {
+            if (instance.isNullOrEmpty()) return false;
+            return index >= 0 && index < instance.Length;
+        }
     }
 }
