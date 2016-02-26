@@ -16,27 +16,63 @@ using alter.types;
 namespace alter.Link.classes
 {
     #region Реализация класса
+    /// <summary>
+    /// Класс управления связями взаимодействующими с объектом
+    /// </summary>
     public partial class linkManager : ILinkManager
     {
         #region Переменные
-        public IId owner;
-        public Vault links;
-        public Watcher cWatcher;
-        public activeLinkManager alManager;
+        /// <summary>
+        /// Идентификатор владельца экземпляра класса
+        /// </summary>
+        protected IId owner;
+        /// <summary>
+        /// Хранилище связей
+        /// </summary>
+        protected Vault links;
+        /// <summary>
+        /// Управление подписками на связи
+        /// </summary>
+        protected Watcher cWatcher;
+        /// <summary>
+        /// Менеджер активных связей
+        /// </summary>
+        protected activeLinkManager alManager;
 
+        /// <summary>
+        /// Отписка от внутренних объектов
+        /// </summary>
         private Action unsuscribe;
         #endregion
         #region Делегаты
-        protected Action unSetMembers;
+        /// <summary>
+        /// Делегат для подписки на событие удаления связи экземпляра Watcher
+        /// </summary>
         protected Watcher.onChange<string> onRemoveLink;
         #endregion
         #region События
+        /// <summary>
+        /// Событие срабатывающее при установке новой активной связи
+        /// </summary>
         public event EventHandler<ea_ValueChange<ILink>> event_newActiveLink;
+        /// <summary>
+        /// Событие срабатывающее при изменении даты активной связи
+        /// </summary>
         public event EventHandler<ea_ValueChange<DateTime>> event_activeLinkDateChanged;
+        /// <summary>
+        /// Событие при добавлении связи
+        /// </summary>
         public event EventHandler<ea_Value<ILink>> event_linkAdded;
+        /// <summary>
+        /// Событие при удалении связи
+        /// </summary>
         public event EventHandler<ea_Value<ILink>> event_linkDeleted;
         #endregion
         #region Конструкторы
+        /// <summary>
+        /// Конструктор экземпляра класса управления связями взаимодействующими с объектом владельцем
+        /// </summary>
+        /// <param name="owner">Интерфейс идентификатор владельца экземпляра класса</param>
         public linkManager(IId owner)
         {
             this.owner = owner;
@@ -55,7 +91,9 @@ namespace alter.Link.classes
 
             onRemoveLink = handler_linkRemoved;
         }
-
+        /// <summary>
+        /// Деструктор
+        /// </summary>
         ~linkManager()
         {
             unsuscribe();
@@ -68,15 +106,29 @@ namespace alter.Link.classes
         }
         #endregion
         #region Обработчики событий
+        /// <summary>
+        /// Обработчик события установки новой активной связи
+        /// </summary>
+        /// <param name="sender">Объект инициатор</param>
+        /// <param name="e">Аргумент содержит ссылку на старую активную связь и на новую, одним из аргументов может являться значение Null при условии отсутствия активной связи</param>
         protected void handler_activeLinkNew(object sender, ea_ValueChange<ILink> e)
         {
             event_newActiveLink?.Invoke(this, e);
         }
+        /// <summary>
+        /// Обработчик события изменения даты активной связи
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e">Аргумент изменения даты (старое и новое значение)</param>
         protected void handler_activeLinkDateChanged(object sender, ea_ValueChange<DateTime> e)
         {
             event_activeLinkDateChanged?.Invoke(this, e);
         }
-
+        /// <summary>
+        /// Обработчик события удаления связи
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e">Используемый тип ea_ValueChange вместо ea_Value, обусловлен механизмом подписки Watcher'а. (В обоих переменных одно и то же значение, удаляемой связи)</param>
         protected void handler_linkRemoved(object sender, ea_ValueChange<string> e)
         {
             delLink(e.NewValue);
@@ -84,6 +136,11 @@ namespace alter.Link.classes
         #endregion
         #region Методы
         #region Добавление связи
+        /// <summary>
+        /// Метод добавление связи, прототип метода обусловлен интерфейсом IDock, возвращает истину если связь добавлена
+        /// </summary>
+        /// <param name="link">Возвращает истину если связь добавлена</param>
+        /// <returns></returns>
         public bool connect(ILink link)
         {
             if(link.isNull()) throw new NullReferenceException(nameof(link));
@@ -108,6 +165,10 @@ namespace alter.Link.classes
         }
         #endregion
         #region Удаление связи
+        /// <summary>
+        /// Отписка от всех взаимодействующих с объектом связей, и удаление ссылок на них
+        /// </summary>
+        /// <returns></returns>
         public bool delLinks()
         {
             if (links.count == 0) return false;
@@ -122,6 +183,11 @@ namespace alter.Link.classes
             }
             return true;
         }
+        /// <summary>
+        /// Отписка и удаление связей взаимодействующих связей где объект владелец выступает в роли <paramref name="dependType"/>
+        /// </summary>
+        /// <param name="dependType">Роль объекта владельца в связях</param>
+        /// <returns></returns>
         public bool delLink(e_DependType dependType)
         {
             if (links.count == 0) return false;
@@ -137,6 +203,11 @@ namespace alter.Link.classes
 
             return true;
         }
+        /// <summary>
+        /// Отписка и удаление связи по ее идентификатору, возвращает истину если ссылка удалена
+        /// </summary>
+        /// <param name="linkID">Идентификатор связи</param>
+        /// <returns></returns>
         public bool delLink(string linkID)
         {
             if (links.count == 0) return false;
@@ -151,24 +222,47 @@ namespace alter.Link.classes
 
             return true;
         }
+        /// <summary>
+        /// Отписка и удаление связи по ее ссылке, возвращает истину если ссылка удалена
+        /// </summary>
+        /// <param name="Link">Ссылка на связь</param>
+        /// <returns></returns>
         public bool delLink(ILink Link)
         {
             return delLink(Link.GetId());
         }
         #endregion
         #region Доступ к связям
+        /// <summary>
+        /// Получить ссылку на активную связь, возвращает null если активная связь отсутствует
+        /// </summary>
+        /// <returns>Вовзращает ссылку на активную связь, возвращает null если активная связь отсутствует</returns>
         public ILink getActiveLink()
         {
             return alManager.activeLink;
         }
+        /// <summary>
+        /// Возвращает ссылку на хранимую связь по ее идентификатору
+        /// </summary>
+        /// <param name="linkID"></param>
+        /// <returns></returns>
         public ILink getLink(string linkID)
         {
             return links[linkID].Link;
         }
+        /// <summary>
+        /// Возвращает массив ссылок на все хранящиеся связи
+        /// </summary>
+        /// <returns></returns>
         public ILink[] getLinks()
         {
             return links.getLinks();
         }
+        /// <summary>
+        /// Возвращает массив ссылок на хранящиеся связи где объект владелец выступает в роли <paramref name="dependType"/>
+        /// </summary>
+        /// <param name="dependType">Роль объекта владельца в связях</param>
+        /// <returns></returns>
         public ILink[] getLinks(e_DependType dependType)
         {
             if(!Enum.IsDefined(typeof(e_DependType), dependType)) throw new ArgumentNullException(nameof(dependType));
@@ -176,23 +270,33 @@ namespace alter.Link.classes
         }
         #endregion
         #region Информационные методы
+        /// <summary>
+        /// Метод предоставляющих количество связей где объект владелец выступает в роли <paramref name="dependType"/>
+        /// </summary>
+        /// <param name="dependType">Роль объекта владельца в связях</param>
+        /// <returns>Количество связей</returns>
         public int GetLinksCount(e_DependType dependType)
         {
             return links.count;
         }
+        /// <summary>
+        /// Метод возвращает истину если экземпляр класса хранит в себе связь с идентификатором эквивалентным <paramref name="linkID"/>
+        /// </summary>
+        /// <param name="linkID">Идентификатор связи</param>
+        /// <returns></returns>
         public bool LinkExist(string linkID)
         {
             return links.isExist(linkID);
         }
         #endregion
         #region Методы объекта
+        /// <summary>
+        /// Очистить экземпляр класса
+        /// </summary>
         public void clear()
         {
             delLinks();
         }
-        #endregion
-        #region Служебные
-
         #endregion
         #endregion
     }
@@ -200,6 +304,9 @@ namespace alter.Link.classes
     #region Активная связь
     public partial class linkManager : ILinkManager
     {
+        /// <summary>
+        /// Класс ответственный за управление и выбор активной связи
+        /// </summary>
         public class activeLinkManager : Watcher.IDependSubscriber
         {
             #region Переменные
