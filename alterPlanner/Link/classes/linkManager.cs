@@ -310,12 +310,23 @@ namespace alter.Link.classes
         public class activeLinkManager : Watcher.IDependSubscriber
         {
             #region Переменные
+            /// <summary>
+            /// Ссылка на экземпляр родитель
+            /// </summary>
             protected linkManager parent;
+            /// <summary>
+            /// Ссылка на активную связь, Null если активная связь отсутствует
+            /// </summary>
             protected ILink _activeLink;
+            /// <summary>
+            /// Последняя обновленная дата активной связи.
+            /// </summary>
             protected DateTime lastDate;
             #endregion
             #region Свойства
-            public DateTime LDate => lastDate;
+            /// <summary>
+            /// Свойство ссылающееся на активную связь, Null если активная связь отсутствует
+            /// </summary>
             public ILink activeLink
             {
                 get { return _activeLink; }
@@ -337,14 +348,31 @@ namespace alter.Link.classes
             }
             #endregion
             #region Делегаты
+            /// <summary>
+            /// Делегат метода получения ссылок на связи где владелец является подчиненным
+            /// </summary>
             protected Func<ILink[]> delegate_getSlaveLinks = () => null;
+            /// <summary>
+            /// Делегат метода сравнения связей, для выбора активной, 1 связь замещает текущую активную, -1 связь не замещает текущую активную
+            /// </summary>
             protected Func<DateTime, DateTime, int> fComparator;
             #endregion
             #region События
-            public event EventHandler<ea_ValueChange<ILink>> event_newActive; //если активные связи отсутствуют, отсылаем string.Empty
+            /// <summary>
+            /// Событие срабатывает при объявлении активной новой связи, либо при объявлении отсутствия активной связи (Null)
+            /// </summary>
+            public event EventHandler<ea_ValueChange<ILink>> event_newActive; 
+            /// <summary>
+            /// Событие срабатывает при изменении даты активной связи
+            /// </summary>
             public event EventHandler<ea_ValueChange<DateTime>> event_dateUpdated;
             #endregion
             #region Конструктор
+            /// <summary>
+            /// Конструктор экземпляра класса ответственного за управление и выбор активной связи
+            /// </summary>
+            /// <param name="parent">Ссылка на родителя</param>
+            /// <param name="delegate_getSlaveLinks">Метод получения ссылок на связи где владелец является подчиненным</param>
             public activeLinkManager(linkManager parent, Func<ILink[]> delegate_getSlaveLinks)
             {
                 this.parent = parent;
@@ -354,7 +382,9 @@ namespace alter.Link.classes
                 _activeLink = null;
                 updateLastDate();
             }
-
+            /// <summary>
+            /// Деструктор
+            /// </summary>
             ~activeLinkManager()
             {
                 parent = null;
@@ -364,21 +394,41 @@ namespace alter.Link.classes
             }
             #endregion
             #region IDependSubscriber
+            /// <summary>
+            /// Обработчик события изменения даты активной связи, при отсутствии активной связи передает дату 1.1.1
+            /// </summary>
+            /// <param name="sender"></param>
+            /// <param name="e"></param>
             public void handler_dateChanged(object sender, ea_ValueChange<DateTime> e)
             {
                 ILink lSender = sender as ILink;
                 if(lSender == null) throw new NullReferenceException();
                 compareWithActive(lSender);
             }
-
+            /// <summary>
+            /// Обработчик события изменения направления ограничения связи, в данной версии не реализован, так как направление связи всегда имеет фиксированное значение и не меняется.
+            /// </summary>
+            /// <param name="sender"></param>
+            /// <param name="e"></param>
             public void handler_directionChanged(object sender, ea_ValueChange<e_Direction> e)
             {
                 throw new NotImplementedException();
             }
 
+            /// <summary>
+            /// Обработчик события изменения подчиненной точки владельца в активной связи
+            /// </summary>
+            /// <param name="sender"></param>
+            /// <param name="e"></param>
             public void handler_dotChanged(object sender, ea_ValueChange<e_Dot> e)
-            { }
-
+            {
+                throw new NotImplementedException();
+            }
+            /// <summary>
+            /// Обработчик события удаления связи
+            /// </summary>
+            /// <param name="sender"></param>
+            /// <param name="e"></param>
             public void handler_linkRemoved(object sender, ea_ValueChange<string> e)
             {
                 ILink lSender = sender as ILink;
@@ -386,6 +436,11 @@ namespace alter.Link.classes
             }
             #endregion
             #region Методы
+            /// <summary>
+            /// Обработчик события удаления связи с идентификатором <paramref name="linkID"/>
+            /// </summary>
+            /// <param name="linkID">Идентификатор удаляемой связи</param>
+            /// <returns>Вовзращает истину, если удаляемая связь являлась активной</returns>
             public bool linkRemoved(string linkID)
             {
                 string activeLinkID = (_activeLink != null) ? activeLink.GetId() : string.Empty;
@@ -397,17 +452,28 @@ namespace alter.Link.classes
                 }
                 return false;
             }
+            /// <summary>
+            /// Метод установки новой активной связи
+            /// </summary>
+            /// <param name="link"></param>
             public void setNewLink(ILink link)
             {
                 if (_activeLink == null) activeLink = link;
                 else compareWithActive(link);
             }
+            /// <summary>
+            /// Метод установки ссылки на активную связь в значение Null
+            /// </summary>
             public void resetActiveLink()
             {
                 activeLink = null;
             }
             #endregion
             #region Утилитарные
+            /// <summary>
+            /// Метод сравнения <paramref name="newLink"/> с текущей активной связью
+            /// </summary>
+            /// <param name="newLink"></param>
             protected virtual void compareWithActive(ILink newLink)
             {
                 int result = fComparator(lastDate, newLink.GetSlaveDependence().GetDate());
@@ -415,6 +481,11 @@ namespace alter.Link.classes
                 if (result < 0 && newLink.GetId() == _activeLink.GetId())
                     activeLink = findActive();
             }
+            /// <summary>
+            /// Метод поиска активной связи, опциональный параметр <paramref name="exceptLink"/> исключает определенную связь из списка выбора
+            /// </summary>
+            /// <param name="exceptLink">Опциональный параметр, связь исключаемая из списка выбора активной связи</param>
+            /// <returns>Возвращает ссылку на выбранную активную связь, либо null если список выбора пуст</returns>
             protected ILink findActive(ILink exceptLink = null)
             {
                 ILink[] slaves = new ILink[0];
@@ -444,6 +515,9 @@ namespace alter.Link.classes
 
                 return result;
             }
+            /// <summary>
+            /// Метод обновления последней даты (<seealso cref="lastDate"/>) активной связи 
+            /// </summary>
             protected virtual void updateLastDate()
             {
                 lastDate = _activeLink != null ? _activeLink.GetSlaveDependence().GetDate() : new DateTime(1, 1, 1);
@@ -455,31 +529,84 @@ namespace alter.Link.classes
     #region Отслеживание изменений в связях
     public partial class linkManager : ILinkManager
     {
+        /// <summary>
+        /// Класс управляющий подписками на связи
+        /// </summary>
         public class Watcher
         {
             #region Переменные
+            /// <summary>
+            /// Словарь делегатов подписанных на событие изменения направления, ключом служит ID связи, значением список ссылок на делегаты подписанные на событие
+            /// </summary>
             protected Dictionary<string, HashSet<onChange<e_Direction>>> hndsDir;
+            /// <summary>
+            /// Словарь делегатов подписанных на событие изменения подчиненной точки владельца, ключом служит ID связи, значением список ссылок на делегаты подписанные на событие
+            /// </summary
             protected Dictionary<string, HashSet<onChange<e_Dot>>> hndsDot;
+            /// <summary>
+            /// Словарь делегатов подписанных на событие изменения даты ограничения связи, ключом служит ID связи, значением список ссылок на делегаты подписанные на событие
+            /// </summary>
             protected Dictionary<string, HashSet<onChange<DateTime>>> hndsDate;
+            /// <summary>
+            /// Словарь делегатов подписанных на событие удаления связи, ключом служит ID связи, значением список ссылок на делегаты подписанные на событие
+            /// </summary>
             protected Dictionary<string, HashSet<onChange<string>>> hndsRemove;
+            /// <summary>
+            /// Словарь делегатов отписки от всех событий связи, ключом служит ID связи, значением делегат отписки от связи
+            /// </summary>
             protected Dictionary<string, Action> aUnsuscribe;
             #endregion
             #region Свойства
+            /// <summary>
+            /// Количество записей словаря отписки <seealso cref="aUnsuscribe"/>
+            /// </summary>
             public int count => aUnsuscribe.Count;
             #endregion
             #region Делегаты
+            /// <summary>
+            /// Делегат генерик для подписки на события связей
+            /// </summary>
+            /// <typeparam name="T">Могут выступать следующие типы: <seealso cref="e_Direction"/>, <seealso cref="e_Dot"/>, <seealso cref="DateTime"/>, <seealso cref="string"/></typeparam>
+            /// <param name="sender"></param>
+            /// <param name="e"></param>
             public delegate void onChange<T>(object sender, ea_ValueChange<T> e);
             #endregion
             #region Интерфейс
+            /// <summary>
+            /// Интерфейс для автоматиченской подписки класса
+            /// </summary>
             public interface IDependSubscriber
             {
+                /// <summary>
+                /// Обработчик события изменения направления ограничения связи
+                /// </summary>
+                /// <param name="sender"></param>
+                /// <param name="e"></param>
                 void handler_directionChanged(object sender, ea_ValueChange<e_Direction> e);
+                /// <summary>
+                /// Обработчик события изменения зависимой точки владельца
+                /// </summary>
+                /// <param name="sender"></param>
+                /// <param name="e"></param>
                 void handler_dotChanged(object sender, ea_ValueChange<e_Dot> e);
+                /// <summary>
+                /// Обработчик события изменения даты зависимости связи
+                /// </summary>
+                /// <param name="sender"></param>
+                /// <param name="e"></param>
                 void handler_dateChanged(object sender, ea_ValueChange<DateTime> e);
+                /// <summary>
+                /// Обработчик события удаления связи
+                /// </summary>
+                /// <param name="sender"></param>
+                /// <param name="e"></param>
                 void handler_linkRemoved(object sender, ea_ValueChange<string> e);
             }
             #endregion
             #region Конструктор
+            /// <summary>
+            /// Конструктор экземпляра класса управляющего подписками на связи
+            /// </summary>
             public Watcher()
             {
                 hndsDir = new Dictionary<string, HashSet<onChange<e_Direction>>>();
@@ -488,7 +615,9 @@ namespace alter.Link.classes
                 hndsRemove = new Dictionary<string, HashSet<onChange<string>>>();
                 aUnsuscribe = new Dictionary<string, Action>();
             }
-
+            /// <summary>
+            /// Деструктор
+            /// </summary>
             ~Watcher()
             {
                 hndsDir = null;
@@ -499,7 +628,11 @@ namespace alter.Link.classes
             }
             #endregion
             #region Методы
-
+            /// <summary>
+            /// Метод старта наблюдения за новой связью с зависимостью владельца <paramref name="dependType"/>
+            /// </summary>
+            /// <param name="newLink">Новая связь на события которой подписываемся</param>
+            /// <param name="dependType">Тип зависимости владельца в новой связи</param>
             public void watchLink(ILink newLink, e_DependType dependType)
             {
                 if(!Enum.IsDefined(typeof(e_DependType), dependType)) throw new ArgumentException(nameof(dependType));
@@ -531,7 +664,13 @@ namespace alter.Link.classes
                     });
                 }
             }
-            
+            /// <summary>
+            /// Метод подписки делегата на связь с идентификатором <paramref name="linkID"/>
+            /// </summary>
+            /// <typeparam name="T">Могут выступать следующие типы: <seealso cref="e_Direction"/>, <seealso cref="e_Dot"/>, <seealso cref="DateTime"/>, <seealso cref="string"/></typeparam>
+            /// <param name="linkID">Идентификатор наблюдаемой связи</param>
+            /// <param name="handler">Ссылка на делегат обработчик</param>
+            /// <returns></returns>
             public bool subscribe<T>(string linkID, onChange<T> handler)
             {
                 Type tp = typeof (T);
@@ -558,7 +697,12 @@ namespace alter.Link.classes
                 }
                 return false;
             }
-
+            /// <summary>
+            /// Метод автоматической подписки класса на все события связи с идентификатором <paramref name="linkID"/>
+            /// </summary>
+            /// <param name="linkID">Идентификатор наблюдаемой связи</param>
+            /// <param name="subscriber">Ссылка на экземпляр класса подписчика</param>
+            /// <returns>Вовзвращает истину если подписка прошла успешщно</returns>
             public bool subscribe(string linkID, Watcher.IDependSubscriber subscriber)
             {
                 bool result = true;
@@ -571,6 +715,13 @@ namespace alter.Link.classes
 
                 return result;
             }
+            /// <summary>
+            /// Метод отписки делегата от связи с идентификатором <paramref name="linkID"/>
+            /// </summary>
+            /// <typeparam name="T">Могут выступать следующие типы: <seealso cref="e_Direction"/>, <seealso cref="e_Dot"/>, <seealso cref="DateTime"/>, <seealso cref="string"/></typeparam>
+            /// <param name="linkID">Идентификатор наблюдаемой связи</param>
+            /// <param name="handler">Ссылка на делегат обработчик</param>
+            /// <returns>Истина если отписка произведена успешно</returns>
             public bool unsubscribe<T>(string linkID, onChange<T> handler)
             {
                 Type tp = typeof(T);
@@ -593,6 +744,12 @@ namespace alter.Link.classes
 
                 return false;
             }
+            /// <summary>
+            /// Метод отписки экземпляра класса от всех событий связи с идентификатором <paramref name="linkID"/>
+            /// </summary>
+            /// <param name="linkID">Идентификатор наблюдаемой связи</param>
+            /// <param name="subscriber">Ссылка на экземпляр класса подписчика</param>
+            /// <returns>Вовзвращает истину если отписка прошла успешщно</returns>
             public bool unsubscribe(string linkID, Watcher.IDependSubscriber subscriber)
             {
                 bool result = true;
@@ -605,7 +762,10 @@ namespace alter.Link.classes
 
                 return result;
             }
-
+            /// <summary>
+            /// Отписаться и прекратить наблюдать связь с идентификатором <paramref name="linkID"/>
+            /// </summary>
+            /// <param name="linkID">Идентификатор связи</param>
             public void removeLink(string linkID)
             {
                 if(!aUnsuscribe.Keys.Contains(linkID)) return;
@@ -617,6 +777,9 @@ namespace alter.Link.classes
                 hndsDot.Remove(linkID);
                 hndsRemove.Remove(linkID);
             }
+            /// <summary>
+            /// Отписаться и прекратить наблюдать от всех наблюдаемых связей
+            /// </summary>
             public void removeLinks()
             {
                 if(aUnsuscribe.Count == 0) return;
@@ -633,6 +796,11 @@ namespace alter.Link.classes
             }
             #endregion
             #region Обработчики
+            /// <summary>
+            /// Обработчик события изменения направления ограничения связи
+            /// </summary>
+            /// <param name="sender"></param>
+            /// <param name="e"></param>
             protected void handler_directionChanged(object sender, ea_ValueChange<e_Direction> e)
             {
                 ILink link = sender as ILink;
@@ -640,7 +808,11 @@ namespace alter.Link.classes
 
                 pushDelegates(sender, e, hndsDir[link.GetId()]);
             }
-
+            /// <summary>
+            /// Обработчик события изменения подчиненной точки владельца
+            /// </summary>
+            /// <param name="sender"></param>
+            /// <param name="e"></param>
             protected void handler_dotChanged(object sender, ea_ValueChange<e_Dot> e)
             {
                 ILink link = sender as ILink;
@@ -649,7 +821,11 @@ namespace alter.Link.classes
                 if (hndsDot.ContainsKey(link.GetId()))
                     pushDelegates(sender, e, hndsDot[link.GetId()]);
             }
-
+            /// <summary>
+            /// Обработчик события изменения даты зависимости связи
+            /// </summary>
+            /// <param name="sender"></param>
+            /// <param name="e"></param>
             protected void handler_dateChanged(object sender, ea_ValueChange<DateTime> e)
             {
                 ILink link = sender as ILink;
@@ -657,7 +833,11 @@ namespace alter.Link.classes
                 if(hndsDate.ContainsKey(link.GetId()))
                     pushDelegates(sender, e, hndsDate[link.GetId()]);
             }
-
+            /// <summary>
+            /// Обработчик события удаления связи
+            /// </summary>
+            /// <param name="sender"></param>
+            /// <param name="e"></param>
             protected void handler_linkRemoved(object sender, ea_IdObject e)
             {
                 ILink link = sender as ILink;
@@ -670,13 +850,27 @@ namespace alter.Link.classes
             }
             #endregion
             #region Утилитарные
+            /// <summary>
+            /// Вызвать все делегаты обработчиков <paramref name="delegates"/>, с параметрами <paramref name="sender"/> и <paramref name="e"/>
+            /// </summary>
+            /// <typeparam name="T"></typeparam>
+            /// <param name="sender"></param>
+            /// <param name="e"></param>
+            /// <param name="delegates">Список вызываемых делегатов</param>
             protected void pushDelegates<T>(object sender, ea_ValueChange<T> e, HashSet<onChange<T>> delegates)
             {
                 if(delegates == null || delegates.Count == 0) return;
 
                 foreach (onChange<T> dlg in delegates) dlg(sender, e);
             }
-
+            /// <summary>
+            /// Добавить делегат обработчика <paramref name="handler"/> в словарь делегатов <paramref name="vault"/> по ключу-идентификатору связи <paramref name="linkID"/>
+            /// </summary>
+            /// <typeparam name="T"></typeparam>
+            /// <param name="vault"></param>
+            /// <param name="linkID"></param>
+            /// <param name="handler"></param>
+            /// <returns>Истина если делегат обработчик добавлен успешно</returns>
             protected bool subscribe<T>(ref Dictionary<string, HashSet<onChange<T>>> vault, string linkID, onChange<T> handler)
             {
                 HashSet<onChange<T>> HSet = new HashSet<onChange<T>>();
@@ -698,6 +892,14 @@ namespace alter.Link.classes
 
                 return true;
             }
+            /// <summary>
+            /// Удалить делегат обработчика <paramref name="handler"/> из словаря делегатов <paramref name="vault"/> по ключу-идентификатору связи <paramref name="linkID"/>
+            /// </summary>
+            /// <typeparam name="T"></typeparam>
+            /// <param name="vault"></param>
+            /// <param name="linkID"></param>
+            /// <param name="handler"></param>
+            /// <returns>Истина если делегат удален успешно</returns>
             protected bool unsubscribe<T>(ref Dictionary<string, HashSet<onChange<T>>> vault, string linkID, onChange<T> handler)
             {
                 if (vault.Count == 0) return false;
@@ -727,9 +929,17 @@ namespace alter.Link.classes
     #region Хранение связей
     public partial class linkManager : ILinkManager
     {
+        /// <summary>
+        /// Класс хранения связей взаимодействующих с владельцем
+        /// </summary>
         public class Vault
         {
             #region Индексатор
+            /// <summary>
+            /// Свойство индексатора возвращающее по идентификатору связи, хранимую экземпляром класса связь
+            /// </summary>
+            /// <param name="linkID">Идентификатор связи</param>
+            /// <returns></returns>
             public storedLink this[string linkID]
             {
                 get { return vault[linkID]; }
@@ -737,22 +947,43 @@ namespace alter.Link.classes
             } 
             #endregion
             #region Переменные
+            /// <summary>
+            /// Ссылка на родителя
+            /// </summary>
             protected linkManager parent;
+            /// <summary>
+            /// Ссылка на идентификатор владельца
+            /// </summary>
             protected IId ownerIID => parent.owner;
+            /// <summary>
+            /// Словарь хранения взаимодействующих с владельцем связей, ключ - идентификатор связи, значение - ссылка на связь
+            /// </summary>
             protected Dictionary<string, storedLink> vault;
+            /// <summary>
+            /// Соседи учавствующие во взаимодействующих с владельцем связях
+            /// </summary>
             protected HashSet<string> neighbours;
             #endregion
             #region Свойства
+            /// <summary>
+            /// Количество взаимодействующих связей
+            /// </summary>
             public int count => vault.Count;
             #endregion
             #region Конструктор
+            /// <summary>
+            /// Конструктор экземпляра класса хранения связей взаимодействующих с владельцем
+            /// </summary>
+            /// <param name="parent">Ссылка на родителя</param>
             public Vault(linkManager parent)
             {
                 this.parent = parent;
                 vault = new Dictionary<string, storedLink>();
                 neighbours = new HashSet<string>();
             }
-
+            /// <summary>
+            /// Деструктор
+            /// </summary>
             ~Vault()
             {
                 parent = null;
@@ -762,6 +993,11 @@ namespace alter.Link.classes
             #endregion
             #region Методы
             #region Добавление
+            /// <summary>
+            /// Добавление новой связи в хранилище
+            /// </summary>
+            /// <param name="newLink">Ссылка на добавляемую связь</param>
+            /// <returns>Истина если ссылка на связь была добавлена</returns>
             public bool Add(ILink newLink)
             {
                 if (vault.Keys.Contains(newLink.GetId())) return false;
@@ -779,6 +1015,11 @@ namespace alter.Link.classes
             }
             #endregion
             #region Удаление
+            /// <summary>
+            /// Удаление ссылки на связь с идентификатором <paramref name="linkID"/> из хранилища
+            /// </summary>
+            /// <param name="linkID">Идентификатор связи</param>
+            /// <returns>Истина, если ссылка была удалена</returns>
             public bool Remove(string linkID)
             {
                 if (!vault.Keys.Contains(linkID)) return false;
@@ -787,6 +1028,10 @@ namespace alter.Link.classes
                 if(!vault.Remove(linkID)) return false;
                 return true;
             }
+            /// <summary>
+            /// Удалить все ссылки на связи из хранилища
+            /// </summary>
+            /// <returns></returns>
             public bool Remove()
             {
                 if (vault.Count == 0) return false;
@@ -797,36 +1042,65 @@ namespace alter.Link.classes
             }
             #endregion
             #region Утилитарные
+            /// <summary>
+            /// Добавить нового соседа
+            /// </summary>
+            /// <param name="neighbourID">Идентификатор соседа</param>
+            /// <returns>Истина если сосед был добавлен, ложь - если он уже существует в хранилище</returns>
             private bool neighbourAdd(string neighbourID)
             {
                 return neighbours.Add(neighbourID);
             }
             #endregion
             #region Доступ
+            /// <summary>
+            /// Метод получения всех соседей по связям, владельца
+            /// </summary>
+            /// <returns></returns>
             public string[] getNeighbours()
             {
                 return neighbours.ToArray();
             }
-
+            /// <summary>
+            /// Метод получения все связит в которых учавствует владелец
+            /// </summary>
+            /// <returns></returns>
             public ILink[] getLinks()
             {
                 return vault.Select(v => v.Value.Link).ToArray();
             }
-
+            /// <summary>
+            /// Метод получения массива связей в которых владелец учавствует с зависимостью <paramref name="depend"/>
+            /// </summary>
+            /// <param name="depend"></param>
+            /// <returns></returns>
             public ILink[] getLinks(e_DependType depend)
             {
                 return (depend == e_DependType.Master) ? getMasterDependences() : getSlaveDependences();
             }
+            /// <summary>
+            /// Метод получения массива связей в которых владелец учавствует с подчиненной зависимостью
+            /// </summary>
+            /// <returns></returns>
             public ILink[] getSlaveDependences()
             {
                 return vault.Where(v => v.Value.dependType == e_DependType.Slave).Select(v => v.Value.Link).ToArray();
             }
+            /// <summary>
+            /// Метод получения массива связей в которых владелец учавствует с основной зависимостью
+            /// </summary>
+            /// <returns></returns>
             public ILink[] getMasterDependences()
             {
                 return vault.Where(v => v.Value.dependType == e_DependType.Master).Select(v => v.Value.Link).ToArray();
             }
             #endregion
             #region Информационные
+            /// <summary>
+            /// Метод проверки связи с идентификатором <paramref name="linkID"/> на ее взаимодействие с владельцем
+            /// </summary>
+            /// <param name="linkID"></param>
+            /// <returns></returns>
             public bool isExist(string linkID)
             {
                 return vault.Keys.Contains(linkID);
@@ -841,18 +1115,37 @@ namespace alter.Link.classes
     public partial class linkManager : ILinkManager
     {
         #region Структуры
+        /// <summary>
+        /// Структура для хранения информации взаимодействующей с владельцем связи
+        /// </summary>
         public struct storedLink
         {
+            /// <summary>
+            /// Ссылка на связь
+            /// </summary>
             public readonly ILink Link;
-            public Action unsuscribe;
+            /// <summary>
+            /// Зависимость с которой владлелец учавствует в связи
+            /// </summary>
             public readonly e_DependType dependType;
+            /// <summary>
+            /// Зависимость соседа по связи
+            /// </summary>
             private readonly e_DependType dtNeighbour;
+            /// <summary>
+            /// Ссылка на соседа по связи
+            /// </summary>
             public ILMember Neighbour
                 =>
                 Link
                 ?.GetInfoMember(dependType == e_DependType.Master ?
                     e_DependType.Slave : e_DependType.Master);
 
+            /// <summary>
+            /// Конструктор экземпляра структуры хранения информации взаимодействующей с владельцем связи
+            /// </summary>
+            /// <param name="link"></param>
+            /// <param name="dType"></param>
             public storedLink(ILink link, e_DependType dType)
             {
                 Link = link;
@@ -860,7 +1153,6 @@ namespace alter.Link.classes
                 dtNeighbour = 
                     dependType == e_DependType.Master ? 
                     e_DependType.Slave : e_DependType.Master;
-                unsuscribe = null;
             }
         }
         #endregion
