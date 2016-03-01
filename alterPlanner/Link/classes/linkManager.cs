@@ -25,7 +25,7 @@ namespace alter.Link.classes
         /// <summary>
         /// Идентификатор владельца экземпляра класса
         /// </summary>
-        protected IId owner;
+        protected IDock owner;
         /// <summary>
         /// Хранилище связей
         /// </summary>
@@ -73,7 +73,7 @@ namespace alter.Link.classes
         /// Конструктор экземпляра класса управления связями взаимодействующими с объектом владельцем
         /// </summary>
         /// <param name="owner">Интерфейс идентификатор владельца экземпляра класса</param>
-        public linkManager(IId owner)
+        public linkManager(IDock owner)
         {
             this.owner = owner;
             links = new Vault(this);
@@ -353,9 +353,15 @@ namespace alter.Link.classes
             /// </summary>
             protected Func<ILink[]> delegate_getSlaveLinks = () => null;
             /// <summary>
-            /// Делегат метода сравнения связей, для выбора активной, 1 связь замещает текущую активную, -1 связь не замещает текущую активную
+            /// Делегат метода сравнения двух связей по их зависимостям;
             /// </summary>
-            protected Func<DateTime, DateTime, int> fComparator;
+            protected Func<ILink, ILink, int> fLinkCompare;
+            /// <summary>
+            /// Делегат метода подготовки связи для сравнения (перевод от зависимых точек к общей величине)
+            /// </summary>
+            protected Func<ILink, double> fLinkCmpPrepare;
+
+            protected Func<double, double, int> fLinkUValueCompare;
             #endregion
             #region События
             /// <summary>
@@ -378,9 +384,38 @@ namespace alter.Link.classes
                 this.parent = parent;
                 if(delegate_getSlaveLinks == null) throw new NullReferenceException();
                 this.delegate_getSlaveLinks = delegate_getSlaveLinks;
-                fComparator = (current, newDate) => newDate > current ? 1 : -1;
+                
+                init_Functions();
+
                 _activeLink = null;
                 updateLastDate();
+            }
+            /// <summary>
+            /// Инициализация делегатов экземпляра класса
+            /// </summary>
+            protected virtual void init_Functions()
+            {
+                fLinkCmpPrepare = pLink =>
+                    getOwnerDotDate(pLink.GetSlaveDependence().GetDependDot())
+                        .Subtract(pLink.GetSlaveDependence().GetDate())
+                        .Days;
+
+                fLinkUValueCompare = (First, Second) =>
+                {
+                    if (Second > First) return 1;
+                    else if (Second < First) return -1;
+                    else return 0;
+                };
+
+                fLinkCompare = (First, Second) =>
+                {
+                    double dFirst = First != null ? 
+                        fLinkCmpPrepare(First)  : -1000000000000;
+                    double dSecond = Second != null ? 
+                        fLinkCmpPrepare(Second) : -1000000000000;
+
+                    return fLinkUValueCompare(dFirst, dSecond);
+                };
             }
             /// <summary>
             /// Деструктор
@@ -390,7 +425,9 @@ namespace alter.Link.classes
                 parent = null;
                 _activeLink = null;
                 delegate_getSlaveLinks = null;
-                fComparator = null;
+                fLinkCmpPrepare = null;
+                fLinkUValueCompare = null;
+                fLinkCompare = null;
             }
             #endregion
             #region IDependSubscriber
@@ -422,6 +459,7 @@ namespace alter.Link.classes
             /// <param name="e"></param>
             public void handler_dotChanged(object sender, ea_ValueChange<e_Dot> e)
             {
+
                 throw new NotImplementedException();
             }
             /// <summary>
@@ -476,10 +514,16 @@ namespace alter.Link.classes
             /// <param name="newLink"></param>
             protected virtual void compareWithActive(ILink newLink)
             {
-                int result = fComparator(lastDate, newLink.GetSlaveDependence().GetDate());
+                int result = fLinkCompare(_activeLink, newLink);
+
                 if (result > 0) activeLink = newLink;
-                if (result < 0 && newLink.GetId() == _activeLink.GetId())
+                else if (result < 0 && newLink.GetId() == _activeLink.GetId())
                     activeLink = findActive();
+                else if (result == 0)
+                {
+                    if (activeLink != null) activeLink = _activeLink;
+                }
+                else throw new ApplicationException(string.Format("Unexpected function result {0}", nameof(fLinkCompare)));
             }
             /// <summary>
             /// Метод поиска активной связи, опциональный параметр <paramref name="exceptLink"/> исключает определенную связь из списка выбора
@@ -495,20 +539,17 @@ namespace alter.Link.classes
                         .Where(val => val.GetId() != exceptLink.GetId()).ToArray();
                 else slaves = delegate_getSlaveLinks();
 
+
+
                 if (slaves == null || slaves.Length == 0) return null;
 
-
                 ILink result = slaves[0];
-                DateTime dResult = slaves[0].GetSlaveDependence().GetDate();
-                DateTime tempDate;
 
                 if (slaves == null || slaves.Length == 0) return null;
                 for (int i = 0; i < slaves.Length; i++)
                 {
-                    tempDate = slaves[i].GetSlaveDependence().GetDate();
-                    if (fComparator(dResult, tempDate) > 0)
+                    if (fLinkCompare(result, slaves[i]) > 0)
                     {
-                        dResult = tempDate;
                         result = slaves[i];
                     }
                 }
@@ -521,6 +562,17 @@ namespace alter.Link.classes
             protected virtual void updateLastDate()
             {
                 lastDate = _activeLink != null ? _activeLink.GetSlaveDependence().GetDate() : new DateTime(1, 1, 1);
+            }
+            #endregion
+            #region Служебные
+            /// <summary>
+            /// Получить дату точки <param name="dot"></param> владельца
+            /// </summary>
+            /// <param name="dot">Точка владельца дату которой получаем</param>
+            /// <returns>Дата точки владельца</returns>
+            protected DateTime getOwnerDotDate(e_Dot dot)
+            {
+                return parent.owner.GetDot(dot).GetDate();
             }
             #endregion
         }
