@@ -408,6 +408,16 @@ namespace alter.Link.classes
             else
                 return null;
         }
+        /// <summary>
+        /// Метод определяет принадлежит ли идентификатор <paramref name="objectID"/> одному из членов связи
+        /// </summary>
+        /// <param name="objectID">Идентификатор объекта</param>
+        /// <returns>Истина если идентификатор принадлежит члену связит</returns>
+        public bool isItMember(string objectID)
+        {
+            if (_slave.memberID.GetId() == objectID || _master.memberID.GetId() == objectID) return true;
+            return false;
+        }
         #endregion
         #endregion
     }

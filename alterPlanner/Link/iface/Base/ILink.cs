@@ -55,5 +55,11 @@ namespace alter.Link.iface
         /// <param name="member">Идентификатор члена связи</param>
         /// <returns>Ссылка на интерфейс класса информации о члене связи</returns>
         ILMember GetInfoMember(IId member);
+        /// <summary>
+        /// Метод определяет принадлежит ли идентификатор <paramref name="objectID"/> одному из членов связи
+        /// </summary>
+        /// <param name="objectID">Идентификатор объекта</param>
+        /// <returns>Истина если идентификатор принадлежит члену связит</returns>
+        bool isItMember(string objectID);
     }
 }

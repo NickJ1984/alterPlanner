@@ -53,6 +53,7 @@
     <Compile Include="Inner\iface.cs" />
     <Compile Include="Inner\types.cs" />
     <Compile Include="Link\classes\link.cs" />
+    <Compile Include="Link\classes\linkFactory.cs" />
     <Compile Include="Link\classes\linkManager.cs" />
     <Compile Include="Link\classes\linkMember.cs" />
     <Compile Include="Link\iface\Base\ILink.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Service\classes\Node.cs" />
     <Compile Include="Service\debugHelpers\colorOut.cs" />
     <Compile Include="Service\Extensions\ArrayExt.cs" />
+    <Compile Include="Service\Extensions\EnumsExt.cs" />
     <Compile Include="Service\Extensions\ObjectExt.cs" />
     <Compile Include="Service\iface\IDependDotAdapter.cs" />
     <Compile Include="Service\iface\IDotAdapter.cs" />
