@@ -19,13 +19,11 @@ namespace alter.Group.iface
         /// </summary>
         /// <returns>Количество задач принадлежащих группе.</returns>
         int TaskCount();
-
         /// <summary>
         /// Получить количество групп принадлежащих группе.
         /// </summary>
         /// <returns>Количество групп принадлежащих группе.</returns>
         int GroupCount();
-
         /// <summary>
         /// Получить глубину вложенности группы (в другие группы), минимальная величина = 0. 
         /// </summary>
@@ -35,8 +33,7 @@ namespace alter.Group.iface
         /// При значении вложенности больше 0, выдает идентификатор группы владельца.
         /// </summary>
         /// <returns>Ссылка на идентификатор владельца.</returns>
-        IId GetGroupOwner(); 
-
+        IId GetGroupOwner();
         /// <summary>
         /// Проверка принадлежности объекта с уникальным идентификатором <paramref name="id"/> данной группе.
         /// </summary>
@@ -55,5 +52,10 @@ namespace alter.Group.iface
         /// <param name="objectId">Уникалиьный идентификатор объекта являющегося членом данной группы.</param>
         /// <returns>Истина если объект был исключен из группы.</returns>
         bool DelFromGroup(string objectId);
+        /// <summary>
+        /// Метод получения зависимости группы
+        /// </summary>
+        /// <returns>Зависимость группы</returns>
+        IDependence getGroupDepend();
     }
 }

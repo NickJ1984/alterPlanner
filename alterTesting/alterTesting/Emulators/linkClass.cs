@@ -276,6 +276,13 @@ namespace alterTesting.Emulators
         {
             return id.Type;
         }
+
+        public bool isItMember(string objectID)
+        {
+            if (master.GetMemberId().GetId() == objectID ||
+                slave.GetMemberId().GetId() == objectID) return true;
+            return false;
+        }
         #region SimpleDependence
         public class simpleDepend : IDependence
         {
@@ -493,6 +500,12 @@ namespace alterTesting.Emulators
         public void Unsuscribe(string dsubscriber)
         {
             throw new NotImplementedException();
+        }
+        public bool isItMember(string objectID)
+        {
+            if (master.GetMemberId().GetId() == objectID ||
+                slave.GetMemberId().GetId() == objectID) return true;
+            return false;
         }
         #endregion
         #region Methods

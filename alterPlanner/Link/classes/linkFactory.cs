@@ -129,9 +129,6 @@ namespace alter.Link.classes
         #endregion
         #endregion
         #endregion
-        #region Обработчики
-        
-        #endregion
     }
 
     #region Хранилище связей

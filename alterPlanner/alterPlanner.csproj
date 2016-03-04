@@ -45,6 +45,8 @@
     <Compile Include="Function\classes\functionFactory.cs" />
     <Compile Include="Function\iface\IFunctionFactory.cs" />
     <Compile Include="Function\iface\IFunction.cs" />
+    <Compile Include="Function\Testing\Function.cs" />
+    <Compile Include="Function\Testing\limitManager.cs" />
     <Compile Include="Group\classes\group.cs" />
     <Compile Include="Group\iface\IGroup.cs" />
     <Compile Include="Group\iface\IGroupFactory.cs" />
@@ -62,6 +64,7 @@
     <Compile Include="Project\iface\IProject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service\classes\dependDotAdapter.cs" />
+    <Compile Include="Service\classes\Dot.cs" />
     <Compile Include="Service\classes\dotAdapter.cs" />
     <Compile Include="Service\classes\Node.cs" />
     <Compile Include="Service\debugHelpers\colorOut.cs" />

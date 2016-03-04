@@ -280,6 +280,7 @@ namespace alter.classes
         /// Ссылк на объект в аргументе события
         /// </summary>
         protected object sender;
+        #endregion
         #region Indexer
         /// <summary>
         /// Массив делегатов подписчиков события
@@ -488,8 +489,6 @@ namespace alter.classes
     /// <typeparam name="T">Тип значений eventyArgs данного события.</typeparam>
     public class IEventObservable<T> : IEvent<T> where T : EventArgs
     {
-        
-        #endregion
         #region property
         /// <summary>
         /// Свойство переменной события 

@@ -128,5 +128,10 @@ namespace alter.Group.classes
         {
             throw new NotImplementedException();
         }
+
+        public IDependence getGroupDepend()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

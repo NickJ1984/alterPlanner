@@ -20,7 +20,6 @@ namespace alter.Link.iface
         /// </summary>
         /// <returns>Значение состояния связи</returns>
         e_LnkState GetLinkState();
-
         /// <summary>
         /// Метод установки значения задержки связи
         /// </summary>
@@ -32,12 +31,10 @@ namespace alter.Link.iface
         /// </summary>
         /// <returns>Значение задержки связи в днях</returns>
         double GetDelay();
-
         /// <summary>
         /// Событие изменения значения задержки связи
         /// </summary>
         event EventHandler<ea_ValueChange<double>> event_DelayChanged;
-
         /// <summary>
         /// Метод получения зависимости для подчиненного члена связи
         /// </summary>
