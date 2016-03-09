@@ -13,9 +13,13 @@ namespace dateFunction
         protected static readonly e_direction initDirection = e_direction.Fixed;
 
         protected dfData data;
+
         protected object _sender;
+        protected dFunction _binded;
         #endregion
         #region Свойства
+        public virtual dFunction binded => _binded;
+        public virtual bool isBinded => _binded != null && data.isIntersect(_binded.data);
         public virtual e_direction direction
         {
             get { return data.direction; }
@@ -61,17 +65,20 @@ namespace dateFunction
         public event EventHandler<valueChange<object>> event_senderChanged;
         public event EventHandler<valueChange<DateTime>> event_dateChanged;
         public event EventHandler<valueChange<e_direction>> event_directionChanged;
+        public event EventHandler<valueChange<dFunction>> event_bindedChanged;
         #endregion
         #region Конструктор
-        public dFunction()
+        protected dFunction()
+            :this(initDate, initDirection)
+        { }
+        public dFunction(DateTime date, e_direction direction)
         {
-            data = new dfData()
-            {
-                date = initDate,
-                direction = initDirection
-            };
+            if (!Enum.IsDefined(typeof(e_direction), direction)) throw new ArgumentException(nameof(direction));
+
+            data = new dfData(date, direction);            
 
             _sender = this;
+            _binded = null;
         }
         #endregion
         #region Методы запуска событий
@@ -87,12 +94,83 @@ namespace dateFunction
         {
             event_senderChanged?.Invoke(_sender, new valueChange<object>(Old, New));
         }
+        protected void bindedChangedPushEvent(dFunction Old, dFunction New)
+        {
+            event_bindedChanged?.Invoke(_sender, new valueChange<dFunction>(Old, New));
+        }
         #endregion
         #region Обработчики
 
         #endregion
         #region Методы
-        
+        public void bindWith(dFunction function)
+        {
+            if (function == _binded) return;
+
+            dFunction temp = _binded;
+            _binded = function;
+
+            bindedChangedPushEvent(temp, _binded);
+        }
+        public DateTime check(DateTime date)
+        {
+            DateTime result = date;
+
+            if (isBinded) result = data.check(_binded.check(result));
+            else result = data.check(result);
+
+            return result;
+        }
+        #endregion
+        #region Перегрузки
+        #region Операторы
+        #region Математические
+        public static dFunction operator +(dFunction dfunc1, dFunction dfunc2)
+        {
+            dFunction result = new dFunction();
+            result.data = dfunc1.data + dfunc2.data;
+
+            return result;
+        }
+        public static dFunction operator -(dFunction dfunc1, dFunction dfunc2)
+        {
+            dFunction result = new dFunction();
+            result.data = dfunc1.data - dfunc2.data;
+
+            return result;
+        }
+        #endregion
+        #region Логические
+        public static bool operator ==(dFunction dfunc1, dFunction dfunc2)
+        { return dfunc1.data == dfunc2.data; }
+        public static bool operator !=(dFunction dfunc1, dFunction dfunc2)
+        { return dfunc1.data != dfunc2.data; }
+        public static bool operator >(dFunction dfunc1, dFunction dfunc2)
+        { return dfunc1.data > dfunc2.data; }
+        public static bool operator <(dFunction dfunc1, dFunction dfunc2)
+        { return dfunc1.data < dfunc2.data; }
+        public static bool operator >=(dFunction dfunc1, dFunction dfunc2)
+        { return dfunc1.data >= dfunc2.data; }
+        public static bool operator <=(dFunction dfunc1, dFunction dfunc2)
+        { return dfunc1.data <= dfunc2.data; }
+        #endregion
+        #endregion
+        #region Методы
+        public override bool Equals(object obj)
+        {
+            if (obj.GetType() != typeof(dFunction)) throw new ArgumentException("Неверный тип аргумента");
+
+            return data.Equals(((dFunction)obj).data);
+        }
+        public override int GetHashCode()
+        {
+            return 17 * data.GetHashCode() * sender.GetHashCode();
+        }
+        public override string ToString()
+        {
+            return data.ToString();
+        }
+        #endregion
         #endregion
     }
 }

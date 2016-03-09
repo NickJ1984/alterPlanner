@@ -20,7 +20,6 @@ namespace dateFunction
         } 
         #endregion
         #region Методы
-        
         public DateTime check(DateTime date)
         {
             if (date == this.date) return date;
@@ -57,9 +56,9 @@ namespace dateFunction
                     return new KeyValuePair<DateTime, DateTime>(data1.date, data1.date);
                 else if (data2.direction == e_direction.Fixed)
                     return new KeyValuePair<DateTime, DateTime>(data2.date, data2.date);
-                else if (data1 > data2)
+                else if (data1.date > data2.date)
                     return new KeyValuePair<DateTime, DateTime>(data2.date, data1.date);
-                else if (data1 < data2)
+                else if (data1.date < data2.date)
                     return new KeyValuePair<DateTime, DateTime>(data1.date, data2.date);
                 else return null;
             }
@@ -98,13 +97,13 @@ namespace dateFunction
                            ? true : false;
 
                 case e_direction.Left:
-                    return (data2.date > data1.date && data2.direction == e_direction.Right) ||
-                           (data2.date < data1.date && data2.direction == e_direction.Left)
+                    return (data2.date > data1.date && data2.direction == e_direction.Left) ||
+                           (data2.date < data1.date)
                            ? true : false;
 
                 case e_direction.Right:
-                    return (data2.date > data1.date && data2.direction == e_direction.Left) ||
-                           (data2.date < data1.date && data2.direction == e_direction.Right)
+                    return (data2.date < data1.date && data2.direction == e_direction.Right) ||
+                           (data2.date > data1.date)
                            ? true : false;
 
                 default:
