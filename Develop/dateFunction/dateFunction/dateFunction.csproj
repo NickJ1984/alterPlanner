@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="dfData.cs" />
     <Compile Include="dFunction.cs" />
+    <Compile Include="extensions.cs" />
     <Compile Include="Interfaces.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -20,6 +20,21 @@ namespace dateFunction
         } 
         #endregion
         #region Методы
+        
+        public DateTime check(DateTime date)
+        {
+            if (date == this.date) return date;
+            else if (date > this.date)
+            {
+                if (direction == e_direction.Right) return date;
+                else return this.date;
+            }
+            else
+            {
+                if (direction == e_direction.Left) return date;
+                else return this.date;
+            }
+        }
         public bool inRange(dfData data)
         {
             return inRangeST(this, data);
@@ -102,11 +117,33 @@ namespace dateFunction
         #region Математические
         public static dfData operator +(dfData data1, dfData data2)
         {
-            throw new NotImplementedException();
+            Func<e_direction, int> dir2int = dir => dir == e_direction.Left ? 0 : 2;
+
+            int iD1 = dir2int(data1.direction);
+            int iD2 = dir2int(data2.direction);
+
+            if (data1.date > data2.date) iD1++;
+            else if (data2.date > data1.date) iD2++;
+            else { iD1++; iD2++; }
+
+            if (iD1 > iD2) return data1;
+            else if (iD2 > iD1) return data2;
+            else return data1;
         }
         public static dfData operator -(dfData data1, dfData data2)
         {
-            throw new NotImplementedException();
+            Func<e_direction, int> dir2int = dir => dir == e_direction.Left ? 0 : 2;
+
+            int iD1 = dir2int(data1.direction);
+            int iD2 = dir2int(data2.direction);
+
+            if (data1.date > data2.date) iD1++;
+            else if (data2.date > data1.date) iD2++;
+            else { iD1++; iD2++; }
+
+            if (iD1 > iD2) return data2;
+            else if (iD2 > iD1) return data1;
+            else return data1;
         }
         #endregion
         #region Логические
