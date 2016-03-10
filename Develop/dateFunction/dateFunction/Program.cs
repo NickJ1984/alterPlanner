@@ -11,14 +11,34 @@ namespace dateFunction
     {
         static void Main(string[] args)
         {
-            dfData data = new dfData(new DateTime(2001, 1, 1), e_direction.Left);
-            dfData data2 = new dfData(new DateTime(1990, 1, 1), e_direction.Left);
-
-            Console.WriteLine(dfData.isIntersectST(data, data2));
-            KeyValuePair<DateTime, DateTime>? result = dfData.getIntersectionST(data, data2);
-            Console.WriteLine("date#1: {0:dd.MM.yyyy}, date#2: {1:dd.MM.yyyy}", result.Value.Key, result.Value.Value);
-
-
+            Action chapter = () => Console.WriteLine(new string('*', 50));
+            dFunction func = new dFunction(new DateTime(2000,1,1), e_direction.Right);
+            dFunction func2 = new dFunction(new DateTime(2005, 1, 1), e_direction.Fixed);
+            
+            Action<DateTime> check = date => Console.WriteLine("{0:dd.MM.yyyy} => check => {1:dd.MM.yyyy}", date, func.check(date));
+            Console.WriteLine(func);
+            Console.WriteLine("Func is binded {0} with {1}", func.isBinded, func.binded != null ? func.binded.ToString() : "Null");
+            chapter();
+            check(new DateTime(2010,1,1));
+            check(new DateTime(2000, 1, 1));
+            check(new DateTime(1910, 1, 1));
+            chapter();
+            func.setDiapason(func2);
+            Console.WriteLine("Func is binded {0} with {1}", func.isBinded, func.binded != null ? func.binded.ToString() : "Null");
+            chapter();
+            check(new DateTime(1910, 1, 1));
+            check(new DateTime(2000, 1, 1));
+            check(new DateTime(2003, 1, 1));
+            check(new DateTime(2005, 1, 1));
+            check(new DateTime(2006, 1, 1));
+            chapter();
+            func.setDiapason(null);
+            Console.WriteLine("Func is binded {0} with {1}", func.isBinded, func.binded != null ? func.binded.ToString() : "Null");
+            chapter();
+            check(new DateTime(2010, 1, 1));
+            check(new DateTime(2000, 1, 1));
+            check(new DateTime(1910, 1, 1));
+            chapter();
             Console.WriteLine("End");
             Console.ReadLine();
         }

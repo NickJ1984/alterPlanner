@@ -46,6 +46,11 @@ namespace dateFunction
         {
             return getIntersectionST(this, data);
         }
+
+        public bool isDiapason(dfData data)
+        {
+            return isDiapasonST(this, data);
+        }
         #endregion
         #region Статические методы
         public static KeyValuePair<DateTime, DateTime>? getIntersectionST(dfData data1, dfData data2)
@@ -109,6 +114,23 @@ namespace dateFunction
                 default:
                     throw new ApplicationException(nameof(isIntersect));
             }
+        }
+
+        public static bool isDiapasonST(dfData data1, dfData data2)
+        {
+            switch (data1.direction)
+            {
+                case e_direction.Fixed:
+                    return false;
+                case e_direction.Left:
+                    return data2.date <= data1.date && data2.direction == e_direction.Right
+                        ? true : false;
+                case e_direction.Right:
+                    return data2.date >= data1.date && data2.direction == e_direction.Left
+                        ? true : false;
+                default:
+                    throw new ApplicationException("Unknown error");
+            }            
         }
         #endregion
         #region Перегрузка
