@@ -45,11 +45,11 @@
     <Compile Include="Function\classes\functionFactory.cs" />
     <Compile Include="Function\iface\IFunctionFactory.cs" />
     <Compile Include="Function\iface\IFunction.cs" />
-    <Compile Include="Function\Testing\Function.cs" />
-    <Compile Include="Function\Testing\limitManager.cs" />
     <Compile Include="Group\classes\group.cs" />
+    <Compile Include="Group\classes\groupManager.cs" />
     <Compile Include="Group\iface\IGroup.cs" />
     <Compile Include="Group\iface\IGroupFactory.cs" />
+    <Compile Include="Group\iface\IGroupManager.cs" />
     <Compile Include="Inner\args.cs" />
     <Compile Include="Inner\classes.cs" />
     <Compile Include="Inner\iface.cs" />

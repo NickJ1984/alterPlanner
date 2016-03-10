@@ -51,6 +51,21 @@ namespace alter.iface
     #endregion
     #region properties
     /// <summary>
+    /// Интерфейс изменения объекта инициатора события, необходим для вложенных и вспомогательных классов
+    /// </summary>
+    public interface ISender
+    {
+        /// <summary>
+        /// Свойство установки и получения инициатора события, при установке значения null инициатором события назначается владелец интерфейса
+        /// </summary>
+        object sender { set; get; }
+
+        /// <summary>
+        /// Событие срабатывающее при изменении инициатора события
+        /// </summary>
+        event EventHandler<ea_ValueChange<object>> event_senderChanged;
+    }
+    /// <summary>
     /// Возможность удаления объекта.
     /// </summary>
     public interface IRemovable : IId
