@@ -4,108 +4,165 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using alter.args;
+using alter.classes;
 using alter.Group.iface;
 using alter.iface;
 using alter.Link.iface;
 using alter.types;
+using alter.Task.iface;
 
 namespace alter.Group.classes
 {
     public class Group : IGroup
     {
+        #region Переменные
+        protected string _groupName;
+        protected Identity _id;
+        protected int _enclosureCount;
+
+        protected Dictionary<string, IGroup> _groups;
+        protected Dictionary<string, ITask> _tasks;
+
+        protected IGroup _owner;
+        #endregion
+        #region Свойства
+        public int countGroups => _groups.Count;
+        public int countTasks => _tasks.Count;
+        public int countEnclosure => _enclosureCount;
+        #endregion
+        #region События
         public event EventHandler<ea_ValueChange<double>> event_DurationChanged;
         public event EventHandler<ea_ValueChange<e_GrpLim>> event_LimitChanged;
         public event EventHandler<ea_IdObject> event_ObjectDeleted;
+        #endregion
+        #region Конструкторы
+        protected Group()
+        {
+            _id = new Identity(e_Entity.Group);
+            _groups = new Dictionary<string, IGroup>();
+            _tasks = new Dictionary<string, ITask>();
 
-        public bool AddInGroup(IDock newObject)
+            _enclosureCount = 0;
+
+            _owner = null;
+        }
+        #endregion
+        #region Методы запуска событий
+        protected void durationChangedPushEvent(double Old, double New)
+        {
+            event_DurationChanged?.Invoke(this, new ea_ValueChange<double>(Old, New));
+        }
+        protected void limitChangedPushEvent(e_GrpLim Old, e_GrpLim New)
+        {
+            event_LimitChanged?.Invoke(this, new ea_ValueChange<e_GrpLim>(Old, New));
+        }
+        protected void objectDeletedPushEvent()
+        {
+            event_ObjectDeleted?.Invoke(this, new ea_IdObject(this));
+        }
+        #endregion
+        #region Методы
+        #region Манипуляции с объектами
+        public bool addInGroup(IDock newObject)
         {
             throw new NotImplementedException();
         }
-
-        public bool connect(ILink link)
+        public bool removeFromGroup(string objectId)
         {
             throw new NotImplementedException();
         }
-
+        #endregion
+        #region Объект
         public void DeleteObject()
         {
             throw new NotImplementedException();
         }
-
-        public bool DelFromGroup(string objectId)
+        #endregion
+        #region Информация
+        public int GroupCount()
         {
-            throw new NotImplementedException();
+            return countGroups;
         }
-
+        public int TaskCount()
+        {
+            return countTasks;
+        }
         public int EnclosureCount()
         {
-            throw new NotImplementedException();
+            return countEnclosure;
         }
-
-        public IDot GetDot(e_Dot type)
+        public IGroup GetGroupOwner()
         {
-            throw new NotImplementedException();
+            return _owner;
         }
-
-        public double GetDuration()
+        public bool InGroup(string id)
         {
-            throw new NotImplementedException();
-        }
+            if(string.IsNullOrEmpty(id)) throw new ArgumentNullException();
 
+            if (_owner != null)
+            {
+                if (_owner.GetId() == id) return true;
+                return _owner.InGroup(id);
+            }
+
+            return false;
+        }
         public IDependence getGroupDepend()
         {
             throw new NotImplementedException();
         }
-
-        public IId GetGroupOwner()
+        #endregion
+        #endregion
+        #region Интерфейсы
+        #region IDock
+        public bool connect(ILink link)
         {
             throw new NotImplementedException();
         }
-
-        public string GetId()
+        #endregion
+        #region ILine
+        public IDot GetDot(e_Dot type)
         {
             throw new NotImplementedException();
         }
+        public double GetDuration()
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+        #region IName
+        public string GetName()
+        {
+            return _groupName;
+        }
+        public void SetName(string name)
+        {
+            if (name == _groupName) return;
 
+            _groupName = name;
+        }
+        #endregion
+        #region ILimit
         public e_GrpLim GetLimit()
         {
             throw new NotImplementedException();
         }
-
-        public string GetName()
-        {
-            throw new NotImplementedException();
-        }
-
-        public int GroupCount()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool InGroup(string id)
-        {
-            throw new NotImplementedException();
-        }
-
         public bool SetLimit(e_GrpLim limitType)
         {
             throw new NotImplementedException();
         }
-
-        public void SetName(string name)
+        #endregion
+        #region IId
+        public string GetId()
         {
-            throw new NotImplementedException();
+            return _id.Id;
         }
-
-        public int TaskCount()
-        {
-            throw new NotImplementedException();
-        }
-
         e_Entity IId.GetType()
         {
-            throw new NotImplementedException();
+            return _id.Type;
         }
+        #endregion
+        #endregion
     }
 
 }

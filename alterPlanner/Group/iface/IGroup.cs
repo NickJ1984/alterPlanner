@@ -33,7 +33,7 @@ namespace alter.Group.iface
         /// При значении вложенности больше 0, выдает идентификатор группы владельца.
         /// </summary>
         /// <returns>Ссылка на идентификатор владельца.</returns>
-        IId GetGroupOwner();
+        IGroup GetGroupOwner();
         /// <summary>
         /// Проверка принадлежности объекта с уникальным идентификатором <paramref name="id"/> данной группе.
         /// </summary>
@@ -45,13 +45,13 @@ namespace alter.Group.iface
         /// </summary>
         /// <param name="newObject"></param>
         /// <returns>Истина если объект был добавлен в группу.</returns>
-        bool AddInGroup(IDock newObject);
+        bool addInGroup(IDock newObject);
         /// <summary>
         /// Исключить объект с уникалиьным идентификатором <paramref name="objectId"/> из группы.
         /// </summary>
         /// <param name="objectId">Уникалиьный идентификатор объекта являющегося членом данной группы.</param>
         /// <returns>Истина если объект был исключен из группы.</returns>
-        bool DelFromGroup(string objectId);
+        bool removeFromGroup(string objectId);
         /// <summary>
         /// Метод получения зависимости группы
         /// </summary>
