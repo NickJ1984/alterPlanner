@@ -20,7 +20,6 @@ namespace alter.Group.classes
         protected Identity _id;
         protected int _enclosureCount;
         
-
         protected Dictionary<string, IGroup> _groups;
         protected Dictionary<string, ITask> _tasks;
 
@@ -98,6 +97,10 @@ namespace alter.Group.classes
         public IGroup GetGroupOwner()
         {
             return _owner;
+        }
+        public IGroupManager getGroupManager()
+        {
+            throw new NotImplementedException();
         }
         public bool InGroup(string id)
         {
