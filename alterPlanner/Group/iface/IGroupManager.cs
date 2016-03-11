@@ -10,7 +10,7 @@ namespace alter.Group.iface
 {
     public interface IGroupManager : ISender
     {
-        bool inGroup { get; }
+        bool isInGroup { get; }
         IGroup getGroup { get; }
 
         bool addToGroup(IGroup group);

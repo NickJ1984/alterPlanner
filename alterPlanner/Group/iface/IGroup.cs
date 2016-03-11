@@ -12,7 +12,7 @@ namespace alter.Group.iface
     /// <summary>
     /// Интерфейс группы.
     /// </summary>
-    public interface IGroup : IId, IRemovable, ILimit<e_GrpLim>, ILine, IName, IDock
+    public interface IGroup : IId, IRemovable, ILimit<e_GrpLim>, ILine, IName, IDock, IGroupable
     {
         /// <summary>
         /// Получить количество задач принадлежащих группе.
@@ -45,7 +45,7 @@ namespace alter.Group.iface
         /// </summary>
         /// <param name="newObject"></param>
         /// <returns>Истина если объект был добавлен в группу.</returns>
-        bool addInGroup(IDock newObject);
+        bool addInGroup(IGroupable newObject);
         /// <summary>
         /// Исключить объект с уникалиьным идентификатором <paramref name="objectId"/> из группы.
         /// </summary>

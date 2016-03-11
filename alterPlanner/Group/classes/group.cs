@@ -19,6 +19,7 @@ namespace alter.Group.classes
         protected string _groupName;
         protected Identity _id;
         protected int _enclosureCount;
+        
 
         protected Dictionary<string, IGroup> _groups;
         protected Dictionary<string, ITask> _tasks;
@@ -29,6 +30,9 @@ namespace alter.Group.classes
         public int countGroups => _groups.Count;
         public int countTasks => _tasks.Count;
         public int countEnclosure => _enclosureCount;
+
+        public IGroup getGroup => _owner;
+        public bool isInGroup => _owner == null ? false : true;
         #endregion
         #region События
         public event EventHandler<ea_ValueChange<double>> event_DurationChanged;
@@ -63,7 +67,7 @@ namespace alter.Group.classes
         #endregion
         #region Методы
         #region Манипуляции с объектами
-        public bool addInGroup(IDock newObject)
+        public bool addInGroup(IGroupable newObject)
         {
             throw new NotImplementedException();
         }
@@ -116,6 +120,12 @@ namespace alter.Group.classes
         #region Интерфейсы
         #region IDock
         public bool connect(ILink link)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+        #region IGroupable
+        public bool addToGroup(IGroup group)
         {
             throw new NotImplementedException();
         }

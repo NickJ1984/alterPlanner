@@ -9,7 +9,7 @@ using alter.args;
 using alter.Task.iface;
 using alter.Link.iface;
 using alter.Function.iface;
-
+using alter.Group.iface;
 
 
 namespace alter.iface
@@ -212,5 +212,31 @@ namespace alter.iface
         bool connect(ILink link);
     }
     #endregion
-
+    #region Интерфейсы группы
+    /// <summary>
+    /// Итерфейс взаимодействия с группами
+    /// </summary>
+    public interface IGroupable : IId, IRemovable, ILine
+    {
+        /// <summary>
+        /// Свойство получсения ссылки на группу в которой состоит объект
+        /// </summary>
+        IGroup getGroup { get; }
+        /// <summary>
+        /// Свойство состоит ли объект в группе
+        /// </summary>
+        bool isInGroup { get; }
+        /// <summary>
+        /// Метод регистрации и проверки на возможность добавления объекта в группу <paramref name="group"/>
+        /// </summary>
+        /// <param name="group">Ссылка на группу в которую добавляется объект</param>
+        /// <returns>Истина если группа зарегистрирована и одобрена к добавлению</returns>
+        bool addToGroup(IGroup group);
+        /*/// <summary>
+        /// Метод проверки на возможность удаления объекта из группы в которой он состоит и обратной регистрации группы
+        /// </summary>
+        /// <returns>Истина если удаление возможно и обратная регистрация проведена</returns>
+        bool removeFromGroup();*/
+    }
+    #endregion
 }
