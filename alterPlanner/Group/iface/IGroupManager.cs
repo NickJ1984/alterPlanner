@@ -13,8 +13,8 @@ namespace alter.Group.iface
         bool isInGroup { get; }
         IGroup getGroup { get; }
 
-        bool addToGroup(IGroup group);
-        bool removeFromGroup();
+        bool registerGroup(IGroup group);
+        bool unregisterGroup();
 
         event EventHandler<ea_ValueChange<IGroup>> event_groupChanged;
     }
