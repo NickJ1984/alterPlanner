@@ -51,6 +51,8 @@ namespace alter.Service.classes
             get { return _start.date; }
             set
             {
+                if(value > _finish.date) throw new ArgumentException("Дата старта должна быть меньше или равна дате финиша");
+
                 _start.date = value;
                 updateDuration();
             }
@@ -60,6 +62,8 @@ namespace alter.Service.classes
             get { return _finish.date; }
             set
             {
+                if (value < _start.date) throw new ArgumentException("Дата финиша должна быть больше или равна дате старта");
+
                 _finish.date = value;
                 updateDuration();
             }
