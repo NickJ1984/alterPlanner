@@ -23,6 +23,8 @@ namespace alter.Service.classes
         protected double _duration;
         #endregion
         #region Свойства
+        public bool fixedStart { get; set; }
+        public bool fixedFinish { get; set; }
         public object sender
         {
             get { return _sender.sender; }
@@ -31,7 +33,7 @@ namespace alter.Service.classes
 
         public Dot dotStart => _start;
         public Dot dotFinish => _finish;
-
+        
         public double duration
         {
             get { return _duration; }
@@ -51,7 +53,11 @@ namespace alter.Service.classes
             get { return _start.date; }
             set
             {
-                if(value > _finish.date) throw new ArgumentException("Дата старта должна быть меньше или равна дате финиша");
+                if (value > _finish.date)
+                {
+                    if (fixedFinish) value = finish;
+                    else finish = value;
+                }
 
                 _start.date = value;
                 updateDuration();
@@ -62,7 +68,11 @@ namespace alter.Service.classes
             get { return _finish.date; }
             set
             {
-                if (value < _start.date) throw new ArgumentException("Дата финиша должна быть больше или равна дате старта");
+                if (value < _start.date)
+                {
+                    if (fixedStart) value = start;
+                    else start = value;
+                }
 
                 _finish.date = value;
                 updateDuration();
@@ -89,6 +99,8 @@ namespace alter.Service.classes
             _start.date = start;
             _finish.date = finish;
 
+            fixedStart = fixedFinish = false;
+
             updateDuration();
         }
         public line(object owner, DateTime start, double duration)
@@ -113,9 +125,15 @@ namespace alter.Service.classes
             if (newDuration < 0 || newDuration == duration) return false;
 
             if (moveableDot == e_Dot.Start)
+            {
                 _start.date = _finish.date.AddDays(-newDuration);
+                updateDuration();
+            }
             else if (moveableDot == e_Dot.Finish)
+            {
                 _finish.date = _start.date.AddDays(newDuration);
+                updateDuration();
+            }
             else return false;
 
             return true;
@@ -162,6 +180,20 @@ namespace alter.Service.classes
         {
             duration = _finish.date.Subtract(_start.date).Days;
         }
+        #endregion
+        #region Перегрузки
+        #region Операторы
+
+        public override string ToString()
+        {
+            return string.Format("Date line from {0} to {1}, duration {2}", start, finish, duration);
+        }
+        public override int GetHashCode()
+        {
+            return 13 * start.GetHashCode() * finish.GetHashCode();
+        }
+
+        #endregion
         #endregion
     }
 }

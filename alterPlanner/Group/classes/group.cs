@@ -7,7 +7,10 @@ using alter.args;
 using alter.classes;
 using alter.Group.iface;
 using alter.iface;
+using alter.Link.classes;
 using alter.Link.iface;
+using alter.Project.iface;
+using alter.Service.classes;
 using alter.types;
 using alter.Task.iface;
 
@@ -16,56 +19,75 @@ namespace alter.Group.classes
     public class Group : IGroup
     {
         #region Переменные
-        protected string _groupName;
+        protected IProject project;
+        protected e_GrpLim _limitType;
+        #region Экземпляры классов
         protected Identity _id;
-        protected int _enclosureCount;
-        
-        protected Dictionary<string, IGroup> _groups;
-        protected Dictionary<string, ITask> _tasks;
-
-        protected IGroup _owner;
+        protected line _line;
+        protected linkManager mgrLink;
+        protected cNamer _name;
+        #endregion
         #endregion
         #region Свойства
-        public int countGroups => _groups.Count;
-        public int countTasks => _tasks.Count;
-        public int countEnclosure => _enclosureCount;
+        public int count
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
 
-        public IGroup getGroup => _owner;
-        public bool isInGroup => _owner == null ? false : true;
+        public int enclosureCount
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
         #endregion
         #region События
         public event EventHandler<ea_ValueChange<double>> event_DurationChanged;
         public event EventHandler<ea_ValueChange<e_GrpLim>> event_LimitChanged;
         public event EventHandler<ea_IdObject> event_ObjectDeleted;
         #endregion
-        #region Конструкторы
-        protected Group()
+        #region Конструктор
+        public Group(IProject projectOwner)
+        {
+            if(projectOwner == null) throw new ArgumentNullException(nameof(projectOwner));
+
+            project = projectOwner;
+
+            init_ID();
+            init_cNamer();
+            init_Variables();
+            init_Line();
+            init_LinkManager();
+        }
+        #region Методы инициализаторы классов и переменных
+        protected void init_ID()
         {
             _id = new Identity(e_Entity.Group);
-            _groups = new Dictionary<string, IGroup>();
-            _tasks = new Dictionary<string, ITask>();
-
-            _enclosureCount = 0;
-
-            _owner = null;
+        }
+        protected void init_Variables()
+        {
+            _limitType = e_GrpLim.Earlier;
+        }
+        protected void init_Line()
+        {
+            _line = new line(this, project.GetDot(e_Dot.Start).GetDate());
+        }
+        protected void init_LinkManager()
+        {
+            mgrLink = new linkManager(this);   
+        }
+        protected void init_cNamer()
+        {
+            _name = new cNamer(this);
         }
         #endregion
-        #region Методы запуска событий
-        protected void durationChangedPushEvent(double Old, double New)
-        {
-            event_DurationChanged?.Invoke(this, new ea_ValueChange<double>(Old, New));
-        }
-        protected void limitChangedPushEvent(e_GrpLim Old, e_GrpLim New)
-        {
-            event_LimitChanged?.Invoke(this, new ea_ValueChange<e_GrpLim>(Old, New));
-        }
-        protected void objectDeletedPushEvent()
-        {
-            event_ObjectDeleted?.Invoke(this, new ea_IdObject(this));
-        }
         #endregion
         #region Методы
-        #region Манипуляции с объектами
+        #region Добавление и удаление из группы
         public bool addInGroup(IGroupable newObject)
         {
             throw new NotImplementedException();
@@ -75,84 +97,56 @@ namespace alter.Group.classes
             throw new NotImplementedException();
         }
         #endregion
-        #region Объект
-        public void DeleteObject()
+        #region Информационные
+        public IDependence getGroupDepend()
         {
             throw new NotImplementedException();
-        }
-        #endregion
-        #region Информация
-        public int GroupCount()
-        {
-            return countGroups;
-        }
-        public int TaskCount()
-        {
-            return countTasks;
-        }
-        public int EnclosureCount()
-        {
-            return countEnclosure;
-        }
-        public IGroup GetGroupOwner()
-        {
-            return _owner;
         }
         public IGroupManager getGroupManager()
         {
             throw new NotImplementedException();
         }
+        public IGroup GetGroupOwner()
+        {
+            throw new NotImplementedException();
+        }
         public bool InGroup(string id)
         {
-            if(string.IsNullOrEmpty(id)) throw new ArgumentNullException();
-
-            if (_owner != null)
-            {
-                if (_owner.GetId() == id) return true;
-                return _owner.InGroup(id);
-            }
-
-            return false;
+            throw new NotImplementedException();
         }
-        public IDependence getGroupDepend()
+        #endregion
+        #region Методы экземпляра
+        public void DeleteObject()
         {
             throw new NotImplementedException();
         }
         #endregion
         #endregion
-        #region Интерфейсы
+        #region Реализация интерфейсов
         #region IDock
         public bool connect(ILink link)
         {
-            throw new NotImplementedException();
-        }
-        #endregion
-        #region IGroupable
-        public bool addToGroup(IGroup group)
-        {
-            throw new NotImplementedException();
+            return mgrLink.connect(link);
         }
         #endregion
         #region ILine
         public IDot GetDot(e_Dot type)
         {
-            throw new NotImplementedException();
+            return _line.GetDot(type);
         }
         public double GetDuration()
         {
-            throw new NotImplementedException();
+            return _line.duration;
         }
         #endregion
-        #region IName
-        public string GetName()
+        #region IId
+        public string GetId()
         {
-            return _groupName;
+            return _id.Id;
         }
-        public void SetName(string name)
+        public e_Entity GetType()
         {
-            if (name == _groupName) return;
-
-            _groupName = name;
+            return _id.Type;
         }
         #endregion
         #region ILimit
@@ -165,14 +159,14 @@ namespace alter.Group.classes
             throw new NotImplementedException();
         }
         #endregion
-        #region IId
-        public string GetId()
+        #region IName
+        public string GetName()
         {
-            return _id.Id;
+            return _name;
         }
-        e_Entity IId.GetType()
+        public void SetName(string name)
         {
-            return _id.Type;
+            _name.name = name;
         }
         #endregion
         #endregion

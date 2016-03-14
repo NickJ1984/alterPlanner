@@ -63,6 +63,7 @@
     <Compile Include="Link\iface\Inner\ILMember.cs" />
     <Compile Include="Project\iface\IProject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service\classes\cNamer.cs" />
     <Compile Include="Service\classes\dependDotAdapter.cs" />
     <Compile Include="Service\classes\Dot.cs" />
     <Compile Include="Service\classes\dotAdapter.cs" />

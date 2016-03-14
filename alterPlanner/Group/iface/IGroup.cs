@@ -15,25 +15,25 @@ namespace alter.Group.iface
     public interface IGroup : IId, IRemovable, ILimit<e_GrpLim>, ILine, IName, IDock, IGroupable
     {
         /// <summary>
-        /// Получить количество задач принадлежащих группе.
+        /// Свойство возвращающее количество объектов принадлежащих группе.
         /// </summary>
-        /// <returns>Количество задач принадлежащих группе.</returns>
-        int TaskCount();
+        /// <returns>Количество объектов принадлежащих группе.</returns>
+        int count { get; }
         /// <summary>
-        /// Получить количество групп принадлежащих группе.
-        /// </summary>
-        /// <returns>Количество групп принадлежащих группе.</returns>
-        int GroupCount();
-        /// <summary>
-        /// Получить глубину вложенности группы (в другие группы), минимальная величина = 0. 
+        /// Свойство возвращающее глубину вложенности группы (в другие группы), минимальная величина = 0. 
         /// </summary>
         /// <returns>Значение глубины вложенности группы.</returns>
-        int EnclosureCount();
+        int enclosureCount { get; }
         /// <summary>
-        /// При значении вложенности больше 0, выдает идентификатор группы владельца.
+        /// Метод возвращающий группу владельца, если таковой не существует возвращает null
         /// </summary>
-        /// <returns>Ссылка на идентификатор владельца.</returns>
+        /// <returns>Ссылка на группу владельца или null если группы владельца не существует</returns>
         IGroup GetGroupOwner();
+        /// <summary>
+        /// Метод получения зависимости группы
+        /// </summary>
+        /// <returns>Зависимость группы</returns>
+        IDependence getGroupDepend();
         /// <summary>
         /// Проверка принадлежности объекта с уникальным идентификатором <paramref name="id"/> данной группе.
         /// </summary>
@@ -41,21 +41,16 @@ namespace alter.Group.iface
         /// <returns>Истина если объект принадлежит группе.</returns>
         bool InGroup(string id);
         /// <summary>
-        /// Добавить объект <paramref name="newObject"/> в группу (корректные типы объектов: Группа, Задача).
+        /// Метод добавляющий объект <paramref name="newObject"/> в группу
         /// </summary>
         /// <param name="newObject"></param>
         /// <returns>Истина если объект был добавлен в группу.</returns>
         bool addInGroup(IGroupable newObject);
         /// <summary>
-        /// Исключить объект с уникалиьным идентификатором <paramref name="objectId"/> из группы.
+        /// Метод исключающий объект с уникалиьным идентификатором <paramref name="objectId"/> из группы.
         /// </summary>
         /// <param name="objectId">Уникалиьный идентификатор объекта являющегося членом данной группы.</param>
-        /// <returns>Истина если объект был исключен из группы.</returns>
+        /// <returns>Истина если объект был исключен из группы</returns>
         bool removeFromGroup(string objectId);
-        /// <summary>
-        /// Метод получения зависимости группы
-        /// </summary>
-        /// <returns>Зависимость группы</returns>
-        IDependence getGroupDepend();
     }
 }
