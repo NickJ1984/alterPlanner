@@ -20,12 +20,14 @@ namespace alter.Group.classes
     {
         #region Переменные
         protected IProject project;
-        protected e_GrpLim _limitType;
+        
         #region Экземпляры классов
         protected Identity _id;
         protected line _line;
         protected linkManager mgrLink;
+        protected groupManager mgrGroup;
         protected cNamer _name;
+        protected cLimit<e_GrpLim> _limit;
         #endregion
         #endregion
         #region Свойства
@@ -36,18 +38,19 @@ namespace alter.Group.classes
                 throw new NotImplementedException();
             }
         }
-
-        public int enclosureCount
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public int enclosureCount => mgrGroup.ownerEnclosureCount;
         #endregion
         #region События
-        public event EventHandler<ea_ValueChange<double>> event_DurationChanged;
-        public event EventHandler<ea_ValueChange<e_GrpLim>> event_LimitChanged;
+        public event EventHandler<ea_ValueChange<double>> event_DurationChanged
+        {
+            add { _line.event_DurationChanged += value; }
+            remove { _line.event_DurationChanged -= value; }
+        }
+        public event EventHandler<ea_ValueChange<e_GrpLim>> event_LimitChanged
+        {
+            add { _limit.event_LimitChanged += value; }
+            remove { _limit.event_LimitChanged -= value; }
+        }
         public event EventHandler<ea_IdObject> event_ObjectDeleted;
         #endregion
         #region Конструктор
@@ -59,18 +62,15 @@ namespace alter.Group.classes
 
             init_ID();
             init_cNamer();
-            init_Variables();
+            init_Limit();
             init_Line();
+            init_GroupManager();
             init_LinkManager();
         }
         #region Методы инициализаторы классов и переменных
         protected void init_ID()
         {
             _id = new Identity(e_Entity.Group);
-        }
-        protected void init_Variables()
-        {
-            _limitType = e_GrpLim.Earlier;
         }
         protected void init_Line()
         {
@@ -80,9 +80,18 @@ namespace alter.Group.classes
         {
             mgrLink = new linkManager(this);   
         }
+
+        protected void init_GroupManager()
+        {
+            mgrGroup = new groupManager(this);
+        }
         protected void init_cNamer()
         {
             _name = new cNamer(this);
+        }
+        protected void init_Limit()
+        {
+            _limit = new cLimit<e_GrpLim>(this, e_GrpLim.Earlier);
         }
         #endregion
         #endregion
@@ -152,11 +161,15 @@ namespace alter.Group.classes
         #region ILimit
         public e_GrpLim GetLimit()
         {
-            throw new NotImplementedException();
+            return _limit;
         }
         public bool SetLimit(e_GrpLim limitType)
         {
-            throw new NotImplementedException();
+            if (limitType == _limit.limit) return false;
+
+            _limit.limit = limitType;
+
+            return true;
         }
         #endregion
         #region IName
