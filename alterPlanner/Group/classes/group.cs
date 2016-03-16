@@ -28,6 +28,7 @@ namespace alter.Group.classes
         protected groupManager mgrGroup;
         protected cNamer _name;
         protected cLimit<e_GrpLim> _limit;
+        protected Dependence _depend;
         #endregion
         #endregion
         #region Свойства
@@ -92,6 +93,13 @@ namespace alter.Group.classes
         protected void init_Limit()
         {
             _limit = new cLimit<e_GrpLim>(this, e_GrpLim.Earlier);
+        }
+
+        protected void init_Dependence()
+        {
+            _depend = new Dependence(project.GetDot(e_Dot.Start).GetDate(), 
+                                     e_Direction.Right, 
+                                     e_Dot.Start);
         }
         #endregion
         #endregion
@@ -182,6 +190,26 @@ namespace alter.Group.classes
             _name.name = name;
         }
         #endregion
+        #endregion
+        #region Служебные
+        protected void limitToDependence()
+        {
+            switch (_limit.limit)
+            {
+                case e_GrpLim.Earlier:
+
+                    break;
+                case e_GrpLim.Later:
+
+                    break;
+                case e_GrpLim.NotEarlier:
+
+                    break;
+                case e_GrpLim.NotLater:
+
+                    break;
+            }            
+        }
         #endregion
     }
 

@@ -68,6 +68,7 @@
     <Compile Include="Service\classes\dependDotAdapter.cs" />
     <Compile Include="Service\classes\Dot.cs" />
     <Compile Include="Service\classes\dotAdapter.cs" />
+    <Compile Include="Service\classes\cLimitAggregator.cs" />
     <Compile Include="Service\classes\line.cs" />
     <Compile Include="Service\classes\Node.cs" />
     <Compile Include="Service\classes\eSender.cs" />
