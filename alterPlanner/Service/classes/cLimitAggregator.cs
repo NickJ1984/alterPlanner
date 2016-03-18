@@ -54,15 +54,36 @@ namespace alter.Service.classes
 
             return true;
         }
+        #region Служебные
+        protected e_Entity nextPriority(e_Entity entity)
+        {
+            int current = priority[entity];
+            int[] expected = priority.Values.Where(v => v < current).ToArray();
+
+            if (expected.Length == 0) return e_Entity.None;
+            else
+            {
+                int next = expected.Max();
+                return priority.Where(v => v.Value == next).First().Key;
+            }
+        }
+        protected e_Entity nextPriority()
+        {
+            int max = priority.Values.Max();
+            return priority.Where(v => v.Value == max).First().Key;
+        }
+        #endregion
     }
     #endregion
     #region Хранение зависимостей
     public partial class cLimitAggregator
     {
         #region Переменные
+        protected depData self;
         protected Dictionary<e_Entity, depData> dependences;
         #endregion
         #region Методы
+        #region Инициализатор
         protected void init_DependenceVault()
         {
             dependences = new Dictionary<e_Entity, depData>()
@@ -71,11 +92,24 @@ namespace alter.Service.classes
                 {e_Entity.Group, new depData(handler_dateChanged, handler_directionChanged, handler_dependDotChanged)},
                 {e_Entity.Link, new depData(handler_dateChanged, handler_directionChanged, handler_dependDotChanged)}
             };
+
+            self = new depData(handler_dateChanged, handler_directionChanged, handler_dependDotChanged);
+        }
+        #endregion
+        #region Зависимости
+        public void setSelf(IDependence depend)
+        {
+            if (depend == null) throw new ArgumentNullException(nameof(depend));
+
+            self.subscribe(e_Entity.Task, depend);
+        }
+        public void clearSelf()
+        {
+            self.unsuscribe();
         }
         public void setDependence(e_Entity entity, IDependence depend)
         {
             if (depend == null) throw new ArgumentNullException(nameof(depend));
-            if (!Enum.IsDefined(typeof(e_Entity), entity)) throw new ArgumentException(nameof(entity));
             if (!entity.isEqual(e_Entity.Project, e_Entity.Group, e_Entity.Link)) throw new ArgumentException("Неверное значение entity");
 
             dependences[entity].subscribe(entity, depend);
@@ -86,7 +120,8 @@ namespace alter.Service.classes
             if (!entity.isEqual(e_Entity.Project, e_Entity.Group, e_Entity.Link)) throw new ArgumentException("Неверное значение entity");
 
             dependences[entity].unsuscribe();
-        }
+        } 
+        #endregion
         #endregion
         #region Обработчики событий
         protected void handler_directionChanged(object sender, ea_ValueChange<e_Direction> e, e_Entity entity)
@@ -102,12 +137,28 @@ namespace alter.Service.classes
             throw new NotImplementedException();
         }
         #endregion
+        #region Служебные
+        protected e_Entity getMinimumDependence()
+        {
+            throw new NotImplementedException();
+        }
+        protected e_Entity getMaximumDependence()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected int compareDependences(IDependence first, IDependence second)
+            //first [sign] second
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
         #region Структура хранения зависимостей
         protected struct depData
         {
             #region Свойства
             public e_Entity entity { get; private set; }
-            public IDependence dependence { get; private set; } 
+            public IDependence dependence { get; private set; }
             #endregion
             #region Делегаты
             public Action<object, ea_ValueChange<DateTime>, e_Entity> handler_dateChanged;
