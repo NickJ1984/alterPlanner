@@ -55,10 +55,12 @@
     <Compile Include="Inner\iface.cs" />
     <Compile Include="Inner\types.cs" />
     <Compile Include="Link\classes\link.cs" />
+    <Compile Include="Link\classes\link2.cs" />
     <Compile Include="Link\classes\linkFactory.cs" />
     <Compile Include="Link\classes\linkManager.cs" />
     <Compile Include="Link\classes\linkMember.cs" />
     <Compile Include="Link\iface\Base\ILink.cs" />
+    <Compile Include="Link\iface\Base\ILink2.cs" />
     <Compile Include="Link\iface\Base\ILinkFactory.cs" />
     <Compile Include="Link\iface\Inner\ILMember.cs" />
     <Compile Include="Project\iface\IProject.cs" />
@@ -68,7 +70,7 @@
     <Compile Include="Service\classes\dependDotAdapter.cs" />
     <Compile Include="Service\classes\Dot.cs" />
     <Compile Include="Service\classes\dotAdapter.cs" />
-    <Compile Include="Service\classes\cLimitAggregator.cs" />
+    <Compile Include="Service\classes\cLimitAgregator.cs" />
     <Compile Include="Service\classes\line.cs" />
     <Compile Include="Service\classes\Node.cs" />
     <Compile Include="Service\classes\eSender.cs" />
@@ -84,6 +86,7 @@
     <Compile Include="Task\classes\cDotManager.cs" />
     <Compile Include="Task\classes\cLocalLimit.cs" />
     <Compile Include="Task\classes\task.cs" />
+    <Compile Include="Task\classes\task2.cs" />
     <Compile Include="Task\iface\TaskComponents\ITActiveLink.cs" />
     <Compile Include="Task\iface\TaskComponents\ITDotManager.cs" />
     <Compile Include="Task\iface\TaskComponents\ITDuration.cs" />

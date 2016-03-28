@@ -16,7 +16,7 @@ using alter.Task.iface;
 
 namespace alter.Group.classes
 {
-    public class Group : IGroup
+    public partial class Group : IGroup
     {
         #region Переменные
         protected IProject project;
@@ -29,6 +29,7 @@ namespace alter.Group.classes
         protected cNamer _name;
         protected cLimit<e_GrpLim> _limit;
         protected Dependence _depend;
+        protected cLimitAgregator lAgregator;
         #endregion
         #endregion
         #region Свойства
@@ -67,6 +68,7 @@ namespace alter.Group.classes
             init_Line();
             init_GroupManager();
             init_LinkManager();
+            init_LimitAgregator();
         }
         #region Методы инициализаторы классов и переменных
         protected void init_ID()
@@ -94,7 +96,10 @@ namespace alter.Group.classes
         {
             _limit = new cLimit<e_GrpLim>(this, e_GrpLim.Earlier);
         }
-
+        protected void init_LimitAgregator()
+        {
+            lAgregator = new cLimitAgregator(this, project);            
+        }
         protected void init_Dependence()
         {
             _depend = new Dependence(project.GetDot(e_Dot.Start).GetDate(), 
@@ -192,6 +197,7 @@ namespace alter.Group.classes
         #endregion
         #endregion
         #region Служебные
+        
         protected void limitToDependence()
         {
             switch (_limit.limit)
@@ -212,5 +218,98 @@ namespace alter.Group.classes
         }
         #endregion
     }
+    #region Класс хранения и обработки объектов группы
+    public partial class Group : IGroup
+    {
+        internal interface IGroupElements
+        {
+            DateTime dateMax { get; }
+            DateTime dateMin { get; }
 
+            event EventHandler<ea_ValueChange<DateTime>> event_dateMinChanged;
+            event EventHandler<ea_ValueChange<DateTime>> event_dateMaxChanged;
+            event EventHandler<ea_Value<IGroupable>> event_itemAdded;
+            event EventHandler<ea_Value<IGroupable>> event_itemRemoved;
+
+            bool addItem(IGroupable item);
+            bool remove(IGroupable item);
+            bool remove(string ID);
+            bool remove();
+        }
+        internal class groupElements : IGroupElements
+        {
+            #region Переменные
+            protected Dictionary<string, IGroupable> items;
+            protected DateTime min;
+            protected DateTime max;
+            #endregion
+            #region Свойства
+            public DateTime dateMax
+            {
+                get { return max; }
+                protected set
+                {
+                    throw new NotImplementedException();
+                }
+            }
+            public DateTime dateMin
+            {
+                get { return min; }
+                protected set
+                {
+                    throw new NotImplementedException();
+                }
+            }
+            #endregion
+            #region События
+            public event EventHandler<ea_ValueChange<DateTime>> event_dateMaxChanged;
+            public event EventHandler<ea_ValueChange<DateTime>> event_dateMinChanged;
+            public event EventHandler<ea_Value<IGroupable>> event_itemAdded;
+            public event EventHandler<ea_Value<IGroupable>> event_itemRemoved;
+            #endregion
+            #region Конструктор
+
+            public groupElements()
+            {
+                items = new Dictionary<string, IGroupable>();
+                min = new DateTime(1, 1, 1);
+                max = new DateTime(1, 1, 1);
+            }
+            #endregion
+            #region Обработчики
+
+            #endregion
+            #region Методы
+            #region Добавление
+            public bool addItem(IGroupable item)
+            {
+                if (items.Keys.Contains(item.GetId())) return false;
+
+                items.Add(item.GetId(), item);
+
+                throw new NotImplementedException();
+            }
+            #endregion
+            #region Удаление
+            public bool remove()
+            {
+                throw new NotImplementedException();
+            }
+            public bool remove(string ID)
+            {
+                throw new NotImplementedException();
+                return items.Remove(ID);
+            }
+            public bool remove(IGroupable item)
+            {
+                throw new NotImplementedException();
+            }
+            #endregion
+            #endregion
+            #region Служебные
+
+            #endregion
+        }
+    }
+    #endregion  
 }
