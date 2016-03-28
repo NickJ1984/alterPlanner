@@ -62,7 +62,21 @@ namespace alter.Link.classes
         public event EventHandler<ea_IdObject> event_ObjectDeleted;
         #endregion
         #region Конструктор
+        public link_2(IConnectible precursor, IConnectible follower, e_TskLim limit, double delay)
+        {
+            if(delay < DELAY_MINIMUM_VALUE) throw new ArgumentException(nameof(delay));
 
+            init_Identity();
+            init_Limit(limit);
+            init_Storage(follower, precursor);
+            init_PrecursorDate(storage.precursor, storage.dotPrecursor);
+        }
+        public link_2(IConnectible precursor, IConnectible follower, e_TskLim limit)
+            :this(precursor, follower, limit, DELAY_MINIMUM_VALUE)
+        { }
+        public link_2(IConnectible precursor, IConnectible follower)
+            :this(precursor, follower, LIMIT_DEFAULT_VALUE, DELAY_MINIMUM_VALUE)
+        { }
         #endregion
         #region Деструктор
         ~link_2()
@@ -84,9 +98,9 @@ namespace alter.Link.classes
         {
             _id = new Identity(e_Entity.Link);
         }
-        protected void init_Limit()
+        protected void init_Limit(e_TskLim limit)
         { 
-            _limit = new cLimit<e_TskLim>(this, LIMIT_DEFAULT_VALUE);
+            _limit = new cLimit<e_TskLim>(this, limit);
 
             _limit.event_LimitChanged += limitChangedHandler;
 
@@ -132,6 +146,10 @@ namespace alter.Link.classes
         public IId getMemberID(e_DependType dependType)
         {
             return storage.getMemberID(dependType);
+        }
+        public IId getMemberID(string memberID)
+        {
+            return storage.getMemberID(memberID);
         }
 
         public e_DependType getDependType(string memberID)
@@ -305,6 +323,15 @@ namespace alter.Link.classes
                 else if (_precursor.member.GetId() == memberID) return precursor;
                 else return null;
             }
+            public IId getMemberID(string memberID)
+            {
+                if (string.IsNullOrEmpty(memberID)) throw new ArgumentNullException(nameof(memberID));
+
+                if (_follower.member.GetId() == memberID) return follower;
+                else if (_precursor.member.GetId() == memberID) return precursor;
+                else return null;
+            }
+
             public e_DependType getDependType(string memberID)
             {
                 if (string.IsNullOrEmpty(memberID)) throw new ArgumentNullException(nameof(memberID));

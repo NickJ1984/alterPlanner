@@ -22,6 +22,7 @@ namespace alter.Link.iface.Base
         ILine getMember(string memberID);
 
         IId getMemberID(e_DependType dependType);
+        IId getMemberID(string memberID);
 
         e_DependType getDependType(string memberID);
 
