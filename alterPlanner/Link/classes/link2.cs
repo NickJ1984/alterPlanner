@@ -234,6 +234,9 @@ namespace alter.Link.classes
         }
         #endregion
         #endregion
+        #region Перегрузки
+
+        #endregion
     }
     #region Внутренние сущности
     public partial class link_2 : ILink_2

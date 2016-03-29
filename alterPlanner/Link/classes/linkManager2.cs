@@ -7,6 +7,7 @@ using alter.args;
 using alter.iface;
 using alter.Link.iface.Base;
 using alter.types;
+using alter.classes;
 
 namespace alter.Link.classes
 {
@@ -26,13 +27,7 @@ namespace alter.Link.classes
                 throw new NotImplementedException();
             }
         }
-        public int linkCount
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public int linkCount => storage.count;
         #endregion
         #region События
         public event EventHandler<ea_ValueChange<ILink_2>> event_activeLinkChanged;
@@ -175,6 +170,38 @@ namespace alter.Link.classes
                     : e_DependType.Master;
 
                 return link.getMemberID(neighbourDepend).GetId();
+            }
+            #endregion
+        }
+        #endregion
+        #region Активная связь
+        protected class activeLink
+        {
+            #region Переменные
+            protected double duration;
+            #endregion
+            #region Обработчики
+            public void handler_durationChanged(object sender, ea_ValueChange<double> e)
+            {
+                duration = e.NewValue;
+            }
+            public void handler_linkAdded(object sender, KeyValuePair<e_DependType, ILink_2> e)
+            {
+
+            }
+            public void handler_linkRemoved(object sender, ILink_2 e)
+            {
+
+            }
+            #endregion
+            #region Служебные
+            protected void subscribe(ILink_2 link)
+            {
+                
+            }
+            protected e_Dot dependDot(ILink_2 link)
+            {
+                return Hlp.GetFollower(link.GetLimit());
             }
             #endregion
         }
