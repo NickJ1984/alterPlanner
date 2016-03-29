@@ -25,6 +25,7 @@ namespace alter.Link.classes
         #region Делегаты
         protected Action unsubscribeLimit;
         protected Action unsubscribePDate;
+        protected Action unsubscribeStorage;
         #endregion
         #region Классы
         protected Identity _id;
@@ -83,8 +84,10 @@ namespace alter.Link.classes
         {
             unsubscribeLimit?.Invoke();
             unsubscribePDate?.Invoke();
+            unsubscribeStorage?.Invoke();
             unsubscribeLimit = null;
             unsubscribePDate = null;
+            unsubscribeStorage = null;
             _id = null;
             storage?.clear();
             storage = null;
@@ -109,6 +112,10 @@ namespace alter.Link.classes
         protected void init_Storage(IConnectible follower, IConnectible precursor)
         {
             storage = new memberStorage(precursor, follower, _limit);
+
+            storage.event_memberRemoved += memberRemovedHandler;
+
+            unsubscribeStorage = () => storage.event_memberRemoved -= memberRemovedHandler;
         }
         protected void init_PrecursorDate(ILine precursor, e_Dot dependDot)
         {
@@ -120,6 +127,10 @@ namespace alter.Link.classes
         }
         #endregion
         #region Внутренние обработчики
+        protected void memberRemovedHandler(object sender, ea_IdObject e)
+        {
+            DeleteObject();
+        }
         protected void limitChangedHandler(object sender, ea_ValueChange<e_TskLim> e)
         {
             storage.limitChanged(e.NewValue);
@@ -150,6 +161,16 @@ namespace alter.Link.classes
         public IId getMemberID(string memberID)
         {
             return storage.getMemberID(memberID);
+        }
+
+
+        public bool isMemberExist(IId identity)
+        {
+            return storage.isMemberExist(identity);
+        }
+        public bool isMemberExist(string memberID)
+        {
+            return isMemberExist(memberID);
         }
 
         public e_DependType getDependType(string memberID)
@@ -203,6 +224,10 @@ namespace alter.Link.classes
 
             unsubscribeLimit();
             unsubscribePDate();
+            unsubscribeStorage();
+            unsubscribeLimit = null;
+            unsubscribePDate = null;
+            unsubscribeStorage = null;
 
             storage.clear();
             pDate.clear();
@@ -339,6 +364,25 @@ namespace alter.Link.classes
                 if (_follower.member.GetId() == memberID) return _follower.depend;
                 else if (_precursor.member.GetId() == memberID) return _precursor.depend;
                 else throw new ArgumentException(String.Format("Член с идентификатором {0} не содержится в связи", memberID));
+            }
+
+            public bool isMemberExist(IId identity)
+            {
+                if(identity == null) throw new ArgumentNullException(nameof(identity));
+
+                IId flwIID = _follower.member;
+                IId prcIID = _precursor.member;
+
+                if (identity == prcIID || identity == flwIID) return true;
+                else return false;
+            }
+            public bool isMemberExist(string memberID)
+            {
+                if(string.IsNullOrEmpty(memberID)) throw new ArgumentNullException(nameof(memberID));
+
+                if (_follower.member.GetId() == memberID ||
+                    _precursor.member.GetId() == memberID) return true;
+                else return false;
             }
 
 

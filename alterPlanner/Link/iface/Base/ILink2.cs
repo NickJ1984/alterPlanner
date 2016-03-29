@@ -26,6 +26,9 @@ namespace alter.Link.iface.Base
 
         e_DependType getDependType(string memberID);
 
+        bool isMemberExist(IId identity);
+        bool isMemberExist(string memberID);
+
         void unsubscribe(string memberID);
     }
 }
