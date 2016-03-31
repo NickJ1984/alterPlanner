@@ -32,7 +32,10 @@ namespace alterTesting
 
         static void Main(string[] args)
         {
-            testParam(1,2,3,4,5,6);
+            HashSet<string> test = new HashSet<string>();
+
+            Console.WriteLine(test.Add("ttt"));
+            Console.WriteLine(test.Add("ttt"));
 
             #region default
 
