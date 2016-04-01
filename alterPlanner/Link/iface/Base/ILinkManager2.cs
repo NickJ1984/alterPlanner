@@ -17,7 +17,7 @@ namespace alter.Link.iface.Base
         ILink_2[] getLinks();
         ILink_2 getLink(string linkID);
 
-        bool addToLink(e_DependType role, ILink_2 link);
+        bool addToLink(ILink_2 link);
 
         bool isLinkExist(string linkID);
 

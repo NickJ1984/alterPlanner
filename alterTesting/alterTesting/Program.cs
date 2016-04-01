@@ -21,21 +21,40 @@ namespace alterTesting
 {
     class Program
     {
-        public static void testParam(params int[] iValue)
+        public class cInt : IComparable<cInt>
         {
+            public int Integer = 0;
 
-            for (int i = 0; i < iValue.Length; i++)
+            public cInt(int Value)
             {
-                Console.WriteLine("{0}. {1}", i + 1, iValue[i]);
+                Integer = Value;
             }
-        }
+            public cInt()
+            { }
+
+            public override string ToString()
+            {
+                return String.Format("integer class value {0}", Integer);
+            }
+
+            public int CompareTo(cInt other)
+            {
+                if (Integer > other.Integer) return 1;
+                else if (Integer == other.Integer) return 0;
+                else return -1;
+            }
+        } 
 
         static void Main(string[] args)
         {
-            HashSet<string> test = new HashSet<string>();
-
-            Console.WriteLine(test.Add("ttt"));
-            Console.WriteLine(test.Add("ttt"));
+            int[] ARR = new[] {3, 0, 2, 10, 18, 200, 101, 78, 43};
+            List<cInt> vals = new List<cInt>();
+            for (int i = 0; i < 10; i++)
+            {
+                vals.Add(new cInt(i + 1));
+            }
+            Console.WriteLine(ARR.Max());
+            Console.WriteLine(vals.Max());
 
             #region default
 
