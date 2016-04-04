@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using alter.args;
@@ -51,6 +49,8 @@ namespace alter.Link.classes
         {
             clear();
             owner = null;
+            storage = null;
+            aLink = null;
         }
         #endregion
         #region Инициализаторы

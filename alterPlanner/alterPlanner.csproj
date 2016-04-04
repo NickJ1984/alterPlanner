@@ -57,12 +57,14 @@
     <Compile Include="Link\classes\link.cs" />
     <Compile Include="Link\classes\link2.cs" />
     <Compile Include="Link\classes\linkFactory.cs" />
+    <Compile Include="Link\classes\linkFactory2.cs" />
     <Compile Include="Link\classes\linkManager.cs" />
     <Compile Include="Link\classes\linkManager2.cs" />
     <Compile Include="Link\classes\linkMember.cs" />
     <Compile Include="Link\iface\Base\ILink.cs" />
     <Compile Include="Link\iface\Base\ILink2.cs" />
     <Compile Include="Link\iface\Base\ILinkFactory.cs" />
+    <Compile Include="Link\iface\Base\ILinkFactory2.cs" />
     <Compile Include="Link\iface\Base\ILinkManager2.cs" />
     <Compile Include="Link\iface\Inner\ILMember.cs" />
     <Compile Include="Project\iface\IProject.cs" />
