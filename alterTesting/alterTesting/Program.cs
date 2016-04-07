@@ -21,40 +21,46 @@ namespace alterTesting
 {
     class Program
     {
-        public class cInt : IComparable<cInt>
+        public interface ITest1
         {
-            public int Integer = 0;
+            void test_print();
+        }
+        public interface ITest2
+        {
+            void test_print2();
+        }
+        public interface ITesting : ITest1, ITest2
+        { }
 
-            public cInt(int Value)
+        public class ex : ITesting
+        {
+            public void test_print()
             {
-                Integer = Value;
-            }
-            public cInt()
-            { }
-
-            public override string ToString()
-            {
-                return String.Format("integer class value {0}", Integer);
+                Console.WriteLine("Метод интерфейса ITest1 запущен.");
             }
 
-            public int CompareTo(cInt other)
+            public void test_print2()
             {
-                if (Integer > other.Integer) return 1;
-                else if (Integer == other.Integer) return 0;
-                else return -1;
+                Console.WriteLine("Метод интерфейса ITest2 запущен.");
             }
-        } 
+        }
+
+        public class ex2
+        {
+            public void method(ITesting entity)
+            {
+                Console.WriteLine("*****Запущено из класса ex2*****");
+                entity.test_print();
+                entity.test_print2();
+                Console.WriteLine("********************************");
+            }
+        }
 
         static void Main(string[] args)
         {
-            int[] ARR = new[] {3, 0, 2, 10, 18, 200, 101, 78, 43};
-            List<cInt> vals = new List<cInt>();
-            for (int i = 0; i < 10; i++)
-            {
-                vals.Add(new cInt(i + 1));
-            }
-            Console.WriteLine(ARR.Max());
-            Console.WriteLine(vals.Max());
+            ex test = new ex();
+            ex2 test2 = new ex2();
+            test2.method(((ITesting)test));
 
             #region default
 

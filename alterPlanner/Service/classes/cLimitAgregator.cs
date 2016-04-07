@@ -14,6 +14,7 @@ using alter.types;
 
 namespace alter.Service.classes
 {
+
     public interface ILimitAgregator
     {
         e_Entity dependEntity { get; }
