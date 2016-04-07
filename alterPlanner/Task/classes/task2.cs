@@ -116,7 +116,22 @@ namespace alter.Task.classes
         public event EventHandler<ea_IdObject> event_ObjectDeleted;
         #endregion
         #region Конструктор
+        public task2(IProject project, DateTime limitDate, e_TLLim limit)
+        {
+            this.project = project;
 
+            init_Identity();
+            init_cNamer();
+            init_Line();
+            init_LinkManager();
+            init_LocalLimit(limit, limitDate);
+
+            limitCalculate();
+        }
+        ~task2()
+        {
+            clear();
+        }
         #endregion
         #region Инициализаторы
 
@@ -133,11 +148,11 @@ namespace alter.Task.classes
             lineTask = new line(this, project.GetDot(e_Dot.Start).GetDate());
             lineTask.sender = this;
         }
-        protected void init_LocalLimit()
+        protected void init_LocalLimit(e_TLLim limit, DateTime date)
         {
             localLimit = new cLocalLimit();
-            localLimit.limit = DEFAULT_VALUE_LOCAL_LIMIT;
-            localLimit.date = new DateTime(1,1,1);
+            localLimit.limit = limit;
+            localLimit.date = date;
         }
         protected void init_LinkManager()
         {
